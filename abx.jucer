@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT id="CU81fQ" name="abx" projectType="guiapp" useAppConfig="0"
+              addUsingNamespaceToJuceHeader="1" jucerFormatVersion="1" companyName="sciber"
+              companyWebsite="https://sciber.ru" companyEmail="contact@sciber.ru"
+              cppLanguageStandard="17" headerPath="..\..\Libs\asio_sdk\&#10;..\..\Libs\">
+  <MAINGROUP id="epcY7v" name="abx">
+    <GROUP id="{EEDCE2CB-8C43-0F09-8D44-446276BC058F}" name="Icons">
+      <FILE id="czZycv" name="backward.svg" compile="0" resource="1" file="Icons/backward.svg"/>
+      <FILE id="JtLxZO" name="blind.svg" compile="0" resource="1" file="Icons/blind.svg"/>
+      <FILE id="rs3E1l" name="clear.svg" compile="0" resource="1" file="Icons/clear.svg"/>
+      <FILE id="QrvpNc" name="close.svg" compile="0" resource="1" file="Icons/close.svg"/>
+      <FILE id="mgUJHV" name="edit.svg" compile="0" resource="1" file="Icons/edit.svg"/>
+      <FILE id="dgdwoq" name="forward.svg" compile="0" resource="1" file="Icons/forward.svg"/>
+      <FILE id="vs8il1" name="open.svg" compile="0" resource="1" file="Icons/open.svg"/>
+      <FILE id="g4s0II" name="pause.svg" compile="0" resource="1" file="Icons/pause.svg"/>
+      <FILE id="aKyPvO" name="play.svg" compile="0" resource="1" file="Icons/play.svg"/>
+      <FILE id="i4WFXk" name="restart.svg" compile="0" resource="1" file="Icons/restart.svg"/>
+      <FILE id="h4MLhr" name="rewind.svg" compile="0" resource="1" file="Icons/rewind.svg"/>
+      <FILE id="mH8AuK" name="settings.svg" compile="0" resource="1" file="Icons/settings.svg"/>
+      <FILE id="rbdIAi" name="stop.svg" compile="0" resource="1" file="Icons/stop.svg"/>
+      <FILE id="ZSNo2T" name="warning.svg" compile="0" resource="1" file="Icons/warning.svg"/>
+    </GROUP>
+    <GROUP id="{D42A9B75-343E-4E65-F5D9-94440239B709}" name="Source">
+      <GROUP id="{BC1056F7-4284-566C-ADD8-1147BFD8A9D1}" name="controls">
+        <FILE id="V9OACx" name="button_icon.h" compile="0" resource="0" file="Source/controls/button_icon.h"/>
+        <FILE id="AoMAHe" name="button_toolbar.h" compile="0" resource="0"
+              file="Source/controls/button_toolbar.h"/>
+        <FILE id="yjlEqa" name="slider.h" compile="0" resource="0" file="Source/controls/slider.h"/>
+      </GROUP>
+      <FILE id="Az8Q1q" name="components.cpp" compile="1" resource="0" file="Source/components.cpp"/>
+      <FILE id="FVsVMn" name="components.h" compile="0" resource="0" file="Source/components.h"/>
+      <FILE id="bbR6xJ" name="ftdi.h" compile="0" resource="0" file="Source/ftdi.h"/>
+      <FILE id="MAg7Tk" name="main.cpp" compile="1" resource="0" file="Source/main.cpp"/>
+      <FILE id="leOAhs" name="theme.h" compile="0" resource="0" file="Source/theme.h"/>
+      <FILE id="d0513E" name="toolbar.h" compile="0" resource="0" file="Source/toolbar.h"/>
+      <FILE id="kN17dM" name="track.h" compile="0" resource="0" file="Source/track.h"/>
+      <FILE id="Hc5QL6" name="track_master.h" compile="0" resource="0" file="Source/track_master.h"/>
+      <FILE id="sw5zol" name="track_processor.h" compile="0" resource="0"
+            file="Source/track_processor.h"/>
+      <FILE id="LCASEC" name="window.h" compile="0" resource="0" file="Source/window.h"/>
+    </GROUP>
+  </MAINGROUP>
+  <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1"/>
+  <EXPORTFORMATS>
+    <VS2019 targetFolder="Builds/VisualStudio2019">
+      <CONFIGURATIONS>
+        <CONFIGURATION isDebug="1" name="Debug" targetName="abx"/>
+        <CONFIGURATION isDebug="0" name="Release" targetName="abx"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_audio_basics" path="../../audio/juce/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../../audio/juce/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../../audio/juce/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../../audio/juce/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../../audio/juce/modules"/>
+        <MODULEPATH id="juce_core" path="../../audio/juce/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../audio/juce/modules"/>
+        <MODULEPATH id="juce_events" path="../../audio/juce/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../audio/juce/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../../audio/juce/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../../audio/juce/modules"/>
+      </MODULEPATHS>
+    </VS2019>
+  </EXPORTFORMATS>
+  <MODULES>
+    <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
+    <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
+    <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
+    <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
+    <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
+    <MODULE id="juce_core" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
+    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
+    <MODULE id="juce_events" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
+    <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
+    <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
+    <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
+  </MODULES>
+  <LIVE_SETTINGS>
+    <WINDOWS/>
+  </LIVE_SETTINGS>
+</JUCERPROJECT>
