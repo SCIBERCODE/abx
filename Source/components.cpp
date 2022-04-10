@@ -58,7 +58,8 @@ comp_main::comp_main() :
         static bool already_opened = false;
         if (!already_opened) {
             already_opened = true;
-            FileChooser chooser({ }, { }, _filter->getDescription(), true, false, this);
+            auto last_path = _settings.getUserSettings()->getValue("last_path");
+            FileChooser chooser({ }, last_path, _filter->getDescription(), true, false, this);
             if (chooser.browseForMultipleFilesToOpen()) {
                 for (auto const& file : chooser.getResults()) {
                     track_add(file.getFullPathName());
@@ -139,15 +140,13 @@ comp_main::comp_main() :
     _button_results_header.setLookAndFeel(&_theme_header);
     _button_results_header.onClick = [&] {
         _results_expanded = !_results_expanded;
-        //button_results_header.setButtonText(results_expanded ? "hide trial result" : "show trial result");
         resized();
     };
     _button_results_header.setToggleState(!_results_expanded, dontSendNotification);
     addAndMakeVisible(_button_results_header);
 
     _results_toolbar.set_on_clear([&]() {
-        _trials.first  = 0;
-        _trials.second = 0;
+        _trials.clear();
         _results_toolbar.set_result("0 / 0, -.--");
     });
     addAndMakeVisible(_results_toolbar);
@@ -196,7 +195,7 @@ void comp_main::track_activate(track* selected_track_new, bool double_click) {
 
 void comp_main::prepareToPlay(int samples_per_block, double sample_rate) {
     _current_sample_rate   = sample_rate;
-    _current_skip_interval = (static_cast<double>(samples_per_block) * (1000.0 / sample_rate)) / 100.0;
+    _current_skip_interval = (static_cast<double>(samples_per_block) * (1000. / sample_rate)) / 100.;
 
     for (auto& track : _tracks) {
         track->update_info(sample_rate);
@@ -289,7 +288,9 @@ bool comp_main::isInterestedInFileDrag(const StringArray &files) {
     return false;
 }
 
-void comp_main::filesDropped(const StringArray &files, int /*x*/, int /*y*/) {
+void comp_main::filesDropped(const StringArray &files, int x, int y) {
+    ignoreUnused(x);
+    ignoreUnused(y);
     if(!files.isEmpty()) {
         for (const auto & file : files) {
             if (_filter && _filter->isFileSuitable(file))
@@ -298,7 +299,7 @@ void comp_main::filesDropped(const StringArray &files, int /*x*/, int /*y*/) {
     }
 }
 
-void comp_main::track_add(const String & file_path) {
+void comp_main::track_add(const String& file_path) {
     auto _track = new track(file_path, _transport_source);
     _track->update_info(_current_sample_rate);
     _track->set_on_mouse_event([this](track* selected_track, bool double_click)
@@ -337,6 +338,9 @@ void comp_main::track_add(const String & file_path) {
         track_activate(_track, true);
     }
     resized();
+
+    _settings.getUserSettings()->setValue("last_path", File(file_path).getParentDirectory().getFullPathName());
+    _settings.saveIfNeeded();
 }
 
 void comp_main::change_state(state_t new_state)
@@ -450,6 +454,8 @@ void comp_main::changeListenerCallback(ChangeBroadcaster* source)
 }
 
 void comp_main::trial_cycle(bit_t button_bt) {
+    trial_save();
+
     auto blind = _toolbar.get_state(toolbar::button_t::blind);
     if (_state != state_t::playing)
     {
@@ -458,26 +464,37 @@ void comp_main::trial_cycle(bit_t button_bt) {
         change_state(state_t::starting);
         return;
     }
+    bit_t relay { unknown };
+    std::bitset<8> relay_bt(_ftdi.get_relay());
 
-    if (button_bt != btn_hz && blind) {
-        {
-            size_t relay = 0, button = 0;
-            std::bitset<8> relay_bt(_ftdi.get_relay());
-            if (relay_bt.test(relay_a)) relay = 1;
-            if (relay_bt.test(relay_b)) relay = 2;
-            if (button_bt == btn_a) button = 1;
-            if (button_bt == btn_b) button = 2;
-            if (!button || !relay) return;
-            if (button == relay) _trials.first++;
+    if (relay_bt.test(relay_a)) relay = relay_a;
+    if (relay_bt.test(relay_b)) relay = relay_b;
+
+    _trials.push_back({ button_bt, relay, blind });
+    size_t count_all = 0, count_correct = 0;
+    for (const auto& trial : _trials)
+    {
+        if (trial.button != btn_hz && trial.blind) {
+            {
+                if (trial.relay != unknown && (trial.button == btn_a || trial.button == btn_b)) {
+                    if ((trial.button == btn_a && trial.relay == relay_a) ||
+                        (trial.button == btn_b && trial.relay == relay_b))
+                    {
+                        count_correct++;
+                    }
+                }
+                else
+                    return;
+            }
+            count_all++;
         }
-        _trials.second++;
-        auto pval = abs(((_trials.second / 2.) - _trials.first) / sqrt(_trials.second / 4.));
-        auto display = String(_trials.first) + " / " + String(_trials.second);
-        if (std::isfinite(pval)) {
-            display += ", " + String(pval, 2);
-        }
-        _results_toolbar.set_result(display);
     }
+    auto pval = abs(((count_all / 2.) - count_correct) / sqrt(count_all / 4.));
+    auto display = String(count_correct) + " / " + String(count_all);
+    if (std::isfinite(pval)) {
+        display += ", " + String(pval, 2);
+    }
+    _results_toolbar.set_result(display);
 
     if (_toolbar.get_state(toolbar::button_t::restart))
     {
