@@ -52,77 +52,7 @@ private:
     void track_change(track* _track, bool is_next);
     void change_state(state_t new_state);
     void trial_cycle(bit_t button_bt);
-    void trial_save() {
-
-        String css_class,
-            btn_text,
-            relay_text,
-            html =
-            "<!DOCTYPE html>\r\n"
-            "<html><head>\r\n"
-            "<style>\r\n"
-            "    .gray   { color: gray; }\r\n"
-            "    .value  { color: blue; }\r\n"
-            "    .class  { color: rgb(43, 145, 175); }\r\n"
-            "    .delim  { border-top: dotted 1px black; }\r\n"
-            "    .static { min-width: 10rem; display: inline-block; padding-right: 0.8rem; text-align: right; }\r\n"
-            "    .link   { cursor: pointer; text-decoration: underline; color: blue; }\r\n"
-            "    .nope   { background-color: rgb(251, 202, 204); }\r\n"
-            "    .param  { background-color: rgb(225, 225, 225); }\r\n"
-            "    .ok     { background-color: rgb(209, 236, 193); }\r\n"
-            "</style>\r\n"
-            "</head>\r\n"
-            "<body style = 'background-color: rgb(240, 240, 240);'>\r\n"
-            "<pre>\r\n";
-            //"<span class='static'>%s</span>\r\n"
-            //"<div class='delim'></div>\r\n"
-            //"<span class='static' style='margin-bottom: 0.8rem'>Score</span><span>Relay/Button</span>\r\n";
-
-        size_t count_all = 0, count_correct = 0;
-        for (const auto& trial : _trials)
-        {
-            if (!trial.blind) continue;
-
-            switch (trial.button) {
-                case btn_hz:
-                    btn_text  = "?";
-                    css_class = "param";
-                    break;
-                case btn_a: btn_text = "A"; break;
-                case btn_b: btn_text = "B"; break;
-                default:    btn_text = "~";
-            }
-            switch (trial.relay) {
-                case relay_a: relay_text = "A"; break;
-                case relay_b: relay_text = "B"; break;
-                default:      relay_text = "~";
-            }
-            if (trial.button != btn_hz) {
-                {
-                    if ((trial.button == btn_a && trial.relay == relay_a) ||
-                        (trial.button == btn_b && trial.relay == relay_b))
-                    {
-                        count_correct++;
-                        css_class = "ok";
-                    }
-                    else {
-                        css_class = "nope";
-                    }
-                }
-                count_all++;
-            }
-            auto pval = abs(((count_all / 2.) - count_correct) / sqrt(count_all / 4.));
-            html +=
-                "<span class = 'static'>" + String(pval) + "</span>"
-                "<span class = '" + css_class + "'>    BUTTON_" + btn_text + " / RELAY_" + relay_text + "    </span><br>\r\n";
-        }
-        html += "</pre></body></html>";
-
-        juce::File::getCurrentWorkingDirectory()
-            .getChildFile("score.html")
-            .replaceWithText(html);
-
-    };
+    void trial_save();
     /*
     //////////////////////////////////////////////////////////////////////////////////////////
     */
@@ -307,8 +237,8 @@ private:
     class comp_audio_setup : public Component
     {
     public:
-        comp_audio_setup(AudioDeviceManager& deviceManager)
-            : _comp_audio_setup(deviceManager, 0, 256, 0, 256, false, false, false, false)
+        comp_audio_setup(AudioDeviceManager& device_manager)
+            : _comp_audio_setup(device_manager, 0, 256, 0, 256, false, false, false, false)
         {
             addAndMakeVisible(_comp_audio_setup);
             setSize(520, 450);
@@ -316,7 +246,7 @@ private:
         void paint(Graphics& g) override {
             g.fillAll(_colors.get(color_ids::bg_light));
         }
-        void resized() override { // todo: [4]
+        void resized() override {
             _comp_audio_setup.setBounds(getLocalBounds()); // todo: [5]
         }
     private:
@@ -331,13 +261,17 @@ private:
     class window_audio_setup : public DocumentWindow
     {
     public:
-        window_audio_setup(AudioDeviceManager& deviceManager)
-            : DocumentWindow("abx audio settings", Desktop::getInstance().getDefaultLookAndFeel().findColour(ResizableWindow::backgroundColourId), DocumentWindow::allButtons)
+        window_audio_setup(AudioDeviceManager& device_manager)
+            : DocumentWindow(
+                "abx audio settings",
+                Desktop::getInstance().getDefaultLookAndFeel().findColour(ResizableWindow::backgroundColourId),
+                DocumentWindow::allButtons
+            )
         {
             setLookAndFeel(&_theme);
             setTitleBarHeight(20);
             setUsingNativeTitleBar(false);
-            auto main_comp = std::make_unique<comp_audio_setup>(deviceManager);
+            auto main_comp = std::make_unique<comp_audio_setup>(device_manager);
             setContentOwned(main_comp.release(), true);
             setResizable(true, true);
             centreWithSize(getWidth(), getHeight());
@@ -347,12 +281,17 @@ private:
             setLookAndFeel(nullptr);
         }
         void closeButtonPressed() {
-            setVisible(false);
+            exitModalState(0);
         }
     private:
         theme _theme;
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(window_audio_setup)
     };
+
+    void launch_audio_setup() {
+        auto audio_setup = std::make_unique<window_audio_setup>(deviceManager).release();
+        audio_setup->enterModalState(true, nullptr, true);
+    }
 
 /*
 //////////////////////////////////////////////////////////////////////////////////////////

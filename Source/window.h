@@ -12,8 +12,12 @@ namespace abx {
 */
 class window : public DocumentWindow {
 public:
-    window(String name = "")
-        : DocumentWindow(name, Desktop::getInstance().getDefaultLookAndFeel().findColour(ResizableWindow::backgroundColourId), DocumentWindow::allButtons)
+    window(String name = { })
+        : DocumentWindow(
+            name,
+            Desktop::getInstance().getDefaultLookAndFeel().findColour(ResizableWindow::backgroundColourId),
+            DocumentWindow::allButtons
+        )
     {
         setLookAndFeel(&_theme);
         setTitleBarHeight(20);
@@ -23,7 +27,7 @@ public:
         setResizable(true, true);
         centreWithSize(getWidth(), getHeight());
         setVisible(true);
-        setResizeLimits(400, 200, 1920 * 2, 1080 * 2);
+        setResizeLimits(504, 240, 1920 * 2, 1080 * 2);
     }
 
     ~window() {

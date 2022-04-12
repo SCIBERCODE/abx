@@ -71,8 +71,8 @@ comp_main::comp_main() :
     _toolbar.set_on_choose_clicked(on_button_press);
 
     _toolbar.set_on_settings_clicked([&]() {
-        _window_audio_setup.setVisible(true);
-     });
+        launch_audio_setup();
+    });
 
     _toolbar.setAlwaysOnTop(true);
     addAndMakeVisible(_toolbar);
@@ -514,5 +514,78 @@ void comp_main::trial_cycle(bit_t button_bt) {
     change_state(state_t::starting);
     _user_stopped = false;
 }
+
+void comp_main::trial_save() {
+
+    String css_class,
+           btn_text,
+           relay_text,
+           html =
+        "<!DOCTYPE html>\r\n"
+        "<html><head>\r\n"
+        "<style>\r\n"
+        "    .gray   { color: gray; }\r\n"
+        "    .value  { color: blue; }\r\n"
+        "    .class  { color: rgb(43, 145, 175); }\r\n"
+        "    .delim  { border-top: dotted 1px black; }\r\n"
+        "    .static { min-width: 10rem; display: inline-block; padding-right: 0.8rem; text-align: right; }\r\n"
+        "    .link   { cursor: pointer; text-decoration: underline; color: blue; }\r\n"
+        "    .nope   { background-color: rgb(251, 202, 204); }\r\n"
+        "    .param  { background-color: rgb(225, 225, 225); }\r\n"
+        "    .ok     { background-color: rgb(209, 236, 193); }\r\n"
+        "</style>\r\n"
+        "</head>\r\n"
+        "<body style = 'background-color: rgb(240, 240, 240);'>\r\n"
+        "<pre>\r\n";
+    //"<span class='static'>%s</span>\r\n"
+    //"<div class='delim'></div>\r\n"
+    //"<span class='static' style='margin-bottom: 0.8rem'>Score</span><span>Relay/Button</span>\r\n";
+
+    size_t count_all = 0, count_correct = 0;
+    for (const auto& trial : _trials)
+    {
+        if (!trial.blind) continue;
+
+        switch (trial.button) {
+        case btn_hz:
+            btn_text = "?";
+            css_class = "param";
+            break;
+        case btn_a: btn_text = "A"; break;
+        case btn_b: btn_text = "B"; break;
+        default:    btn_text = "~";
+        }
+        switch (trial.relay) {
+        case relay_a: relay_text = "A"; break;
+        case relay_b: relay_text = "B"; break;
+        default:      relay_text = "~";
+        }
+        if (trial.button != btn_hz) {
+            {
+                if ((trial.button == btn_a && trial.relay == relay_a) ||
+                    (trial.button == btn_b && trial.relay == relay_b))
+                {
+                    count_correct++;
+                    css_class = "ok";
+                }
+                else {
+                    css_class = "nope";
+                }
+            }
+            count_all++;
+        }
+        auto pval = abs(((count_all / 2.) - count_correct) / sqrt(count_all / 4.));
+        html +=
+            "<span class = 'static'>" + String(pval) + "</span>"
+            "<span class = '" + css_class + "'>    BUTTON_" + btn_text + " / RELAY_" + relay_text + "    </span><br>\r\n";
+    }
+    html += "</pre></body></html>";
+
+    juce::File::getCurrentWorkingDirectory()
+        .getChildFile("score.html")
+        .replaceWithText(html);
+
+};
+
 
 }

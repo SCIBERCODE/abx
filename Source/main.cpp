@@ -10,7 +10,9 @@ public:
     const String getApplicationVersion() override { return ProjectInfo::versionString; }
     bool moreThanOneInstanceAllowed()    override { return false; }
 
-    void initialise(const String& /*command_line*/) override {
+    void initialise(const String& command_line) override
+    {
+        ignoreUnused(command_line);
         _window_main = std::make_unique<abx::window>("abx");
     }
 
@@ -22,7 +24,9 @@ public:
         quit();
     }
 
-    void anotherInstanceStarted(const String& /*commandLine*/) override { }
+    void anotherInstanceStarted(const String& command_line) override {
+        ignoreUnused(command_line);
+    }
 
 private:
     std::unique_ptr<abx::window>         _window_main;

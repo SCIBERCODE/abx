@@ -104,7 +104,7 @@ public:
         scheme.setUIColour(ColourScheme::widgetBackground, _colors.get(color_ids::header)); // for the window title bar and buttons
         setColourScheme(scheme);
 
-        // восстанавливаем белую заливку после инициализации их ColourScheme::widgetBackground
+        // restoring white background after init with ColourScheme::widgetBackground
         setColour(TextEditor::backgroundColourId, Colours::white);
         setColour(TextButton::buttonColourId,     Colours::white);
         setColour(ComboBox::backgroundColourId,   Colours::white);
