@@ -4,8 +4,8 @@
 
 #include "../controls/slider.h"
 #include "../controls/button_icon.h"
-#include "../processor.h"
-#include "../theme.h"
+#include "../app/play.h"
+#include "../app/theme.h"
 
 namespace abx {
 

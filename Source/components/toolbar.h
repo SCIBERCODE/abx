@@ -4,7 +4,7 @@
 
 #include "../controls/button_toolbar.h"
 #include "../controls/slider.h"
-#include "../theme.h"
+#include "../app/theme.h"
 
 namespace abx {
 

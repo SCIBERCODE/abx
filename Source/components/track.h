@@ -4,8 +4,8 @@
 
 #include "../controls/button_icon.h"
 #include "../controls/slider.h"
-#include "../processor.h"
-#include "../theme.h"
+#include "../app/play.h"
+#include "../app/theme.h"
 
 namespace abx {
 
@@ -13,8 +13,8 @@ namespace abx {
 //////////////////////////////////////////////////////////////////////////////////////////
 */
 class comp_track : public Component,
-              public ChangeListener,
-              public Timer
+                   public ChangeListener,
+                   public Timer
 {
 public:
     comp_track(const String& file_path, AudioTransportSource& transport_source) :

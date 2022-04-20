@@ -587,4 +587,9 @@ void comp_main::trial_save() {
 
 };
 
+void comp_main::launch_audio_setup() {
+    auto audio_setup = std::make_unique<window_audio_setup>(deviceManager).release();
+    audio_setup->enterModalState(true, nullptr, true);
+}
+
 }

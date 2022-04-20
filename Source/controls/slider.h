@@ -1,7 +1,8 @@
 #pragma once
 
 #include "../../JuceLibraryCode/JuceHeader.h"
-#include "../theme.h"
+
+#include "../app/theme.h"
 
 namespace abx {
 
@@ -77,7 +78,7 @@ private:
 //////////////////////////////////////////////////////////////////////////////////////////
 */
 class slider_with_label : public Component,
-    public Slider::Listener
+                          public Slider::Listener
 {
 public:
     slider_with_label(double minimum = -90) : _slider(minimum)

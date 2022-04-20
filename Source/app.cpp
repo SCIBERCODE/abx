@@ -1,5 +1,6 @@
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "windows.h"
+
+#include "app/windows.h"
 
 class abx_application : public JUCEApplication {
 public:
@@ -13,7 +14,7 @@ public:
     void initialise(const String& command_line) override
     {
         ignoreUnused(command_line);
-        _window_main = std::make_unique<abx::window>("abx");
+        _window_main = std::make_unique<abx::window>();
     }
 
     void shutdown() override {

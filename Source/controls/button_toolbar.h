@@ -1,7 +1,8 @@
 #pragma once
 
 #include "../../JuceLibraryCode/JuceHeader.h"
-#include "../theme.h"
+
+#include "../app/theme.h"
 
 namespace abx {
 

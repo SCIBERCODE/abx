@@ -2,9 +2,9 @@
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 
-#include "../ftdi.h"
-#include "../theme.h"
-#include "audio_settings.h"
+#include "../app/ftdi.h"
+#include "../app/theme.h"
+#include "../app/windows.h"
 
 #include "track.h"
 #include "track_master.h"
@@ -59,6 +59,7 @@ private:
     void change_state(state_t new_state);
     void trial_cycle(bit_t button_bt);
     void trial_save();
+    void launch_audio_setup();
 
     /*
     //////////////////////////////////////////////////////////////////////////////////////////
@@ -163,44 +164,6 @@ private:
         last_button = btn;
     };
 
-    /*
-    //////////////////////////////////////////////////////////////////////////////////////////
-    */
-    class window_audio_setup : public DocumentWindow
-    {
-    public:
-        window_audio_setup(AudioDeviceManager& device_manager)
-            : DocumentWindow(
-                "abx audio settings",
-                Desktop::getInstance().getDefaultLookAndFeel().findColour(ResizableWindow::backgroundColourId),
-                DocumentWindow::allButtons
-            )
-        {
-            setLookAndFeel(&_theme);
-            setTitleBarHeight(20);
-            setUsingNativeTitleBar(false);
-            auto main_comp = std::make_unique<comp_audio_settings>(device_manager);
-            setContentOwned(main_comp.release(), true);
-            setResizable(true, true);
-            centreWithSize(getWidth(), getHeight());
-            addToDesktop();
-        }
-        ~window_audio_setup() {
-            setLookAndFeel(nullptr);
-        }
-        void closeButtonPressed() {
-            exitModalState(0);
-        }
-    private:
-        theme _theme;
-        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(window_audio_setup)
-    };
-
-    void launch_audio_setup() {
-        auto audio_setup = std::make_unique<window_audio_setup>(deviceManager).release();
-        audio_setup->enterModalState(true, nullptr, true);
-    }
-
 /*
 //////////////////////////////////////////////////////////////////////////////////////////
 */
@@ -220,10 +183,10 @@ private:
     comp_track_master                     _master_track;
     comp_toolbar                          _toolbar;
     comp_toolbar_results                  _results_toolbar;
-
     Viewport                              _viewport_tracks;
     std::unique_ptr<comp_tracks_viewport> _viewport_tracks_inside;
     TextButton                            _button_results_header { "trial score" };
+
     window_audio_setup                    _window_audio_setup;
     header_button_lf                      _theme_header;
     timer_long_pressed_button             _timer_long_pressed_button;
