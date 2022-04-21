@@ -20,7 +20,7 @@ public:
     }
 };
 
-xorshift1024 init_rnd() {
+static xorshift1024 init_rnd() {
     class splitmix64 {
     private:
         uint64_t x;

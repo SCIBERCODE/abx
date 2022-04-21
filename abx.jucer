@@ -22,23 +22,34 @@
       <FILE id="ZSNo2T" name="warning.svg" compile="0" resource="1" file="Icons/warning.svg"/>
     </GROUP>
     <GROUP id="{D42A9B75-343E-4E65-F5D9-94440239B709}" name="Source">
+      <GROUP id="{7A2CCA80-B916-F0FB-D0A0-056684C01FC0}" name="app">
+        <FILE id="yq0lR1" name="ftdi.h" compile="0" resource="0" file="Source/app/ftdi.h"/>
+        <FILE id="HBnXDj" name="play.h" compile="0" resource="0" file="Source/app/play.h"/>
+        <FILE id="jOBZjw" name="rand.h" compile="0" resource="0" file="Source/app/rand.h"/>
+        <FILE id="c3ecrc" name="theme.h" compile="0" resource="0" file="Source/app/theme.h"/>
+        <FILE id="iOqNvF" name="windows.cpp" compile="1" resource="0" file="Source/app/windows.cpp"/>
+        <FILE id="MU7Rrs" name="windows.h" compile="0" resource="0" file="Source/app/windows.h"/>
+      </GROUP>
+      <GROUP id="{4468EE0B-C806-72BC-5707-F2630D5804F6}" name="components">
+        <FILE id="h5Qicz" name="main.cpp" compile="1" resource="0" file="Source/components/main.cpp"/>
+        <FILE id="kTWyWd" name="main.h" compile="0" resource="0" file="Source/components/main.h"/>
+        <FILE id="NrWbVe" name="audio_settings.h" compile="0" resource="0"
+              file="Source/components/audio_settings.h"/>
+        <FILE id="iHb0V2" name="toolbar.h" compile="0" resource="0" file="Source/components/toolbar.h"/>
+        <FILE id="qlTaTm" name="toolbar_results.h" compile="0" resource="0"
+              file="Source/components/toolbar_results.h"/>
+        <FILE id="G8mP80" name="track.h" compile="0" resource="0" file="Source/components/track.h"/>
+        <FILE id="NnehTA" name="track_master.h" compile="0" resource="0" file="Source/components/track_master.h"/>
+        <FILE id="dIKR1c" name="tracks_viewport.h" compile="0" resource="0"
+              file="Source/components/tracks_viewport.h"/>
+      </GROUP>
       <GROUP id="{BC1056F7-4284-566C-ADD8-1147BFD8A9D1}" name="controls">
         <FILE id="V9OACx" name="button_icon.h" compile="0" resource="0" file="Source/controls/button_icon.h"/>
         <FILE id="AoMAHe" name="button_toolbar.h" compile="0" resource="0"
               file="Source/controls/button_toolbar.h"/>
         <FILE id="yjlEqa" name="slider.h" compile="0" resource="0" file="Source/controls/slider.h"/>
       </GROUP>
-      <FILE id="Az8Q1q" name="components.cpp" compile="1" resource="0" file="Source/components.cpp"/>
-      <FILE id="FVsVMn" name="components.h" compile="0" resource="0" file="Source/components.h"/>
-      <FILE id="bbR6xJ" name="ftdi.h" compile="0" resource="0" file="Source/ftdi.h"/>
-      <FILE id="MAg7Tk" name="main.cpp" compile="1" resource="0" file="Source/main.cpp"/>
-      <FILE id="leOAhs" name="theme.h" compile="0" resource="0" file="Source/theme.h"/>
-      <FILE id="d0513E" name="toolbar.h" compile="0" resource="0" file="Source/toolbar.h"/>
-      <FILE id="kN17dM" name="track.h" compile="0" resource="0" file="Source/track.h"/>
-      <FILE id="Hc5QL6" name="track_master.h" compile="0" resource="0" file="Source/track_master.h"/>
-      <FILE id="sw5zol" name="track_processor.h" compile="0" resource="0"
-            file="Source/track_processor.h"/>
-      <FILE id="LCASEC" name="window.h" compile="0" resource="0" file="Source/window.h"/>
+      <FILE id="ABKJby" name="app.cpp" compile="1" resource="0" file="Source/app.cpp"/>
     </GROUP>
   </MAINGROUP>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1"/>

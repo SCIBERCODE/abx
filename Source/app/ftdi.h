@@ -54,7 +54,7 @@ public:
 
     uint8_t get_relay() { return _relay.get(); };
 
-    ftdi() : Thread(""), _xs1024(init_rnd())
+    ftdi() : Thread(""), _xs1024(abx::init_rnd())
     {
         _buttons_mask.set(btn_rev);
         _buttons_mask.set(btn_a);
@@ -62,7 +62,7 @@ public:
         _buttons_mask.set(btn_b);
         _buttons_mask.set(btn_fwd);
 
-        init_rnd();
+        abx::init_rnd();
         startTimer(333); // check ftdi // todo: [10]
     }
 
@@ -196,17 +196,17 @@ public:
     }
 
 private:
-    FT_HANDLE       _handle   { };
-    std::bitset<8>  _buttons_mask;
-    uint8_t         _ft_rx,
-                    _ft_tx,
-                    _last_in  { },
-                    _last_out { },
-                    _current_out;
-    Atomic<uint8_t> _relay    { };
-    bool            _waiting  { true };
-    uint64_t        _timer;
-    xorshift1024    _xs1024;
+    FT_HANDLE         _handle   { };
+    std::bitset<8>    _buttons_mask;
+    uint8_t           _ft_rx,
+                      _ft_tx,
+                      _last_in  { },
+                      _last_out { },
+                      _current_out;
+    Atomic<uint8_t>   _relay    { };
+    bool              _waiting  { true };
+    uint64_t          _timer;
+    abx::xorshift1024 _xs1024;
 
     std::function<void(uint8_t buttons_pressed)> _callback_on_button_press;
     std::function<void(uint8_t new_relay)>       _callback_on_relay_change;

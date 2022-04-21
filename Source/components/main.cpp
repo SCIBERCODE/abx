@@ -454,8 +454,6 @@ void comp_main::changeListenerCallback(ChangeBroadcaster* source)
 }
 
 void comp_main::trial_cycle(bit_t button_bt) {
-    trial_save();
-
     auto blind = _toolbar.get_state(comp_toolbar::button_t::blind);
     if (_state != state_t::playing)
     {
