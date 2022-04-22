@@ -10,7 +10,7 @@ namespace abx {
 class comp_toolbar_results : public Component {
 public:
     comp_toolbar_results() {
-        _label_result.setFont(Font("DilleniaUPC", 65, Font::FontStyleFlags::bold).withHorizontalScale(1.15f));//Gisha
+        _label_result.setFont(get_font().boldened().withHeight(65.f).withHorizontalScale(1.15f));//Gisha
         _label_result.setColour(Label::textColourId, Colours::white);
         _label_result.setText("0 / 0, -.--", dontSendNotification);
         _label_result.setJustificationType(Justification::centred);

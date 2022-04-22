@@ -18,6 +18,12 @@ static Drawable* get_drawable(String icon_name, int width = 16, int height = 16)
     return nullptr;
 }
 
+static const Font get_font()
+{
+    static auto typeface = Typeface::createSystemTypefaceFor(BinaryData::upcdl_ttf, BinaryData::upcdl_ttfSize);
+    return Font(typeface);
+}
+
 namespace color_ids {
     enum window_ids : size_t {
         header,

@@ -8,50 +8,53 @@
 
 namespace BinaryData
 {
+    extern const char*   upcdl_ttf;
+    const int            upcdl_ttfSize = 70912;
+
     extern const char*   backward_svg;
-    const int            backward_svgSize = 310;
+    const int            backward_svgSize = 245;
 
     extern const char*   blind_svg;
-    const int            blind_svgSize = 960;
+    const int            blind_svgSize = 880;
 
     extern const char*   clear_svg;
-    const int            clear_svgSize = 753;
+    const int            clear_svgSize = 679;
 
     extern const char*   close_svg;
-    const int            close_svgSize = 415;
+    const int            close_svgSize = 352;
 
     extern const char*   edit_svg;
-    const int            edit_svgSize = 403;
+    const int            edit_svgSize = 339;
 
     extern const char*   forward_svg;
-    const int            forward_svgSize = 314;
+    const int            forward_svgSize = 247;
 
     extern const char*   open_svg;
-    const int            open_svgSize = 619;
+    const int            open_svgSize = 542;
 
     extern const char*   pause_svg;
-    const int            pause_svgSize = 459;
+    const int            pause_svgSize = 146;
 
     extern const char*   play_svg;
-    const int            play_svgSize = 464;
+    const int            play_svgSize = 127;
 
     extern const char*   restart_svg;
-    const int            restart_svgSize = 1527;
+    const int            restart_svgSize = 679;
 
     extern const char*   rewind_svg;
-    const int            rewind_svgSize = 452;
+    const int            rewind_svgSize = 144;
 
     extern const char*   settings_svg;
-    const int            settings_svgSize = 898;
+    const int            settings_svgSize = 786;
 
     extern const char*   stop_svg;
-    const int            stop_svgSize = 372;
+    const int            stop_svgSize = 126;
 
     extern const char*   warning_svg;
-    const int            warning_svgSize = 543;
+    const int            warning_svgSize = 425;
 
     // Number of elements in the namedResourceList and originalFileNames arrays.
-    const int namedResourceListSize = 14;
+    const int namedResourceListSize = 15;
 
     // Points to the start of a list of resource names.
     extern const char* namedResourceList[];

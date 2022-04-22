@@ -5,6 +5,9 @@
               companyWebsite="https://sciber.ru" companyEmail="contact@sciber.ru"
               cppLanguageStandard="17" headerPath="..\..\Libs\asio_sdk\&#10;..\..\Libs\">
   <MAINGROUP id="epcY7v" name="abx">
+    <GROUP id="{8E65D7C6-0B1E-57D9-0F75-886B80B22765}" name="Fonts">
+      <FILE id="ONryxz" name="upcdl.ttf" compile="0" resource="1" file="Fonts/upcdl.ttf"/>
+    </GROUP>
     <GROUP id="{EEDCE2CB-8C43-0F09-8D44-446276BC058F}" name="Icons">
       <FILE id="czZycv" name="backward.svg" compile="0" resource="1" file="Icons/backward.svg"/>
       <FILE id="JtLxZO" name="blind.svg" compile="0" resource="1" file="Icons/blind.svg"/>
