@@ -9,8 +9,10 @@ namespace abx {
 */
 class comp_toolbar_results : public Component {
 public:
-    comp_toolbar_results() {
-        _label_result.setFont(get_font().boldened().withHeight(65.f).withHorizontalScale(1.15f));//Gisha
+    comp_toolbar_results() :
+        _font(get_font(font_ids::result, 65))
+    {
+        _label_result.setFont(_font.boldened().withHorizontalScale(1.15f));
         _label_result.setColour(Label::textColourId, Colours::white);
         _label_result.setText("0 / 0, -.--", dontSendNotification);
         _label_result.setJustificationType(Justification::centred);
@@ -54,6 +56,7 @@ private:
     Label          _label_result;
     button_toolbar _button_clear;
     colors         _colors;
+    Font           _font;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(comp_toolbar_results)
 };
 

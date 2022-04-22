@@ -127,8 +127,8 @@ private:
     std::unique_ptr<slider_with_label> _slider_vol[2];
     std::unique_ptr<TextEditor>        _edit_name[2];
 
-    std::function<void()> _callback_gain_changed;
-    std::function<void()> _callback_name_changed;
+    std::function<void()> _callback_gain_changed,
+                          _callback_name_changed;
 
     colors _colors;
 

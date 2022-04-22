@@ -19,20 +19,21 @@ class comp_track : public Component,
 public:
     comp_track(const String& file_path, AudioTransportSource& transport_source) :
         _thumbnail(512, _processor.getFormatManager(), _thumbnail_cache),
-        _file_path(file_path),
-        _transport_source(transport_source)
+        _font(get_font(font_ids::file_info)),
+        _transport_source(transport_source),
+        _file_path(file_path)
     {
-        _label_name.setFont(Font("SF Pro Text", 13, Font::FontStyleFlags::plain));
+        _label_name.setFont(_font);
         _label_name.setColour(Label::textColourId, Colours::black);
         _label_name.setMinimumHorizontalScale(1.f);
         addAndMakeVisible(_label_name);
 
-        _label_rate.setFont(Font("SF Pro Text", 13, Font::FontStyleFlags::plain));
+        _label_rate.setFont(_font);
         _label_rate.setColour(Label::textColourId, Colours::grey);
         _label_rate.setMinimumHorizontalScale(1.f);
         addAndMakeVisible(_label_rate);
 
-        _label_format.setFont(Font("SF Pro Text", 13, Font::FontStyleFlags::plain));
+        _label_format.setFont(_font);
         _label_format.setColour(Label::textColourId, Colours::grey);
         _label_format.setMinimumHorizontalScale(1.f);
         addAndMakeVisible(_label_format);
@@ -384,31 +385,30 @@ private:
 //////////////////////////////////////////////////////////////////////////////////////////
 */
 private:
-    track_processor       _processor;
-    AudioTransportSource& _transport_source;
-    String                _file_path;
-    double                _sample_rate;
-    String                _format_name;
-    size_t                _bps;
+    track_processor        _processor;
+    AudioTransportSource&  _transport_source;
+    String                 _file_path;
+    double                 _sample_rate;
+    String                 _format_name;
+    size_t                 _bps;
 
-    bool                  _focused { false };
-    bool                  _active  { false };
-    bool                  _paused  { false };
-    double                _marker  { 0 };
+    bool                   _focused { false };
+    bool                   _active  { false };
+    bool                   _paused  { false };
+    double                 _marker  { 0 };
 
-    colors                _colors;
-    juce::Rectangle<int>  _rect_header;
-    juce::Rectangle<int>  _rect_header_top;
-    juce::Rectangle<int>  _rect_background;
+    colors                 _colors;
+    juce::Rectangle<int>   _rect_header;
+    juce::Rectangle<int>   _rect_header_top;
+    juce::Rectangle<int>   _rect_background;
 
-    const int             _y            {  1 };
-    const int             _color_rect_w {  8 };
-    const int             _header_h     { 20 };
+    const int              _y            {  1 };
+    const int              _color_rect_w {  8 };
+    const int              _header_h     { 20 };
 
-    Label
-        _label_name,
-        _label_rate,
-        _label_format;
+    Label                  _label_name,
+                           _label_rate,
+                           _label_format;
 
     button_icon            _button_close;
     abx::slider_with_label _slider_volume;
@@ -418,12 +418,12 @@ private:
     std::function<void(comp_track*, bool)> _callback_mouse_event;
     std::function<void(comp_track*)>       _callback_close;
 
-    DrawableRectangle
-        _marker_playing,
-        _marker_user,
-        _dull_color;
+    DrawableRectangle      _marker_playing,
+                           _marker_user,
+                           _dull_color;
 
-    DrawableComposite _icon;
+    DrawableComposite      _icon;
+    Font                   _font;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(comp_track)
 };

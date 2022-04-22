@@ -2,28 +2,6 @@
 
 namespace abx {
 
-static Drawable* get_drawable(String icon_name, int width = 16, int height = 16) {
-    int bytes;
-    if (auto binary_data = BinaryData::getNamedResource((icon_name + "_svg").getCharPointer(), bytes))
-    {
-        std::unique_ptr<XmlElement> icon_svg_xml(XmlDocument::parse(binary_data));
-        auto drawable_svg = Drawable::createFromSVG(*(icon_svg_xml.get()));
-
-        drawable_svg->setTransformToFit(
-            juce::Rectangle<float>(0.f, 0.f, static_cast<float>(width), static_cast<float>(height)),
-            RectanglePlacement::centred
-        );
-        return drawable_svg.release();
-    }
-    return nullptr;
-}
-
-static const Font get_font()
-{
-    static auto typeface = Typeface::createSystemTypefaceFor(BinaryData::upcdl_ttf, BinaryData::upcdl_ttfSize);
-    return Font(typeface);
-}
-
 namespace color_ids {
     enum window_ids : size_t {
         header,
@@ -55,6 +33,41 @@ namespace color_ids {
         header_focused,
         header_lines
     };
+}
+
+enum class font_ids {
+    result, file_info
+};
+
+/*
+//////////////////////////////////////////////////////////////////////////////////////////
+*/
+static Drawable* get_drawable(String icon_name, int width = 16, int height = 16) {
+    int binary_data_size;
+    if (auto binary_data = BinaryData::getNamedResource((icon_name + "_svg").getCharPointer(), binary_data_size))
+    {
+        std::unique_ptr<XmlElement> icon_svg_xml(XmlDocument::parse(binary_data));
+        auto drawable_svg = Drawable::createFromSVG(*(icon_svg_xml.get()));
+
+        drawable_svg->setTransformToFit(
+            juce::Rectangle<float>(0.f, 0.f, static_cast<float>(width), static_cast<float>(height)),
+            RectanglePlacement::centred
+        );
+        return drawable_svg.release();
+    }
+    return nullptr;
+}
+
+static const Font get_font(font_ids font_id, float height = 13.f)
+{
+    String font_name { };
+    switch (font_id) {
+    case font_ids::result:    font_name = "upcdl"; break;
+    case font_ids::file_info: font_name = "sfpro"; break;
+    }
+    int binary_data_size;
+    auto binary_data = BinaryData::getNamedResource((font_name + "_ttf").getCharPointer(), binary_data_size);
+    return Font(Typeface::createSystemTypefaceFor(binary_data, binary_data_size)).withHeight(height);
 }
 
 /*

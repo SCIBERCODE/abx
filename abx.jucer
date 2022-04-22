@@ -3,61 +3,62 @@
 <JUCERPROJECT id="CU81fQ" name="abx" projectType="guiapp" useAppConfig="0"
               addUsingNamespaceToJuceHeader="1" jucerFormatVersion="1" companyName="sciber"
               companyWebsite="https://sciber.ru" companyEmail="contact@sciber.ru"
-              cppLanguageStandard="17" headerPath="..\..\Libs\asio_sdk\&#10;..\..\Libs\">
+              cppLanguageStandard="17" headerPath="..\..\libs\asio_sdk\&#10;..\..\libs\">
   <MAINGROUP id="epcY7v" name="abx">
-    <GROUP id="{8E65D7C6-0B1E-57D9-0F75-886B80B22765}" name="Fonts">
-      <FILE id="ONryxz" name="upcdl.ttf" compile="0" resource="1" file="Fonts/upcdl.ttf"/>
+    <GROUP id="{8E65D7C6-0B1E-57D9-0F75-886B80B22765}" name="fonts">
+      <FILE id="pLwp4L" name="sfpro.ttf" compile="0" resource="1" file="bin/sfpro.ttf"/>
+      <FILE id="s0yUnx" name="upcdl.ttf" compile="0" resource="1" file="bin/upcdl.ttf"/>
     </GROUP>
-    <GROUP id="{EEDCE2CB-8C43-0F09-8D44-446276BC058F}" name="Icons">
-      <FILE id="czZycv" name="backward.svg" compile="0" resource="1" file="Icons/backward.svg"/>
-      <FILE id="JtLxZO" name="blind.svg" compile="0" resource="1" file="Icons/blind.svg"/>
-      <FILE id="rs3E1l" name="clear.svg" compile="0" resource="1" file="Icons/clear.svg"/>
-      <FILE id="QrvpNc" name="close.svg" compile="0" resource="1" file="Icons/close.svg"/>
-      <FILE id="mgUJHV" name="edit.svg" compile="0" resource="1" file="Icons/edit.svg"/>
-      <FILE id="dgdwoq" name="forward.svg" compile="0" resource="1" file="Icons/forward.svg"/>
-      <FILE id="vs8il1" name="open.svg" compile="0" resource="1" file="Icons/open.svg"/>
-      <FILE id="g4s0II" name="pause.svg" compile="0" resource="1" file="Icons/pause.svg"/>
-      <FILE id="aKyPvO" name="play.svg" compile="0" resource="1" file="Icons/play.svg"/>
-      <FILE id="i4WFXk" name="restart.svg" compile="0" resource="1" file="Icons/restart.svg"/>
-      <FILE id="h4MLhr" name="rewind.svg" compile="0" resource="1" file="Icons/rewind.svg"/>
-      <FILE id="mH8AuK" name="settings.svg" compile="0" resource="1" file="Icons/settings.svg"/>
-      <FILE id="rbdIAi" name="stop.svg" compile="0" resource="1" file="Icons/stop.svg"/>
-      <FILE id="ZSNo2T" name="warning.svg" compile="0" resource="1" file="Icons/warning.svg"/>
+    <GROUP id="{EEDCE2CB-8C43-0F09-8D44-446276BC058F}" name="icons">
+      <FILE id="Q6mTNH" name="backward.svg" compile="0" resource="1" file="bin/icons/backward.svg"/>
+      <FILE id="iTiYgO" name="blind.svg" compile="0" resource="1" file="bin/icons/blind.svg"/>
+      <FILE id="JFmtP2" name="clear.svg" compile="0" resource="1" file="bin/icons/clear.svg"/>
+      <FILE id="c8wgab" name="close.svg" compile="0" resource="1" file="bin/icons/close.svg"/>
+      <FILE id="qDTruv" name="edit.svg" compile="0" resource="1" file="bin/icons/edit.svg"/>
+      <FILE id="zHhDrB" name="forward.svg" compile="0" resource="1" file="bin/icons/forward.svg"/>
+      <FILE id="r0s0Fk" name="open.svg" compile="0" resource="1" file="bin/icons/open.svg"/>
+      <FILE id="FzTlde" name="pause.svg" compile="0" resource="1" file="bin/icons/pause.svg"/>
+      <FILE id="WLZ65N" name="play.svg" compile="0" resource="1" file="bin/icons/play.svg"/>
+      <FILE id="X5bG3e" name="restart.svg" compile="0" resource="1" file="bin/icons/restart.svg"/>
+      <FILE id="YIhc7r" name="rewind.svg" compile="0" resource="1" file="bin/icons/rewind.svg"/>
+      <FILE id="FzfMsz" name="settings.svg" compile="0" resource="1" file="bin/icons/settings.svg"/>
+      <FILE id="yfnmUr" name="stop.svg" compile="0" resource="1" file="bin/icons/stop.svg"/>
+      <FILE id="wfY3sj" name="warning.svg" compile="0" resource="1" file="bin/icons/warning.svg"/>
     </GROUP>
-    <GROUP id="{D42A9B75-343E-4E65-F5D9-94440239B709}" name="Source">
+    <GROUP id="{D42A9B75-343E-4E65-F5D9-94440239B709}" name="source">
       <GROUP id="{7A2CCA80-B916-F0FB-D0A0-056684C01FC0}" name="app">
-        <FILE id="yq0lR1" name="ftdi.h" compile="0" resource="0" file="Source/app/ftdi.h"/>
-        <FILE id="HBnXDj" name="play.h" compile="0" resource="0" file="Source/app/play.h"/>
-        <FILE id="jOBZjw" name="rand.h" compile="0" resource="0" file="Source/app/rand.h"/>
-        <FILE id="c3ecrc" name="theme.h" compile="0" resource="0" file="Source/app/theme.h"/>
-        <FILE id="iOqNvF" name="windows.cpp" compile="1" resource="0" file="Source/app/windows.cpp"/>
-        <FILE id="MU7Rrs" name="windows.h" compile="0" resource="0" file="Source/app/windows.h"/>
+        <FILE id="yq0lR1" name="ftdi.h" compile="0" resource="0" file="source/app/ftdi.h"/>
+        <FILE id="HBnXDj" name="play.h" compile="0" resource="0" file="source/app/play.h"/>
+        <FILE id="jOBZjw" name="rand.h" compile="0" resource="0" file="source/app/rand.h"/>
+        <FILE id="c3ecrc" name="theme.h" compile="0" resource="0" file="source/app/theme.h"/>
+        <FILE id="iOqNvF" name="windows.cpp" compile="1" resource="0" file="source/app/windows.cpp"/>
+        <FILE id="MU7Rrs" name="windows.h" compile="0" resource="0" file="source/app/windows.h"/>
       </GROUP>
       <GROUP id="{4468EE0B-C806-72BC-5707-F2630D5804F6}" name="components">
-        <FILE id="h5Qicz" name="main.cpp" compile="1" resource="0" file="Source/components/main.cpp"/>
-        <FILE id="kTWyWd" name="main.h" compile="0" resource="0" file="Source/components/main.h"/>
+        <FILE id="h5Qicz" name="main.cpp" compile="1" resource="0" file="source/components/main.cpp"/>
+        <FILE id="kTWyWd" name="main.h" compile="0" resource="0" file="source/components/main.h"/>
         <FILE id="NrWbVe" name="audio_settings.h" compile="0" resource="0"
-              file="Source/components/audio_settings.h"/>
-        <FILE id="iHb0V2" name="toolbar.h" compile="0" resource="0" file="Source/components/toolbar.h"/>
+              file="source/components/audio_settings.h"/>
+        <FILE id="iHb0V2" name="toolbar.h" compile="0" resource="0" file="source/components/toolbar.h"/>
         <FILE id="qlTaTm" name="toolbar_results.h" compile="0" resource="0"
-              file="Source/components/toolbar_results.h"/>
-        <FILE id="G8mP80" name="track.h" compile="0" resource="0" file="Source/components/track.h"/>
-        <FILE id="NnehTA" name="track_master.h" compile="0" resource="0" file="Source/components/track_master.h"/>
+              file="source/components/toolbar_results.h"/>
+        <FILE id="G8mP80" name="track.h" compile="0" resource="0" file="source/components/track.h"/>
+        <FILE id="NnehTA" name="track_master.h" compile="0" resource="0" file="source/components/track_master.h"/>
         <FILE id="dIKR1c" name="tracks_viewport.h" compile="0" resource="0"
-              file="Source/components/tracks_viewport.h"/>
+              file="source/components/tracks_viewport.h"/>
       </GROUP>
       <GROUP id="{BC1056F7-4284-566C-ADD8-1147BFD8A9D1}" name="controls">
-        <FILE id="V9OACx" name="button_icon.h" compile="0" resource="0" file="Source/controls/button_icon.h"/>
+        <FILE id="V9OACx" name="button_icon.h" compile="0" resource="0" file="source/controls/button_icon.h"/>
         <FILE id="AoMAHe" name="button_toolbar.h" compile="0" resource="0"
-              file="Source/controls/button_toolbar.h"/>
-        <FILE id="yjlEqa" name="slider.h" compile="0" resource="0" file="Source/controls/slider.h"/>
+              file="source/controls/button_toolbar.h"/>
+        <FILE id="yjlEqa" name="slider.h" compile="0" resource="0" file="source/controls/slider.h"/>
       </GROUP>
-      <FILE id="ABKJby" name="app.cpp" compile="1" resource="0" file="Source/app.cpp"/>
+      <FILE id="ABKJby" name="app.cpp" compile="1" resource="0" file="source/app.cpp"/>
     </GROUP>
   </MAINGROUP>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1"/>
   <EXPORTFORMATS>
-    <VS2019 targetFolder="Builds/VisualStudio2019">
+    <VS2019 targetFolder="builds/vs2019">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" targetName="abx"/>
         <CONFIGURATION isDebug="0" name="Release" targetName="abx"/>
@@ -78,17 +79,17 @@
     </VS2019>
   </EXPORTFORMATS>
   <MODULES>
-    <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
-    <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
-    <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
-    <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
-    <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
-    <MODULE id="juce_core" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
-    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
-    <MODULE id="juce_events" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
-    <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
-    <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
-    <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
+    <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
   </MODULES>
   <LIVE_SETTINGS>
     <WINDOWS/>
