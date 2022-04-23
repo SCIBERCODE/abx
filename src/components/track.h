@@ -97,16 +97,19 @@ public:
     };
 
     void update_info(double device_sample_rate) {
-        auto rate = String(_sample_rate, 0) + "Hz";
-        _icon.setVisible(false);
-        if (device_sample_rate != _sample_rate) {
-            rate += "  >>  " + String(device_sample_rate, 0) + "Hz";
-            _icon.setVisible(true);
+        if (_sample_rate != 0.)
+        {
+            auto rate = String(_sample_rate, 0) + "Hz";
+            _icon.setVisible(false);
+            if (device_sample_rate != _sample_rate) {
+                rate += "  >>  " + String(device_sample_rate, 0) + "Hz";
+                _icon.setVisible(true);
+            }
+            _label_rate.setText(rate, sendNotificationAsync);
         }
-        _label_rate.setText(rate, sendNotificationAsync);
 
         auto ext = File(_file_path).getFileExtension().substring(1).toUpperCase();
-        _label_format.setText(String(_bps) + "-bit " + ext + " File", sendNotificationAsync);
+        _label_format.setText(_bps != 0 ? (String(_bps) + "-bit ") : "" + ext + " File", sendNotificationAsync);
         resized();
     }
 
@@ -137,20 +140,6 @@ public:
             clip_region.addRoundedRectangle(bounds, 0);
             g.reduceClipRegion(clip_region);
 
-            g.setColour(_focused ? _colors.get(color_ids::header_focused) : _colors.get(color_ids::bg_light));
-            g.fillRect(_rect_header);
-
-            juce::Rectangle<int> colorRect(_rect_header.getX(), _rect_header.getY(), _color_rect_w, _rect_header.getHeight());
-            g.setColour(_active ? _colors.get(color_ids::waveform) : _colors.get(color_ids::waveform_disabled));
-            g.fillRect(colorRect);
-            g.setColour(Colours::black);
-            g.drawLine(_rect_header.getRight() - .5f, 0.f, _rect_header.getRight() - .5f, static_cast<float>(_rect_header.getBottom()), 1.f);
-
-            // lines in the header
-            g.setColour(_colors.get(color_ids::header_lines));
-            g.drawLine(static_cast<float>(_rect_header.getX() + _color_rect_w), _rect_header.getY() + _header_h + .5f, _rect_header.getRight() - 1.0f, _rect_header.getY() + _header_h + .5f); // horizontal
-            auto line_1_x = _color_rect_w + _rect_header.getTopLeft().getX() + _button_close.getWidth() + .5f;
-            g.drawLine(line_1_x, static_cast<float>(_rect_header.getY()), line_1_x, _rect_header.getY() + _header_h + .5f);
             // waveform background
             _rect_background = juce::Rectangle<int>(_rect_header.getRight(), _y, bounds.getWidth() - _rect_header.getWidth(), bounds.getHeight());
             g.setColour(_colors.get(color_ids::waveform_bg));
@@ -158,8 +147,16 @@ public:
             _rect_background.reduce(0, 4);
 
             // waveform
-            if (_thumbnail.getNumChannels() == 0) {
-                // todo: [12]
+            if (_thumbnail.getNumChannels() == 0)
+            {
+                g.setColour(Colours::red.brighter());
+                int x = 0;
+                while (x < bounds.getWidth() + bounds.getHeight())
+                {
+                    juce::Line<float> line(x, bounds.getHeight(), bounds.getHeight() + x, 0);
+                    x += 5;
+                    g.drawLine(line, 1.f);
+                }
             }
             else {
                 if (!_active) {
@@ -174,6 +171,21 @@ public:
                 }
                 draw_user_marker();
             }
+
+            g.setColour(_focused ? _colors.get(color_ids::header_focused) : _colors.get(color_ids::bg_light));
+            g.fillRect(_rect_header);
+
+            juce::Rectangle<int> colorRect(_rect_header.getX(), _rect_header.getY(), _color_rect_w, _rect_header.getHeight());
+            g.setColour(_active ? _colors.get(color_ids::waveform) : _colors.get(color_ids::waveform_disabled));
+            g.fillRect(colorRect);
+            g.setColour(Colours::black);
+            g.drawLine(_rect_header.getRight() - .5f, 0.f, _rect_header.getRight() - .5f, static_cast<float>(_rect_header.getBottom()), 1.f);
+
+            // lines in the header
+            g.setColour(_colors.get(color_ids::header_lines));
+            g.drawLine(static_cast<float>(_rect_header.getX() + _color_rect_w), _rect_header.getY() + _header_h + .5f, _rect_header.getRight() - 1.0f, _rect_header.getY() + _header_h + .5f); // horizontal
+            auto line_1_x = _color_rect_w + _rect_header.getTopLeft().getX() + _button_close.getWidth() + .5f;
+            g.drawLine(line_1_x, static_cast<float>(_rect_header.getY()), line_1_x, _rect_header.getY() + _header_h + .5f);
 
             g.setColour(Colours::black);
             g.drawRect(bounds);
@@ -387,15 +399,15 @@ private:
 private:
     track_processor        _processor;
     AudioTransportSource&  _transport_source;
-    String                 _file_path;
-    double                 _sample_rate;
-    String                 _format_name;
-    size_t                 _bps;
+    String                 _file_path,
+                           _format_name;
+    double                 _sample_rate { };
+    size_t                 _bps         { };
 
-    bool                   _focused { false };
-    bool                   _active  { false };
-    bool                   _paused  { false };
-    double                 _marker  { 0 };
+    bool                   _focused     { },
+                           _active      { },
+                           _paused      { };
+    double                 _marker      { };
 
     colors                 _colors;
     juce::Rectangle<int>   _rect_header;
@@ -421,7 +433,6 @@ private:
     DrawableRectangle      _marker_playing,
                            _marker_user,
                            _dull_color;
-
     DrawableComposite      _icon;
     Font                   _font;
 
