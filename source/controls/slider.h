@@ -82,7 +82,7 @@ class slider_with_label : public Component,
 {
 public:
     slider_with_label(double minimum = -90) :
-        _font(get_font(font_ids::file_info)),
+        _font(resources::get_font(font_ids::file_info)),
         _slider(minimum)
     {
         _label.setText("Vol.", NotificationType::dontSendNotification);

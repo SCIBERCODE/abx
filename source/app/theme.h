@@ -42,33 +42,40 @@ enum class font_ids {
 /*
 //////////////////////////////////////////////////////////////////////////////////////////
 */
-static Drawable* get_drawable(String icon_name, int width = 16, int height = 16) {
-    int binary_data_size;
-    if (auto binary_data = BinaryData::getNamedResource((icon_name + "_svg").getCharPointer(), binary_data_size))
-    {
-        std::unique_ptr<XmlElement> icon_svg_xml(XmlDocument::parse(binary_data));
-        auto drawable_svg = Drawable::createFromSVG(*(icon_svg_xml.get()));
-
-        drawable_svg->setTransformToFit(
-            juce::Rectangle<float>(0.f, 0.f, static_cast<float>(width), static_cast<float>(height)),
-            RectanglePlacement::centred
-        );
-        return drawable_svg.release();
-    }
-    return nullptr;
-}
-
-static const Font get_font(font_ids font_id, float height = 13.f)
+class resources
 {
-    String font_name { };
-    switch (font_id) {
-    case font_ids::result:    font_name = "upcdl"; break;
-    case font_ids::file_info: font_name = "sfpro"; break;
+public:
+     resources() { }
+    ~resources() { }
+
+    static Drawable* get_drawable(String icon_name, int width = 16, int height = 16) {
+        int binary_data_size;
+        if (auto binary_data = BinaryData::getNamedResource((icon_name + "_svg").getCharPointer(), binary_data_size))
+        {
+            std::unique_ptr<XmlElement> icon_svg_xml(XmlDocument::parse(binary_data));
+            auto drawable_svg = Drawable::createFromSVG(*(icon_svg_xml.get()));
+
+            drawable_svg->setTransformToFit(
+                juce::Rectangle<float>(0.f, 0.f, static_cast<float>(width), static_cast<float>(height)),
+                RectanglePlacement::centred
+            );
+            return drawable_svg.release();
+        }
+        return nullptr;
     }
-    int binary_data_size;
-    auto binary_data = BinaryData::getNamedResource((font_name + "_ttf").getCharPointer(), binary_data_size);
-    return Font(Typeface::createSystemTypefaceFor(binary_data, binary_data_size)).withHeight(height);
-}
+
+    static Font get_font(font_ids font_id, float height = 13.f)
+    {
+        String font_name{ };
+        switch (font_id) {
+        case font_ids::result:    font_name = "upcdl"; break;
+        case font_ids::file_info: font_name = "sfpro"; break;
+        }
+        int binary_data_size;
+        auto binary_data = BinaryData::getNamedResource((font_name + "_ttf").getCharPointer(), binary_data_size);
+        return Font(Typeface::createSystemTypefaceFor(binary_data, binary_data_size)).withHeight(height);
+    }
+};
 
 /*
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -77,15 +84,6 @@ class colors
 {
 public:
     colors() {
-        init_colors();
-    }
-    Colour get(size_t index) {
-        return _colours.count(index) ? _colours.at(index) : Colours::darkgrey;
-    }
-private:
-    std::map<size_t, Colour> _colours;
-
-    void init_colors() {
         using namespace color_ids;
         _colours[header           ] = { 205, 217, 241 };
         _colours[bg_light         ] = { 247, 249, 255 };
@@ -108,8 +106,15 @@ private:
         _colours[waveform_disabled] = { 136, 136, 144 };
         _colours[waveform_bg      ] = { 192, 192, 192 };
         _colours[header_focused   ] = { 213, 227, 255 };
-        _colours[header_lines     ] = { 128, 128, 128 };
+        _colours[header_lines     ] = { 128, 128, 128 };    
     }
+    ~colors() { }
+
+    Colour get(size_t index) {
+        return _colours.count(index) ? _colours.at(index) : Colours::darkgrey;
+    }
+private:
+    std::map<size_t, Colour> _colours;
 };
 
 /*
@@ -137,11 +142,17 @@ public:
         setColour(TooltipWindow::outlineColourId,    Colours::black);
         setColour(TooltipWindow::textColourId,       Colours::black);
     }
+    ~theme() { }
 
     void drawDocumentWindowTitleBar(DocumentWindow& window, Graphics& g,
-        int, int height, int x, int,
-        const Image*, bool) override
+        int width, int height, int title_x, int title_width,
+        const Image* icon, bool text_on_left) override
     {
+        ignoreUnused(icon);
+        ignoreUnused(width);
+        ignoreUnused(title_width);
+        ignoreUnused(text_on_left);        
+
         g.setColour(getCurrentColourScheme().getUIColour(ColourScheme::widgetBackground));
         g.fillAll();
 
@@ -150,11 +161,15 @@ public:
 
         auto text_width = font.getStringWidth(window.getName());
         g.setColour(window.findColour(DocumentWindow::textColourId));
-        g.drawText(window.getName(), x, 0, text_width, height, Justification::centredLeft, true);
+        g.drawText(window.getName(), title_x, 0, text_width, height, Justification::centredLeft, true);
     }
 
-    void drawTextEditorOutline(Graphics&, int /*width*/, int /*height*/, TextEditor&) override
+    void drawTextEditorOutline(Graphics& g, int width, int height, TextEditor& control) override
     {
+        ignoreUnused(g);
+        ignoreUnused(width);
+        ignoreUnused(height);
+        ignoreUnused(control);
     }
 private:
     colors _colors;
@@ -166,6 +181,9 @@ private:
 class header_button_lf : public theme
 {
 public:
+     header_button_lf() { }
+    ~header_button_lf() { }
+
     void drawButtonBackground(Graphics& g,
         Button& button,
         const Colour&,

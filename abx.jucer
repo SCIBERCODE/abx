@@ -58,7 +58,7 @@
   </MAINGROUP>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1"/>
   <EXPORTFORMATS>
-    <VS2019 targetFolder="builds/vs2019">
+    <VS2019 targetFolder="builds/vs2019" extraLinkerFlags="/ignore:4099">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" targetName="abx"/>
         <CONFIGURATION isDebug="0" name="Release" targetName="abx"/>

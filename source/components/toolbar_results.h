@@ -10,7 +10,7 @@ namespace abx {
 class comp_toolbar_results : public Component {
 public:
     comp_toolbar_results() :
-        _font(get_font(font_ids::result, 65))
+        _font(resources::get_font(font_ids::result, 65))
     {
         _label_result.setFont(_font.boldened().withHorizontalScale(1.15f));
         _label_result.setColour(Label::textColourId, Colours::white);

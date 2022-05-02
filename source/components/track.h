@@ -19,7 +19,7 @@ class comp_track : public Component,
 public:
     comp_track(const String& file_path, AudioTransportSource& transport_source) :
         _thumbnail(512, _processor.getFormatManager(), _thumbnail_cache),
-        _font(get_font(font_ids::file_info)),
+        _font(resources::get_font(font_ids::file_info)),
         _transport_source(transport_source),
         _file_path(file_path)
     {
@@ -38,7 +38,7 @@ public:
         _label_format.setMinimumHorizontalScale(1.f);
         addAndMakeVisible(_label_format);
 
-        _icon.addAndMakeVisible(get_drawable("warning", 14, 14));
+        _icon.addAndMakeVisible(resources::get_drawable("warning", 14, 14));
         addAndMakeVisible(&_icon);
         _icon.setVisible(false);
 
@@ -150,11 +150,11 @@ public:
             if (_thumbnail.getNumChannels() == 0)
             {
                 g.setColour(Colours::red.brighter());
-                int x = 0;
+                auto x = 0.f;
                 while (x < bounds.getWidth() + bounds.getHeight())
                 {
-                    juce::Line<float> line(x, bounds.getHeight(), bounds.getHeight() + x, 0);
-                    x += 5;
+                    juce::Line<float> line(x, static_cast<float>(bounds.getHeight()), bounds.getHeight() + x, 0.f);
+                    x += 5.f;
                     g.drawLine(line, 1.f);
                 }
             }

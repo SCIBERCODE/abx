@@ -36,7 +36,7 @@ public:
         if (icon_name != _icon_name) {
             _icon_name = icon_name;
             _icon.deleteAllChildren();
-            _icon.addAndMakeVisible(get_drawable(_icon_name, width, height));
+            _icon.addAndMakeVisible(resources::get_drawable(_icon_name, width, height));
             resized();
         }
     }
