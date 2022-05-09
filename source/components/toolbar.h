@@ -35,7 +35,7 @@ public:
 
         // user input
         _button_rev.set_border_radius_side(button_toolbar::border_radius_side_t::left);
-        _button_rev.set_icon("backward");
+        _button_rev.set_icon(icons_ids::backward);
         _button_rev.set_type(button_toolbar::button_t::ftdi);
         addAndMakeVisible(_button_rev);
 
@@ -73,20 +73,20 @@ public:
         addAndMakeVisible(_button_b);
 
         _button_fwd.set_border_radius_side(button_toolbar::border_radius_side_t::right);
-        _button_fwd.set_icon("forward");
+        _button_fwd.set_icon(icons_ids::forward);
         _button_fwd.set_type(button_toolbar::button_t::ftdi);
         addAndMakeVisible(_button_fwd);
 
         // settings
         _button_restart.set_border_radius_side(button_toolbar::border_radius_side_t::left);
-        _button_restart.set_icon("restart", 16, 16);
+        _button_restart.set_icon(icons_ids::restart, 16, 16);
         _button_restart.setTooltip("Restart Audio");
         _button_restart.setClickingTogglesState(true);
         _button_restart.setToggleState(true, dontSendNotification);
         addAndMakeVisible(_button_restart);
 
         _button_blind.set_border_radius_side(button_toolbar::border_radius_side_t::right);
-        _button_blind.set_icon("blind", 18, 18);
+        _button_blind.set_icon(icons_ids::blind, 18, 18);
         _button_blind.setTooltip("Blind Mode");
         _button_blind.setClickingTogglesState(true);
         _button_blind.setToggleState(true, dontSendNotification);
@@ -94,34 +94,34 @@ public:
 
         // player
         _button_pause.set_border_radius_side(button_toolbar::border_radius_side_t::left);
-        _button_pause.set_icon("pause");
+        _button_pause.set_icon(icons_ids::pause);
         _button_pause.setClickingTogglesState(true);
         addAndMakeVisible(_button_pause);
         _button_pause.setEnabled(false);
 
-        _button_play.set_icon("play");
+        _button_play.set_icon(icons_ids::play);
         _button_play.setClickingTogglesState(true);
         addAndMakeVisible(_button_play);
         _button_play.setEnabled(false);
 
-        _button_stop.set_icon("stop", 12, 12);
+        _button_stop.set_icon(icons_ids::stop, 12, 12);
         addAndMakeVisible(_button_stop);
         _button_stop.setEnabled(false);
 
         _button_rewind.set_border_radius_side(button_toolbar::border_radius_side_t::right);
-        _button_rewind.set_icon("rewind");
+        _button_rewind.set_icon(icons_ids::rewind);
         _button_rewind.setTooltip("Go to Start");
         addAndMakeVisible(_button_rewind);
         _button_rewind.setEnabled(false);
 
         // right
         _button_open.set_border_radius_side(button_toolbar::border_radius_side_t::left);
-        _button_open.set_icon("open", 16, 16);
+        _button_open.set_icon(icons_ids::open, 16, 16);
         _button_open.setTooltip("Add File");
         addAndMakeVisible(_button_open);
 
         _button_settings.set_border_radius_side(button_toolbar::border_radius_side_t::right);
-        _button_settings.set_icon("settings");
+        _button_settings.set_icon(icons_ids::settings);
         _button_settings.setTooltip("Audio Device Options");
         addAndMakeVisible(_button_settings);
 

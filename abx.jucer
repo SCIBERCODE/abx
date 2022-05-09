@@ -22,6 +22,7 @@
       <FILE id="X5bG3e" name="restart.svg" compile="0" resource="1" file="bin/icons/restart.svg"/>
       <FILE id="YIhc7r" name="rewind.svg" compile="0" resource="1" file="bin/icons/rewind.svg"/>
       <FILE id="FzfMsz" name="settings.svg" compile="0" resource="1" file="bin/icons/settings.svg"/>
+      <FILE id="kWynRu" name="share.svg" compile="0" resource="1" file="bin/icons/share.svg"/>
       <FILE id="yfnmUr" name="stop.svg" compile="0" resource="1" file="bin/icons/stop.svg"/>
       <FILE id="wfY3sj" name="warning.svg" compile="0" resource="1" file="bin/icons/warning.svg"/>
     </GROUP>

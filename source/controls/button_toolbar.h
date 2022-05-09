@@ -32,13 +32,10 @@ public:
     }
     ~button_toolbar() { };
 
-    void set_icon(String icon_name, int width = 14, int height = 14) {
-        if (icon_name != _icon_name) {
-            _icon_name = icon_name;
-            _icon.deleteAllChildren();
-            _icon.addAndMakeVisible(resources::get_drawable(_icon_name, width, height));
-            resized();
-        }
+    void set_icon(icons_ids icon_id, float width = 14.f, float height = 14.f) {
+        _icon.deleteAllChildren();
+        _icon.addAndMakeVisible(resources::get_drawable(icon_id, width, height));
+        resized();
     }
 
     void set_border_radius_side(border_radius_side_t side) {
@@ -133,8 +130,7 @@ public:
 private:
     colors               _colors;
     DrawableComposite    _icon;
-    String               _icon_name          { },
-                         _text               { };
+    String               _text               { };
     border_radius_side_t _border_radius_side { border_radius_side_t::none };
     button_t             _type               { button_t::normal           };
 

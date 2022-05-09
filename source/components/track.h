@@ -38,11 +38,11 @@ public:
         _label_format.setMinimumHorizontalScale(1.f);
         addAndMakeVisible(_label_format);
 
-        _icon.addAndMakeVisible(resources::get_drawable("warning", 14, 14));
+        _icon.addAndMakeVisible(resources::get_drawable(icons_ids::warning, 14, 14));
         addAndMakeVisible(&_icon);
         _icon.setVisible(false);
 
-        _button_close.set_icon("close");
+        _button_close.set_icon(icons_ids::close);
         _button_close.setTooltip("Close Track");
         _button_close.onClick = [&]()
         {

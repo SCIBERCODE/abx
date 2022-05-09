@@ -39,29 +39,69 @@ enum class font_ids {
     result, file_info
 };
 
+enum class icons_ids {
+    // abx
+    backward,
+    forward,
+    // abx settings
+    restart,
+    blind,
+    // player
+    pause,
+    play,
+    stop,
+    rewind,
+    // toolbar right sided
+    open,
+    settings,
+    // result
+    clear,
+    share,
+    // tracks
+    close,
+    warning,
+    // bottom toolbar
+    edit
+};
+
 /*
 //////////////////////////////////////////////////////////////////////////////////////////
 */
 class resources
 {
+private:
+    static inline std::map<icons_ids, const char*> icons_svg {
+        { icons_ids::backward, BinaryData::backward_svg },
+        { icons_ids::forward,  BinaryData::forward_svg  },
+        { icons_ids::restart,  BinaryData::restart_svg  },
+        { icons_ids::blind,    BinaryData::blind_svg    },
+        { icons_ids::pause,    BinaryData::pause_svg    },
+        { icons_ids::play,     BinaryData::play_svg     },
+        { icons_ids::stop,     BinaryData::stop_svg     },
+        { icons_ids::rewind,   BinaryData::rewind_svg   },
+        { icons_ids::open,     BinaryData::open_svg     },
+        { icons_ids::settings, BinaryData::settings_svg },
+        { icons_ids::clear,    BinaryData::clear_svg    },
+        { icons_ids::share,    BinaryData::share_svg    },
+        { icons_ids::close,    BinaryData::close_svg    },
+        { icons_ids::warning,  BinaryData::warning_svg  },
+        { icons_ids::edit,     BinaryData::edit_svg     }
+    };
 public:
      resources() { }
     ~resources() { }
 
-    static Drawable* get_drawable(String icon_name, int width = 16, int height = 16) {
-        int binary_data_size;
-        if (auto binary_data = BinaryData::getNamedResource((icon_name + "_svg").getCharPointer(), binary_data_size))
-        {
-            std::unique_ptr<XmlElement> icon_svg_xml(XmlDocument::parse(binary_data));
-            auto drawable_svg = Drawable::createFromSVG(*(icon_svg_xml.get()));
+    static Drawable* get_drawable(icons_ids icon_id, float width = 16.f, float height = 16.f) {
+        if (icons_svg.count(icon_id) == 0) return nullptr;
 
-            drawable_svg->setTransformToFit(
-                juce::Rectangle<float>(0.f, 0.f, static_cast<float>(width), static_cast<float>(height)),
-                RectanglePlacement::centred
-            );
-            return drawable_svg.release();
-        }
-        return nullptr;
+        std::unique_ptr<XmlElement> icon_svg_xml(XmlDocument::parse(icons_svg.at(icon_id)));
+        auto drawable_svg = Drawable::createFromSVG(*(icon_svg_xml.get()));
+
+        drawable_svg->setTransformToFit(
+            juce::Rectangle<float>(0.f, 0.f, width, height),
+            RectanglePlacement::centred
+        );
+        return drawable_svg.release();
     }
 
     static Font get_font(font_ids font_id, float height = 13.f)
@@ -106,7 +146,7 @@ public:
         _colours[waveform_disabled] = { 136, 136, 144 };
         _colours[waveform_bg      ] = { 192, 192, 192 };
         _colours[header_focused   ] = { 213, 227, 255 };
-        _colours[header_lines     ] = { 128, 128, 128 };    
+        _colours[header_lines     ] = { 128, 128, 128 };
     }
     ~colors() { }
 
@@ -151,7 +191,7 @@ public:
         ignoreUnused(icon);
         ignoreUnused(width);
         ignoreUnused(title_width);
-        ignoreUnused(text_on_left);        
+        ignoreUnused(text_on_left);
 
         g.setColour(getCurrentColourScheme().getUIColour(ColourScheme::widgetBackground));
         g.fillAll();

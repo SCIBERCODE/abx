@@ -18,8 +18,9 @@ public:
         _label_result.setJustificationType(Justification::centred);
         addAndMakeVisible(_label_result);
 
-        _button_clear.set_border_radius_side(button_toolbar::border_radius_side_t::all);
-        _button_clear.set_icon("clear");
+        _button_save .set_border_radius_side(button_toolbar::border_radius_side_t::left);
+        _button_clear.set_border_radius_side(button_toolbar::border_radius_side_t::right);
+        _button_clear.set_icon(icons_ids::clear);
         _button_clear.set_type(button_toolbar::button_t::utility);
         addAndMakeVisible(_button_clear);
         //button_clear.setEnabled(false);
@@ -54,7 +55,8 @@ public:
     }
 private:
     Label          _label_result;
-    button_toolbar _button_clear;
+    button_toolbar _button_clear,
+                   _button_save;
     colors         _colors;
     Font           _font;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(comp_toolbar_results)

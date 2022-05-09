@@ -34,17 +34,13 @@ public:
         _icon.setBounds(5, 5, _icon.getWidth(), _icon.getHeight());
     }
 
-    void set_icon(String icon_name) {
-        if (icon_name != _icon_name) {
-            _icon_name = icon_name;
-            _icon.deleteAllChildren();
-            _icon.addAndMakeVisible(resources::get_drawable(_icon_name, 9, 9));
-        }
+    void set_icon(icons_ids icon_id) {
+        _icon.deleteAllChildren();
+        _icon.addAndMakeVisible(resources::get_drawable(icon_id, 9, 9));
     }
 
 private:
     colors            _colors;
-    String            _icon_name { };
     DrawableComposite _icon;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(button_icon)
 };
