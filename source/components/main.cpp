@@ -4,6 +4,7 @@ namespace abx {
 
 comp_main::comp_main() :
     _window_audio_setup(deviceManager),
+    _toolbar_results(trial_save),
     _timer_long_pressed_button(_fast_reverse, _fast_forward)
 {
     setOpaque(true);
@@ -145,11 +146,11 @@ comp_main::comp_main() :
     _button_results_header.setToggleState(!_results_expanded, dontSendNotification);
     addAndMakeVisible(_button_results_header);
 
-    _results_toolbar.set_on_clear([&]() {
+    _toolbar_results.set_on_clear([&]() {
         _trials.clear();
-        _results_toolbar.set_result("0 / 0, -.--");
+        _toolbar_results.set_result();
     });
-    addAndMakeVisible(_results_toolbar);
+    addAndMakeVisible(_toolbar_results);
 }
 
 comp_main::~comp_main() {
@@ -251,9 +252,9 @@ void comp_main::resized() {
 
     // results header button
     _button_results_header.setBounds(area.removeFromTop(20));
-    _results_toolbar.setVisible(_results_expanded);
+    _toolbar_results.setVisible(_results_expanded);
     if (_results_expanded)
-        _results_toolbar.setBounds(area.removeFromTop(50));
+        _toolbar_results.setBounds(area.removeFromTop(50));
 
     const auto mastertrack_size = _master_track.get_size();
     _master_track.setBounds(0, getHeight() - mastertrack_size.second, getWidth(), mastertrack_size.second);
@@ -488,11 +489,11 @@ void comp_main::trial_cycle(bit_t button_bt) {
         }
     }
     auto pval = abs(((count_all / 2.) - count_correct) / sqrt(count_all / 4.));
-    auto display = String(count_correct) + " / " + String(count_all);
+    auto display = std::format("{} / {}", count_correct, count_all);
     if (std::isfinite(pval)) {
-        display += ", " + String(pval, 2);
+        display += std::format(", {:.2f}", pval);
     }
-    _results_toolbar.set_result(display);
+    _toolbar_results.set_result(display);
 
     if (_toolbar.get_state(comp_toolbar::button_t::restart))
     {
@@ -512,78 +513,6 @@ void comp_main::trial_cycle(bit_t button_bt) {
     change_state(state_t::starting);
     _user_stopped = false;
 }
-
-void comp_main::trial_save() {
-
-    String css_class,
-           btn_text,
-           relay_text,
-           html =
-        "<!DOCTYPE html>\r\n"
-        "<html><head>\r\n"
-        "<style>\r\n"
-        "    .gray   { color: gray; }\r\n"
-        "    .value  { color: blue; }\r\n"
-        "    .class  { color: rgb(43, 145, 175); }\r\n"
-        "    .delim  { border-top: dotted 1px black; }\r\n"
-        "    .static { min-width: 10rem; display: inline-block; padding-right: 0.8rem; text-align: right; }\r\n"
-        "    .link   { cursor: pointer; text-decoration: underline; color: blue; }\r\n"
-        "    .nope   { background-color: rgb(251, 202, 204); }\r\n"
-        "    .param  { background-color: rgb(225, 225, 225); }\r\n"
-        "    .ok     { background-color: rgb(209, 236, 193); }\r\n"
-        "</style>\r\n"
-        "</head>\r\n"
-        "<body style = 'background-color: rgb(240, 240, 240);'>\r\n"
-        "<pre>\r\n";
-    //"<span class='static'>%s</span>\r\n"
-    //"<div class='delim'></div>\r\n"
-    //"<span class='static' style='margin-bottom: 0.8rem'>Score</span><span>Relay/Button</span>\r\n";
-
-    size_t count_all = 0, count_correct = 0;
-    for (const auto& trial : _trials)
-    {
-        if (!trial.blind) continue;
-
-        switch (trial.button) {
-        case btn_hz:
-            btn_text = "?";
-            css_class = "param";
-            break;
-        case btn_a: btn_text = "A"; break;
-        case btn_b: btn_text = "B"; break;
-        default:    btn_text = "~";
-        }
-        switch (trial.relay) {
-        case relay_a: relay_text = "A"; break;
-        case relay_b: relay_text = "B"; break;
-        default:      relay_text = "~";
-        }
-        if (trial.button != btn_hz) {
-            {
-                if ((trial.button == btn_a && trial.relay == relay_a) ||
-                    (trial.button == btn_b && trial.relay == relay_b))
-                {
-                    count_correct++;
-                    css_class = "ok";
-                }
-                else {
-                    css_class = "nope";
-                }
-            }
-            count_all++;
-        }
-        auto pval = abs(((count_all / 2.) - count_correct) / sqrt(count_all / 4.));
-        html +=
-            "<span class = 'static'>" + String(pval) + "</span>"
-            "<span class = '" + css_class + "'>    BUTTON_" + btn_text + " / RELAY_" + relay_text + "    </span><br>\r\n";
-    }
-    html += "</pre></body></html>";
-
-    juce::File::getCurrentWorkingDirectory()
-        .getChildFile("score.html")
-        .replaceWithText(html);
-
-};
 
 void comp_main::launch_audio_setup() {
     auto audio_setup = std::make_unique<window_audio_setup>(deviceManager).release();
