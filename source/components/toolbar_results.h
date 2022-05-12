@@ -66,6 +66,7 @@ public:
 
     void set_result(String text = { }) {
         _button_clear.setEnabled(text.length());
+        _button_share.setEnabled(text.length());
         if (text.length() == 0) {
             text = "0 / 0, -.--";
         }

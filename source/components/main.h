@@ -66,7 +66,7 @@ private:
     class timer_long_pressed_button : public Timer
     {
     private:
-        bit_t _button_pressed;
+        bit_t _button_pressed { };
         bool& _fast_reverse;
         bool& _fast_forward;
     public:
@@ -167,29 +167,10 @@ private:
     //////////////////////////////////////////////////////////////////////////////////////////
     */
     std::function<void()> trial_save = [this]() {
-        String css_class,
-            btn_text,
-            relay_text,
-            html =
-            "<!DOCTYPE html>\r\n"
-            "<html><head>\r\n"
-            "<style>\r\n"
-            "    .gray   { color: gray; }\r\n"
-            "    .value  { color: blue; }\r\n"
-            "    .class  { color: rgb(43, 145, 175); }\r\n"
-            "    .delim  { border-top: dotted 1px black; }\r\n"
-            "    .static { min-width: 10rem; display: inline-block; padding-right: 0.8rem; text-align: right; }\r\n"
-            "    .link   { cursor: pointer; text-decoration: underline; color: blue; }\r\n"
-            "    .nope   { background-color: rgb(251, 202, 204); }\r\n"
-            "    .param  { background-color: rgb(225, 225, 225); }\r\n"
-            "    .ok     { background-color: rgb(209, 236, 193); }\r\n"
-            "</style>\r\n"
-            "</head>\r\n"
-            "<body style = 'background-color: rgb(240, 240, 240);'>\r\n"
-            "<pre>\r\n";
-        //"<span class='static'>sdfasdfads</span>\r\n";
-        //"<div class='delim'></div>\r\n"
-        //"<span class='static' style='margin-bottom: 0.8rem'>Score</span><span>Relay/Button</span>\r\n";
+        std::string html { resources::get_html_header() };
+        const char* css_class;
+        const char* btn_text;
+        const char* relay_text;
 
         size_t count_all = 0, count_correct = 0;
         for (const auto& trial : _trials)
@@ -198,7 +179,7 @@ private:
 
             switch (trial.button) {
             case btn_hz:
-                btn_text = "?";
+                btn_text  = "?";
                 css_class = "param";
                 break;
             case btn_a: btn_text = "A"; break;
@@ -225,15 +206,18 @@ private:
                 count_all++;
             }
             auto pval = abs(((count_all / 2.) - count_correct) / sqrt(count_all / 4.));
-            html +=
-                "<span class = 'static'>" + String(pval) + "</span>"
-                "<span class = '" + css_class + "'>    BUTTON_" + btn_text + " / RELAY_" + relay_text + "    </span><br>\r\n";
+            html += std::format("<span class = 'static'>{:.4f}</span><span class = '{}'>    BUTTON_{} / RELAY_{}    </span>\r\n",
+                pval, css_class, btn_text, relay_text);
         }
-        html += "</pre></body></html>";
+        html += "</pre>\r\n</body>\r\n</html>";
 
-        juce::File::getCurrentWorkingDirectory()
-            .getChildFile("score.html")
-            .replaceWithText(html);
+        auto last_path = _settings.getUserSettings()->getValue("last_path");
+        FileChooser chooser("Save Trial Log to...", last_path, "*.html", true, false, this);
+        if (chooser.browseForFileToSave(true))
+        {
+            File html_file(chooser.getResult());
+            html_file.replaceWithText(html);
+        }
     };
 
 /*

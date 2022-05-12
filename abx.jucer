@@ -3,11 +3,15 @@
 <JUCERPROJECT id="CU81fQ" name="abx" projectType="guiapp" useAppConfig="0"
               addUsingNamespaceToJuceHeader="1" jucerFormatVersion="1" companyName="sciber"
               companyWebsite="https://sciber.ru" companyEmail="contact@sciber.ru"
-              cppLanguageStandard="17" headerPath="..\..\libs\asio_sdk\&#10;..\..\libs\">
+              cppLanguageStandard="latest" headerPath="..\..\libs\asio_sdk\&#10;..\..\libs\">
   <MAINGROUP id="epcY7v" name="abx">
+    <GROUP id="{DF4217CD-B4FB-4DAF-D760-C9B9E9E3A304}" name="html">
+      <FILE id="FsTnO8" name="trial_log_header.html" compile="0" resource="1"
+            file="bin/trial_log_header.html"/>
+    </GROUP>
     <GROUP id="{8E65D7C6-0B1E-57D9-0F75-886B80B22765}" name="fonts">
-      <FILE id="pLwp4L" name="sfpro.ttf" compile="0" resource="1" file="bin/sfpro.ttf"/>
-      <FILE id="s0yUnx" name="upcdl.ttf" compile="0" resource="1" file="bin/upcdl.ttf"/>
+      <FILE id="yzS8if" name="sfpro.ttf" compile="0" resource="1" file="bin/fonts/sfpro.ttf"/>
+      <FILE id="BQqrNp" name="upcdl.ttf" compile="0" resource="1" file="bin/fonts/upcdl.ttf"/>
     </GROUP>
     <GROUP id="{EEDCE2CB-8C43-0F09-8D44-446276BC058F}" name="icons">
       <FILE id="Q6mTNH" name="backward.svg" compile="0" resource="1" file="bin/icons/backward.svg"/>

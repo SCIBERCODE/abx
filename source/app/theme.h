@@ -104,7 +104,7 @@ public:
         return drawable_svg.release();
     }
 
-    static Font get_font(font_ids font_id, float height = 13.f)
+    static auto get_font(font_ids font_id, float height = 13.f)
     {
         String font_name{ };
         switch (font_id) {
@@ -114,6 +114,11 @@ public:
         int binary_data_size;
         auto binary_data = BinaryData::getNamedResource((font_name + "_ttf").getCharPointer(), binary_data_size);
         return Font(Typeface::createSystemTypefaceFor(binary_data, binary_data_size)).withHeight(height);
+    }
+
+    static auto get_html_header()
+    {
+        return BinaryData::trial_log_header_html;
     }
 };
 
