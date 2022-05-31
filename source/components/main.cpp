@@ -107,6 +107,7 @@ comp_main::comp_main() :
 
     auto relay_change_callback = [&](uint8_t new_relay)
     {
+        //DBG("relay_change_callback");
         _relay = new_relay;
         if (new_relay == 0) {
             _toolbar.hard_press(comp_toolbar::button_t::a, false);
@@ -346,6 +347,7 @@ void comp_main::track_add(const String& file_path) {
 
 void comp_main::change_state(state_t new_state)
 {
+    DBG(std::format("change_state: old = {}; new = {}", state_names.at(_state), state_names.at(new_state)));
     if (_state != new_state && _current_track)
     {
         _state = new_state;
@@ -424,6 +426,7 @@ void comp_main::track_change(comp_track* _track, bool is_next) {
 
 void comp_main::changeListenerCallback(ChangeBroadcaster* source)
 {
+    DBG("changeListenerCallback");
     if (source == &_transport_source)
     {
         if (_transport_source.isPlaying()) {
@@ -456,8 +459,9 @@ void comp_main::changeListenerCallback(ChangeBroadcaster* source)
 
 void comp_main::trial_cycle(bit_t button_bt) {
     auto blind = _toolbar.get_state(comp_toolbar::button_t::blind);
-    if (_state != state_t::playing)
+    if (_state != state_t::playing && _state != state_t::starting)
     {
+        DBG(std::format("trial_cycle: {} != playing", state_names.at(_state)));
         _ftdi.toggle_relay(blind, button_bt);
         Sleep(300);
         change_state(state_t::starting);
@@ -507,11 +511,15 @@ void comp_main::trial_cycle(bit_t button_bt) {
         _ftdi.turn_off_relay();
         change_state(state_t::pausing);
     }
-    Sleep(150);
-    _ftdi.toggle_relay(blind, button_bt);
-    Sleep(50 + static_cast<DWORD>(_ftdi.rand_range(200)));
-    change_state(state_t::starting);
-    _user_stopped = false;
+    Timer::callAfterDelay(150, [=]()
+    {
+        _ftdi.toggle_relay(blind, button_bt);
+        Timer::callAfterDelay(50 + static_cast<DWORD>(_ftdi.rand_range(200)), [&]()
+        {
+            change_state(state_t::starting);
+            _user_stopped = false;
+        });
+    });
 }
 
 void comp_main::launch_audio_setup() {

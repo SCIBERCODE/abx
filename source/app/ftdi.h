@@ -48,11 +48,16 @@ public:
             if (button_bt == btn_b)  relay_bt.set(relay_b);
         }
         _relay = static_cast<uint8_t>(relay_bt.to_ulong());
+        DBG(std::format("toggle_relay: relay = {}", get_relay()));
     }
 
-    void turn_off_relay() { _relay = 0; }
+    void turn_off_relay() {
+        _relay = 0;
+    }
 
-    uint8_t get_relay() { return _relay.get(); };
+    uint8_t get_relay() {
+        return _relay.get();
+    };
 
     ftdi() : Thread(""), _xs1024(abx::init_rnd())
     {
@@ -175,7 +180,7 @@ public:
             relays_mask.set(relay_a);
             relays_mask.set(relay_b);
             if (FT_OK != FT_SetBitMode     (handle, 0, 0) ||
-                FT_OK != FT_SetBitMode     (handle, (UCHAR)relays_mask.to_ulong(), FT_BITMODE_SYNC_BITBANG) ||
+                FT_OK != FT_SetBitMode     (handle, static_cast<UCHAR>(relays_mask.to_ulong()), FT_BITMODE_SYNC_BITBANG) ||
                 FT_OK != FT_SetTimeouts    (handle, 100, 100) ||
                 FT_OK != FT_SetBaudRate    (handle, FT_BAUD_14400) ||
                 FT_OK != FT_SetLatencyTimer(handle, 1)

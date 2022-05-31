@@ -52,9 +52,10 @@ public:
 
         // sliders
         _slider_volume.set_label("Vol.");
-        _slider_volume.set_on_slider_value_changed([this](double value) {
+        _slider_volume.set_on_slider_value_changed([this](double value)
+        {
             _processor.set_gain(static_cast<float>(value));
-            });
+        });
         addAndMakeVisible(_slider_volume);
 
         _marker_user.setFill(Colours::darkgrey);
@@ -66,7 +67,7 @@ public:
         _marker_user.setVisible(false);
 
         _dull_color.setAlpha(.4f);
-        _dull_color.setFill(Colour(192, 192, 192));
+        _dull_color.setFill(_colors.get(color_ids::waveform_bg));
         addAndMakeVisible(_dull_color);
         _dull_color.setVisible(false);
 
@@ -99,17 +100,20 @@ public:
     void update_info(double device_sample_rate) {
         if (_sample_rate != 0.)
         {
-            auto rate = String(_sample_rate, 0) + "Hz";
+            auto rate = std::format("{:.0f} Hz", _sample_rate);
             _icon.setVisible(false);
-            if (device_sample_rate != _sample_rate) {
-                rate += "  >>  " + String(device_sample_rate, 0) + "Hz";
+            if (device_sample_rate != _sample_rate)
+            {
+                rate += std::format("  >>  {:.0f} Hz", device_sample_rate);
                 _icon.setVisible(true);
             }
             _label_rate.setText(rate, sendNotificationAsync);
         }
 
-        auto ext = File(_file_path).getFileExtension().substring(1).toUpperCase();
-        _label_format.setText(_bps != 0 ? (String(_bps) + "-bit ") : "" + ext + " File", sendNotificationAsync);
+        auto ext = File(_file_path).getFileExtension().substring(1).toUpperCase().toStdString();
+        _label_format.setText(std::format("{}{} File",
+            _bps ? (std::format("{}-bit ", _bps)) : "", ext), sendNotificationAsync);
+
         resized();
     }
 

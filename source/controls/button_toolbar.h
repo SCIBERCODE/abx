@@ -124,7 +124,7 @@ public:
         _type = type;
     }
 
-    bool hard_pressed{ false };
+    bool hard_pressed { false };
 
 private:
     colors               _colors;

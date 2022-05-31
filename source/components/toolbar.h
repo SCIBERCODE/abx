@@ -225,6 +225,8 @@ public:
     }
 
     void hard_press(button_t button, bool should_be_pressed) {
+        if (button == button_t::a)
+            DBG(std::format("hard_press: a = {}", should_be_pressed));
         if (auto p_button = get_button(button)) {
             p_button->hard_pressed = should_be_pressed;
         }

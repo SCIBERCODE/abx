@@ -74,7 +74,7 @@ public:
     }
 private:
     Label          _label_result;
-    button_toolbar _button_clear,
+    button_toolbar _button_clear, // todo: cancel last trial
                    _button_share;
     PopupMenu      _share_menu;
     colors         _colors;

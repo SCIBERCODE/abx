@@ -25,6 +25,15 @@ enum class state_t
     stopping
 };
 
+const std::map<state_t, std::string> state_names = {
+    {state_t::stopped,  "stopped"  },
+    {state_t::starting, "starting" },
+    {state_t::playing,  "playing"  },
+    {state_t::pausing,  "pausing"  },
+    {state_t::paused,   "paused"   },
+    {state_t::stopping, "stopping" }
+};
+
 struct trial_t
 {
     bit_t button;
@@ -135,6 +144,7 @@ private:
         if (btns.test(btn_fwd)) btn = btn_fwd;
 
         _toolbar.hard_press(comp_toolbar::button_t::rev, btn == btn_rev);
+        //_toolbar.hard_press(comp_toolbar::button_t::a,   btn == btn_a  );
         _toolbar.hard_press(comp_toolbar::button_t::fwd, btn == btn_fwd);
         _toolbar.repaint();
 
