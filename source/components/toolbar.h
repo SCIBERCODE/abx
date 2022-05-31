@@ -79,14 +79,14 @@ public:
 
         // settings
         _button_restart.set_border_radius_side(button_toolbar::border_radius_side_t::left);
-        _button_restart.set_icon(icons_ids::restart, 16, 16);
+        _button_restart.set_icon(icons_ids::restart, 16.f);
         _button_restart.setTooltip("Restart Audio");
         _button_restart.setClickingTogglesState(true);
         _button_restart.setToggleState(true, dontSendNotification);
         addAndMakeVisible(_button_restart);
 
         _button_blind.set_border_radius_side(button_toolbar::border_radius_side_t::right);
-        _button_blind.set_icon(icons_ids::blind, 18, 18);
+        _button_blind.set_icon(icons_ids::blind, 18.f);
         _button_blind.setTooltip("Blind Mode");
         _button_blind.setClickingTogglesState(true);
         _button_blind.setToggleState(true, dontSendNotification);
@@ -104,7 +104,7 @@ public:
         addAndMakeVisible(_button_play);
         _button_play.setEnabled(false);
 
-        _button_stop.set_icon(icons_ids::stop, 12, 12);
+        _button_stop.set_icon(icons_ids::stop, 12.f);
         addAndMakeVisible(_button_stop);
         _button_stop.setEnabled(false);
 
@@ -116,7 +116,7 @@ public:
 
         // right
         _button_open.set_border_radius_side(button_toolbar::border_radius_side_t::left);
-        _button_open.set_icon(icons_ids::open, 16, 16);
+        _button_open.set_icon(icons_ids::open, 16.f);
         _button_open.setTooltip("Add File");
         addAndMakeVisible(_button_open);
 
@@ -142,40 +142,34 @@ public:
 
     void resized() override  {
         const auto spacing_small = 2;
-        const auto spacing_big   = 20;
-        const auto button_size   = _button_pause.get_size();
+        const auto button_size   = _button_a.get_size();
               auto x             = 4;
-              auto y             = (getHeight() - button_size.second) / 2;
+              auto y             = (getHeight() - button_size) / 2;
+              auto resize_button = [&](button_toolbar& button, bool big_spacing = false)
+              {
+                  button.setBounds(x, y, button_size, button_size);
+                  x += button_size + (big_spacing ? spacing_small * 10 : spacing_small);
+              };
 
-        _button_rev.setBounds(x, y, button_size.first, button_size.second);
-        x += button_size.first + spacing_small;
-        _button_a  .setBounds(x, y, button_size.first, button_size.second);
-        x += button_size.first + spacing_small;
-        _button_hz .setBounds(x, y, button_size.first, button_size.second);
-        x += button_size.first + spacing_small;
-        _button_b  .setBounds(x, y, button_size.first, button_size.second);
-        x += button_size.first + spacing_small;
-        _button_fwd.setBounds(x, y, button_size.first, button_size.second);
-        x += button_size.first + spacing_big;
+        resize_button(_button_rev);
+        resize_button(_button_a);
+        resize_button(_button_hz);
+        resize_button(_button_b);
+        resize_button(_button_fwd, true);
 
-        _button_restart.setBounds(x, y, button_size.first, button_size.second);
-        x += button_size.first + spacing_small;
-        _button_blind  .setBounds(x, y, button_size.first, button_size.second);
-        x += button_size.first + spacing_big;
+        resize_button(_button_restart);
+        resize_button(_button_blind, true);
 
-        _button_pause .setBounds(x, y, button_size.first, button_size.second);
-        x += button_size.first + spacing_small;
-        _button_play  .setBounds(x, y, button_size.first, button_size.second);
-        x += button_size.first + spacing_small;
-        _button_stop  .setBounds(x, y, button_size.first, button_size.second);
-        x += button_size.first + spacing_small;
-        _button_rewind.setBounds(x, y, button_size.first, button_size.second);
+        resize_button(_button_pause);
+        resize_button(_button_play);
+        resize_button(_button_stop);
+        resize_button(_button_rewind, true);
 
         auto bounds = getLocalBounds();
         bounds.reduce(4, 4);
-        _button_settings.setBounds(bounds.removeFromRight(button_size.first));
+        _button_settings.setBounds(bounds.removeFromRight(button_size));
         bounds.removeFromRight(spacing_small);
-        _button_open.setBounds(bounds.removeFromRight(button_size.first));
+        _button_open.setBounds(bounds.removeFromRight(button_size));
     }
 
     std::pair<int, int> get_size() const {

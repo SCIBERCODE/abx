@@ -32,6 +32,14 @@ struct trial_t
     bool  blind;
 };
 
+namespace settings_keys {
+    static StringRef last_path { "last_path" };
+    static StringRef gain_a    { "gain_a"    };
+    static StringRef gain_b    { "gain_b"    };
+    static StringRef name_a    { "name_a"    };
+    static StringRef name_b    { "name_b"    };
+}
+
 /*
 //////////////////////////////////////////////////////////////////////////////////////////
 */
@@ -107,8 +115,8 @@ private:
             _master_track.get_processor().set_gain(gain, last_relay != relay_b);
             last_relay = relay_b;
         }
-        _settings.getUserSettings()->setValue("gain_a", _master_track.get_gain(0));
-        _settings.getUserSettings()->setValue("gain_b", _master_track.get_gain(1));
+        _settings.getUserSettings()->setValue(settings_keys::gain_a, _master_track.get_gain(0));
+        _settings.getUserSettings()->setValue(settings_keys::gain_b, _master_track.get_gain(1));
         _settings.saveIfNeeded();
     };
 
@@ -211,7 +219,7 @@ private:
         }
         html += "</pre>\r\n</body>\r\n</html>";
 
-        auto last_path = _settings.getUserSettings()->getValue("last_path");
+        auto last_path = _settings.getUserSettings()->getValue(settings_keys::last_path);
         FileChooser chooser("Save Trial Log to...", last_path, "*.html", true, false, this);
         if (chooser.browseForFileToSave(true))
         {

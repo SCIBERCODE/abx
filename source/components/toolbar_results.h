@@ -58,7 +58,7 @@ public:
         auto area = getLocalBounds();
         _label_result.setBounds(area.withTrimmedBottom(2));
         area.reduce(4, 4);
-        auto button_size = _button_clear.get_size().first;
+        auto button_size = _button_clear.get_size();
         _button_clear.setBounds(area.removeFromRight(button_size).withSizeKeepingCentre(button_size, button_size));
         area.removeFromRight(2);
         _button_share.setBounds(area.removeFromRight(button_size).withSizeKeepingCentre(button_size, button_size));

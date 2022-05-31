@@ -27,14 +27,13 @@ public:
     button_toolbar() : Button("") {
         _icon.setSize(16, 16);
         addAndMakeVisible(_icon);
-        const auto default_size = get_size();
-        setSize(default_size.first, default_size.second);
+        setSize(get_size(), get_size());
     }
     ~button_toolbar() { };
 
-    void set_icon(icons_ids icon_id, float width = 14.f, float height = 14.f) {
+    void set_icon(icons_ids icon_id, float size = 14.f) {
         _icon.deleteAllChildren();
-        _icon.addAndMakeVisible(resources::get_drawable(icon_id, width, height));
+        _icon.addAndMakeVisible(resources::get_drawable(icon_id, size, size));
         resized();
     }
 
@@ -45,8 +44,8 @@ public:
         }
     }
 
-    std::pair<int, int> get_size() const {
-        return std::make_pair(32, 32);
+    int get_size() const {
+        return 32;
     }
 
     void paintButton(Graphics& g, bool highlighted, bool down) override

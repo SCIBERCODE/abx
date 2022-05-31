@@ -59,7 +59,7 @@ comp_main::comp_main() :
         static bool already_opened = false;
         if (!already_opened) {
             already_opened = true;
-            auto last_path = _settings.getUserSettings()->getValue("last_path");
+            auto last_path = _settings.getUserSettings()->getValue(settings_keys::last_path);
             FileChooser chooser({ }, last_path, _filter->getDescription(), true, false, this);
             if (chooser.browseForMultipleFilesToOpen()) {
                 for (auto const& file : chooser.getResults()) {
@@ -82,17 +82,17 @@ comp_main::comp_main() :
     _master_track.set_on_gain_changed(gain_changed_callback);
     _master_track.set_on_name_changed([&]() {
         auto names = _master_track.get_names();
-        _settings.getUserSettings()->setValue("a", names.first);
-        _settings.getUserSettings()->setValue("b", names.second);
+        _settings.getUserSettings()->setValue(settings_keys::name_a, names.first);
+        _settings.getUserSettings()->setValue(settings_keys::name_b, names.second);
         _settings.saveIfNeeded();
     });
     _master_track.set_names(std::make_pair(
-        _settings.getUserSettings()->getValue("a"),
-        _settings.getUserSettings()->getValue("b")
+        _settings.getUserSettings()->getValue(settings_keys::name_a),
+        _settings.getUserSettings()->getValue(settings_keys::name_b)
     ));
     _master_track.set_volumes(std::make_pair(
-        _settings.getUserSettings()->getDoubleValue("gain_a"),
-        _settings.getUserSettings()->getDoubleValue("gain_b")
+        _settings.getUserSettings()->getDoubleValue(settings_keys::gain_a),
+        _settings.getUserSettings()->getDoubleValue(settings_keys::gain_b)
     ));
 
     addAndMakeVisible(_master_track);
@@ -340,7 +340,7 @@ void comp_main::track_add(const String& file_path) {
     }
     resized();
 
-    _settings.getUserSettings()->setValue("last_path", File(file_path).getParentDirectory().getFullPathName());
+    _settings.getUserSettings()->setValue(settings_keys::last_path, File(file_path).getParentDirectory().getFullPathName());
     _settings.saveIfNeeded();
 }
 
