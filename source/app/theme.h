@@ -22,7 +22,8 @@ namespace color_ids {
         button_normal = __last_slider_ids,
         button_hover,
         button_pressed,
-        button_toogled,
+        button_green,
+        button_red,
         __last_button_ids
     };
     enum track_ids : size_t {
@@ -144,7 +145,8 @@ public:
         _colours[button_normal    ] = Colours::transparentWhite;
         _colours[button_hover     ] = { 185, 194, 227 };
         _colours[button_pressed   ] = _colours[button_hover].darker(.07f);
-        _colours[button_toogled   ] = {  97, 207, 165 };
+        _colours[button_green     ] = {  97, 207, 165 };
+        _colours[button_red       ] = { 217, 152, 104 };
         // track
         _colours[waveform         ] = {  50,  50, 200 };
         _colours[waveform_light   ] = { 100, 100, 220 };

@@ -105,24 +105,6 @@ comp_main::comp_main() :
     formatManager.registerBasicFormats();
     _filter = std::make_unique<WildcardFileFilter>(formatManager.getWildcardForAllFormats(), String { }, String { });
 
-    auto relay_change_callback = [&](uint8_t new_relay)
-    {
-        //DBG("relay_change_callback");
-        _relay = new_relay;
-        if (new_relay == 0) {
-            _toolbar.hard_press(comp_toolbar::button_t::a, false);
-            _toolbar.hard_press(comp_toolbar::button_t::b, false);
-        }
-        else {
-            gain_changed_callback();
-            if (_toolbar.get_state(comp_toolbar::button_t::blind)) return;
-            std::bitset<8> relay_bt(new_relay);
-            _toolbar.hard_press(comp_toolbar::button_t::a, relay_bt.test(relay_a));
-            _toolbar.hard_press(comp_toolbar::button_t::b, relay_bt.test(relay_b));
-        }
-        _toolbar.repaint();
-    };
-
     _ftdi.set_on_button_press_callback(on_button_press);
     _ftdi.set_on_relay_change_callback(relay_change_callback);
 
@@ -374,6 +356,7 @@ void comp_main::change_state(state_t new_state)
             _toolbar.set_state  (comp_toolbar::button_t::play,  true);
             _toolbar.set_enabled(comp_toolbar::button_t::stop,  true);
             _toolbar.set_enabled(comp_toolbar::button_t::pause, true);
+            _ready = true;
             break;
 
         case state_t::pausing:
@@ -458,6 +441,7 @@ void comp_main::changeListenerCallback(ChangeBroadcaster* source)
 }
 
 void comp_main::trial_cycle(bit_t button_bt) {
+    _ready = false;
     auto blind = _toolbar.get_state(comp_toolbar::button_t::blind);
     if (_state != state_t::playing && _state != state_t::starting)
     {
@@ -486,8 +470,10 @@ void comp_main::trial_cycle(bit_t button_bt) {
                         count_correct++;
                     }
                 }
-                else
+                else {
+                    DBG("error #1");
                     return;
+                }
             }
             count_all++;
         }

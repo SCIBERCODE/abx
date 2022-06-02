@@ -132,8 +132,29 @@ private:
     /*
     //////////////////////////////////////////////////////////////////////////////////////////
     */
+    std::function<void(uint8_t new_relay)> relay_change_callback = [this](uint8_t new_relay)
+    {
+        DBG("relay_change_callback");
+        _relay = new_relay;
+        auto blind = _toolbar.get_state(comp_toolbar::button_t::blind);
+        if (new_relay) {
+            gain_changed_callback();
+        }
+        if (!blind)
+        {
+            std::bitset<8> relay_bt(new_relay);
+            _toolbar.hard_press(comp_toolbar::button_t::a, relay_bt.test(relay_a));
+            _toolbar.hard_press(comp_toolbar::button_t::b, relay_bt.test(relay_b));
+            _toolbar.repaint();
+        }
+    };
+
+    /*
+    //////////////////////////////////////////////////////////////////////////////////////////
+    */
     std::function<void(uint8_t buttons_pressed)> on_button_press = [this](uint8_t buttons_pressed)
     {
+        DBG(std::format("on_button_press: {}", buttons_pressed));
         std::bitset<8>btns(buttons_pressed);
         btns.flip();
         bit_t btn = unknown;
@@ -144,9 +165,22 @@ private:
         if (btns.test(btn_fwd)) btn = btn_fwd;
 
         _toolbar.hard_press(comp_toolbar::button_t::rev, btn == btn_rev);
-        //_toolbar.hard_press(comp_toolbar::button_t::a,   btn == btn_a  );
         _toolbar.hard_press(comp_toolbar::button_t::fwd, btn == btn_fwd);
+        _toolbar.hard_press(comp_toolbar::button_t::hz,  btn == btn_hz);
+
+        bit_t relay { unknown };
+        std::bitset<8> relay_bt(_ftdi.get_relay());
+
+        if (relay_bt.test(relay_a)) relay = relay_a;
+        if (relay_bt.test(relay_b)) relay = relay_b;
+
+        auto correct = (btn == btn_a && relay == relay_a) || (btn == btn_b && relay == relay_b);
+
+        _toolbar.hard_press(comp_toolbar::button_t::a, btn == btn_a, !correct);
+        _toolbar.hard_press(comp_toolbar::button_t::b, btn == btn_b, !correct);
         _toolbar.repaint();
+
+        if (!_ready) return;
 
         if (btn == btn_rev || btn == btn_fwd) {
             _timer_long_pressed_button.pressed(btn);
@@ -266,10 +300,11 @@ private:
     timer_long_pressed_button             _timer_long_pressed_button;
     colors                                _colors;
 
-    bool _user_stopped     { },
-         _fast_reverse     { },
-         _fast_forward     { },
-         _results_expanded { };
+    bool              _fast_reverse     = false,
+                      _fast_forward     = false,
+                      _results_expanded = false;
+    std::atomic<bool> _user_stopped     = false;
+    std::atomic<bool> _ready            = true;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(comp_main)
 };

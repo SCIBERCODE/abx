@@ -48,6 +48,11 @@ public:
         return 32;
     }
 
+    void hard_press(bool should_be_pressed, bool wrong) {
+        _hard_pressed.first  = should_be_pressed;
+        _hard_pressed.second = wrong;
+    }
+
     void paintButton(Graphics& g, bool highlighted, bool down) override
     {
         const auto bounds = getLocalBounds().toFloat().reduced(.5f, .5f);
@@ -58,10 +63,12 @@ public:
         else if (highlighted)
             g.setColour(_colors.get(color_ids::button_hover));
         else
-            g.setColour(_colors.get(_type == button_t::ftdi ? color_ids::header : color_ids::button_normal));
+            g.setColour(_colors.get(
+                _type == button_t::ftdi ? color_ids::header : color_ids::button_normal));
 
-        if (hard_pressed) {
-            g.setColour(_colors.get(color_ids::button_toogled));
+        if (_hard_pressed.first) {
+            g.setColour(_colors.get(
+                _hard_pressed.second ? color_ids::button_red : color_ids::button_green));
         }
 
         Path path;
@@ -86,7 +93,7 @@ public:
         if (getToggleState()) {
             g.setColour(_colors.get(color_ids::button_pressed));
             g.fillPath(path);
-            g.setColour(_colors.get(color_ids::button_toogled));
+            g.setColour(_colors.get(color_ids::button_green));
             g.reduceClipRegion(path);
             g.fillRect(juce::Rectangle<float>(bounds.getX(), bounds.getBottom() - 3.f, bounds.getWidth(), 3.f));
         }
@@ -124,14 +131,13 @@ public:
         _type = type;
     }
 
-    bool hard_pressed { false };
-
 private:
-    colors               _colors;
-    DrawableComposite    _icon;
-    String               _text               { };
-    border_radius_side_t _border_radius_side { border_radius_side_t::none };
-    button_t             _type               { button_t::normal           };
+    colors                _colors;
+    DrawableComposite     _icon;
+    String                _text               { };
+    border_radius_side_t  _border_radius_side { border_radius_side_t::none   };
+    button_t              _type               { button_t::normal             };
+    std::pair<bool, bool> _hard_pressed       { std::make_pair(false, false) };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(button_toolbar)
 };
