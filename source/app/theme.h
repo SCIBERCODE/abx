@@ -107,7 +107,7 @@ public:
 
     static auto get_font(font_ids font_id, float height = 13.f)
     {
-        String font_name{ };
+        String font_name {};
         switch (font_id) {
         case font_ids::result:    font_name = "upcdl"; break;
         case font_ids::file_info: font_name = "sfpro"; break;

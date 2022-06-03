@@ -123,7 +123,7 @@ private:
     track_processor _processor;
     double          _gain[2];
 
-    Label                              _label_name[2] { { { }, "A" }, { { }, "B" } };
+    Label                              _label_name[2] {{{}, "A" }, {{}, "B" }};
     std::unique_ptr<slider_with_label> _slider_vol[2];
     std::unique_ptr<TextEditor>        _edit_name[2];
 

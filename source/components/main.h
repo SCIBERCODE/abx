@@ -36,9 +36,9 @@ const std::map<state_t, std::string> state_names = {
 
 struct trial_t
 {
-    bit_t button;
-    bit_t relay;
-    bool  blind;
+    size_t button;
+    size_t relay;
+    bool   blind;
 };
 
 namespace settings_keys {
@@ -74,7 +74,7 @@ private:
     void track_activate(comp_track*, bool double_click);
     void track_change(comp_track* _track, bool is_next);
     void change_state(state_t new_state);
-    void trial_cycle(bit_t button_bt);
+    void trial_cycle(size_t button_bt);
     void launch_audio_setup();
 
     /*
@@ -83,24 +83,24 @@ private:
     class timer_long_pressed_button : public Timer
     {
     private:
-        bit_t _button_pressed { };
-        bool& _fast_reverse;
-        bool& _fast_forward;
+        size_t _button {};
+        bool&  _fast_reverse;
+        bool&  _fast_forward;
     public:
         timer_long_pressed_button(bool& fast_reverse, bool& fast_forward) :
             _fast_reverse(fast_reverse),
-            _fast_forward(fast_forward) { };
-        ~timer_long_pressed_button()    { };
+            _fast_forward(fast_forward) {};
+        ~timer_long_pressed_button()    {};
 
-        void pressed(bit_t button_pressed) {
-            _button_pressed = button_pressed;
+        void pressed(size_t button) {
+            _button = button;
             startTimer(500);
         }
 
         void timerCallback() override {
             stopTimer();
-            if (btn_rev == _button_pressed) _fast_reverse = true;
-            if (btn_fwd == _button_pressed) _fast_forward = true;
+            if (_button == _REV) _fast_reverse = true;
+            if (_button == _FWD) _fast_forward = true;
         }
     private:
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(timer_long_pressed_button);
@@ -111,19 +111,12 @@ private:
     */
     std::function<void()> gain_changed_callback = [this]()
     {
-        static bit_t last_relay;
-        double gain;
-        std::bitset<8> relay_bt(static_cast<uint64_t>(_relay));
-        if (relay_bt.test(relay_a)) {
-            gain = _master_track.get_gain(0);
-            _master_track.get_processor().set_gain(gain, last_relay != relay_a);
-            last_relay = relay_a;
-        }
-        if (relay_bt.test(relay_b)) {
-            gain = _master_track.get_gain(1);
-            _master_track.get_processor().set_gain(gain, last_relay != relay_b);
-            last_relay = relay_b;
-        }
+        static size_t last_relay {};
+
+        auto gain = _master_track.get_gain(_relay == _A ? 0 : 1);
+        _master_track.get_processor().set_gain(gain, last_relay != _relay);
+        last_relay = _relay;
+
         _settings.getUserSettings()->setValue(settings_keys::gain_a, _master_track.get_gain(0));
         _settings.getUserSettings()->setValue(settings_keys::gain_b, _master_track.get_gain(1));
         _settings.saveIfNeeded();
@@ -132,19 +125,19 @@ private:
     /*
     //////////////////////////////////////////////////////////////////////////////////////////
     */
-    std::function<void(uint8_t new_relay)> relay_change_callback = [this](uint8_t new_relay)
+    std::function<void(size_t)> relay_change_callback = [this](size_t relay)
     {
         DBG("relay_change_callback");
-        _relay = new_relay;
+
+        _relay = relay;
         auto blind = _toolbar.get_state(comp_toolbar::button_t::blind);
-        if (new_relay) {
+        if (relay) {
             gain_changed_callback();
         }
         if (!blind)
         {
-            std::bitset<8> relay_bt(new_relay);
-            _toolbar.hard_press(comp_toolbar::button_t::a, relay_bt.test(relay_a));
-            _toolbar.hard_press(comp_toolbar::button_t::b, relay_bt.test(relay_b));
+            _toolbar.hard_press(comp_toolbar::button_t::a, relay == _A);
+            _toolbar.hard_press(comp_toolbar::button_t::b, relay == _B);
             _toolbar.repaint();
         }
     };
@@ -152,67 +145,49 @@ private:
     /*
     //////////////////////////////////////////////////////////////////////////////////////////
     */
-    std::function<void(uint8_t buttons_pressed)> on_button_press = [this](uint8_t buttons_pressed)
+    std::function<void(size_t)> on_button_press = [this](size_t button)
     {
-        DBG(std::format("on_button_press: {}", buttons_pressed));
-        std::bitset<8>btns(buttons_pressed);
-        btns.flip();
-        bit_t btn = unknown;
-        if (btns.test(btn_rev)) btn = btn_rev;
-        if (btns.test(btn_a))   btn = btn_a;
-        if (btns.test(btn_hz))  btn = btn_hz;
-        if (btns.test(btn_b))   btn = btn_b;
-        if (btns.test(btn_fwd)) btn = btn_fwd;
+        DBG(std::format("on_button_press: button = {}", button));
 
-        _toolbar.hard_press(comp_toolbar::button_t::rev, btn == btn_rev);
-        _toolbar.hard_press(comp_toolbar::button_t::fwd, btn == btn_fwd);
-        _toolbar.hard_press(comp_toolbar::button_t::hz,  btn == btn_hz);
+        _toolbar.hard_press(comp_toolbar::button_t::rev, button == _REV);
+        _toolbar.hard_press(comp_toolbar::button_t::fwd, button == _FWD);
+        _toolbar.hard_press(comp_toolbar::button_t::hz,  button == _HZ);
 
-        bit_t relay { unknown };
-        std::bitset<8> relay_bt(_ftdi.get_relay());
-
-        if (relay_bt.test(relay_a)) relay = relay_a;
-        if (relay_bt.test(relay_b)) relay = relay_b;
-
-        auto correct = (btn == btn_a && relay == relay_a) || (btn == btn_b && relay == relay_b);
-
-        _toolbar.hard_press(comp_toolbar::button_t::a, btn == btn_a, !correct);
-        _toolbar.hard_press(comp_toolbar::button_t::b, btn == btn_b, !correct);
+        auto correct = button == _ftdi.get_relay();
+        _toolbar.hard_press(comp_toolbar::button_t::a, button == _A, !correct);
+        _toolbar.hard_press(comp_toolbar::button_t::b, button == _B, !correct);
         _toolbar.repaint();
 
         if (!_ready) return;
 
-        if (btn == btn_rev || btn == btn_fwd) {
-            _timer_long_pressed_button.pressed(btn);
+        if (button == _REV || button == _FWD) {
+            _timer_long_pressed_button.pressed(button);
         }
-        static auto last_button = unknown;
+        static size_t last_button {};
 
-        if (buttons_pressed == _ftdi.get_buttons_mask()) {
+        if (!button) { //! check
             _timer_long_pressed_button.stopTimer();
 
             if (_fast_reverse || _fast_forward) {
                 _fast_reverse = _fast_forward = false;
             }
             else {
-                if (last_button == btn_rev) track_change(_current_track, false);
-                if (last_button == btn_fwd) track_change(_current_track, true);
+                if (last_button == _REV) track_change(_current_track, false);
+                if (last_button == _FWD) track_change(_current_track, true);
             }
             return;
         }
 
         if (_tracks.size() == 0) {
-            if (btn != unknown) {
+            if (button) {
                 _toolbar.click(comp_toolbar::button_t::open);
             }
             return;
         }
-        if (btn == btn_a || btn == btn_hz || btn == btn_b)
-        {
-            if (btn != unknown) {
-                trial_cycle(btn);
-            }
+        if (button == _A || button == _B || button == _HZ) {
+            trial_cycle(button);
         }
-        last_button = btn;
+        last_button = button;
     };
 
     /*
@@ -230,23 +205,22 @@ private:
             if (!trial.blind) continue;
 
             switch (trial.button) {
-            case btn_hz:
+            case _HZ:
                 btn_text  = "?";
                 css_class = "param";
                 break;
-            case btn_a: btn_text = "A"; break;
-            case btn_b: btn_text = "B"; break;
-            default:    btn_text = "~";
+            case _A: btn_text = "A"; break;
+            case _B: btn_text = "B"; break;
+            default: btn_text = "~";
             }
             switch (trial.relay) {
-            case relay_a: relay_text = "A"; break;
-            case relay_b: relay_text = "B"; break;
-            default:      relay_text = "~";
+            case _A: relay_text = "A"; break;
+            case _B: relay_text = "B"; break;
+            default: relay_text = "~";
             }
-            if (trial.button != btn_hz) {
+            if (trial.button != _HZ) {
                 {
-                    if ((trial.button == btn_a && trial.relay == relay_a) ||
-                        (trial.button == btn_b && trial.relay == relay_b))
+                    if (trial.button == trial.relay)
                     {
                         count_correct++;
                         css_class = "ok";
@@ -278,10 +252,10 @@ private:
 private:
     AudioTransportSource                  _transport_source;
     state_t                               _state         { state_t::stopped };
-    comp_track*                           _current_track { };
-    std::vector<trial_t>                  _trials        { };
-    double                                _relay         { },
-                                          _current_sample_rate,
+    comp_track*                           _current_track {};
+    std::vector<trial_t>                  _trials        {};
+    size_t                                _relay         {};
+    double                                _current_sample_rate,
                                           _current_skip_interval;
     std::unique_ptr<WildcardFileFilter>   _filter;
     OwnedArray<comp_track>                _tracks;

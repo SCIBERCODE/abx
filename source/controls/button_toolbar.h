@@ -134,7 +134,7 @@ public:
 private:
     colors                _colors;
     DrawableComposite     _icon;
-    String                _text               { };
+    String                _text               {};
     border_radius_side_t  _border_radius_side { border_radius_side_t::none   };
     button_t              _type               { button_t::normal             };
     std::pair<bool, bool> _hard_pressed       { std::make_pair(false, false) };

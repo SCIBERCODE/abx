@@ -405,13 +405,13 @@ private:
     AudioTransportSource&  _transport_source;
     String                 _file_path,
                            _format_name;
-    double                 _sample_rate { };
-    size_t                 _bps         { };
+    double                 _sample_rate {};
+    size_t                 _bps         {};
 
-    bool                   _focused     { },
-                           _active      { },
-                           _paused      { };
-    double                 _marker      { };
+    bool                   _focused     {},
+                           _active      {},
+                           _paused      {};
+    double                 _marker      {};
 
     colors                 _colors;
     juce::Rectangle<int>   _rect_header;

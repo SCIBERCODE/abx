@@ -39,7 +39,7 @@ comp_main::comp_main() :
         }
     });
     _toolbar.set_on_play_clicked([&](){
-        trial_cycle(btn_hz);
+        trial_cycle(_HZ);
     });
     _toolbar.set_on_pause_clicked([&]() {
         if (_state == state_t::playing)
@@ -60,7 +60,7 @@ comp_main::comp_main() :
         if (!already_opened) {
             already_opened = true;
             auto last_path = _settings.getUserSettings()->getValue(settings_keys::last_path);
-            FileChooser chooser({ }, last_path, _filter->getDescription(), true, false, this);
+            FileChooser chooser({}, last_path, _filter->getDescription(), true, false, this);
             if (chooser.browseForMultipleFilesToOpen()) {
                 for (auto const& file : chooser.getResults()) {
                     track_add(file.getFullPathName());
@@ -103,7 +103,7 @@ comp_main::comp_main() :
 
     AudioFormatManager formatManager;
     formatManager.registerBasicFormats();
-    _filter = std::make_unique<WildcardFileFilter>(formatManager.getWildcardForAllFormats(), String { }, String { });
+    _filter = std::make_unique<WildcardFileFilter>(formatManager.getWildcardForAllFormats(), String{}, String{});
 
     _ftdi.set_on_button_press_callback(on_button_press);
     _ftdi.set_on_relay_change_callback(relay_change_callback);
@@ -440,32 +440,27 @@ void comp_main::changeListenerCallback(ChangeBroadcaster* source)
     }
 }
 
-void comp_main::trial_cycle(bit_t button_bt) {
+void comp_main::trial_cycle(size_t button) {
     _ready = false;
     auto blind = _toolbar.get_state(comp_toolbar::button_t::blind);
     if (_state != state_t::playing && _state != state_t::starting)
     {
         DBG(std::format("trial_cycle: {} != playing", state_names.at(_state)));
-        _ftdi.toggle_relay(blind, button_bt);
+        _ftdi.toggle_relay(blind, button);
         Sleep(300);
         change_state(state_t::starting);
         return;
     }
-    bit_t relay { unknown };
-    std::bitset<8> relay_bt(_ftdi.get_relay());
+    auto relay = _ftdi.get_relay();
+    _trials.push_back({ button, relay, blind });
 
-    if (relay_bt.test(relay_a)) relay = relay_a;
-    if (relay_bt.test(relay_b)) relay = relay_b;
-
-    _trials.push_back({ button_bt, relay, blind });
     size_t count_all = 0, count_correct = 0;
     for (const auto& trial : _trials)
     {
-        if (trial.button != btn_hz && trial.blind) {
+        if (trial.button != _HZ && trial.blind) {
             {
-                if (trial.relay != unknown && (trial.button == btn_a || trial.button == btn_b)) {
-                    if ((trial.button == btn_a && trial.relay == relay_a) ||
-                        (trial.button == btn_b && trial.relay == relay_b))
+                if (trial.relay && (trial.button == _A || trial.button == _B)) {
+                    if (trial.button == trial.relay)
                     {
                         count_correct++;
                     }
@@ -499,7 +494,7 @@ void comp_main::trial_cycle(bit_t button_bt) {
     }
     Timer::callAfterDelay(150, [=]()
     {
-        _ftdi.toggle_relay(blind, button_bt);
+        _ftdi.toggle_relay(blind, button);
         Timer::callAfterDelay(50 + static_cast<DWORD>(_ftdi.rand_range(200)), [&]()
         {
             change_state(state_t::starting);

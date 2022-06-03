@@ -64,7 +64,7 @@ public:
         _button_share.setBounds(area.removeFromRight(button_size).withSizeKeepingCentre(button_size, button_size));
     };
 
-    void set_result(String text = { }) {
+    void set_result(String text = {}) {
         _button_clear.setEnabled(text.length());
         _button_share.setEnabled(text.length());
         if (text.length() == 0) {

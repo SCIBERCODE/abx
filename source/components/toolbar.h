@@ -23,6 +23,7 @@ public:
 
     void connect(bool shoud_be_connected) {
         _connected = shoud_be_connected;
+
         _button_rev.setEnabled(_connected);
         _button_a  .setEnabled(_connected);
         _button_hz .setEnabled(_connected);
@@ -40,37 +41,29 @@ public:
         addAndMakeVisible(_button_rev);
 
         _button_a.set_text("A");
-        _button_a.onClick = [this]() {
-            std::bitset<8>btn;
-            btn.set(btn_a);
-            btn.flip();
-            _choose_clicked(static_cast<uint8_t>(btn.to_ulong()));
-            _choose_clicked(0xff);
-        };
-        _button_a.set_type(button_toolbar::button_t::ftdi);
-        addAndMakeVisible(_button_a);
-
-        _button_hz.set_text("?");
-        _button_hz.onClick = [this]() {
-            std::bitset<8>btn;
-            btn.set(btn_hz);
-            btn.flip();
-            _choose_clicked(static_cast<uint8_t>(btn.to_ulong()));
-            _choose_clicked(0xff);
-        };
-        _button_hz.set_type(button_toolbar::button_t::ftdi);
-        addAndMakeVisible(_button_hz);
-
         _button_b.set_text("B");
-        _button_b.onClick = [this]() {
-            std::bitset<8>btn;
-            btn.set(btn_b);
-            btn.flip();
-            _choose_clicked(static_cast<uint8_t>(btn.to_ulong()));
-            _choose_clicked(0xff);
-        };
+        _button_hz.set_text("?");
+
+        _button_a.set_type(button_toolbar::button_t::ftdi);
         _button_b.set_type(button_toolbar::button_t::ftdi);
+        _button_hz.set_type(button_toolbar::button_t::ftdi);
+
+        _button_a.onClick = [this]() {
+            _choose_clicked(_A);
+            _choose_clicked(0);
+        };
+        _button_b.onClick = [this]() {
+            _choose_clicked(_B);
+            _choose_clicked(0);
+        };
+        _button_hz.onClick = [this]() {
+            _choose_clicked(_HZ);
+            _choose_clicked(0);
+        };
+
+        addAndMakeVisible(_button_a);
         addAndMakeVisible(_button_b);
+        addAndMakeVisible(_button_hz);
 
         _button_fwd.set_border_radius_side(button_toolbar::border_radius_side_t::right);
         _button_fwd.set_icon(icons_ids::forward);
@@ -193,7 +186,7 @@ public:
     void set_on_blind_clicked(const std::function<void()>& callback) {
         _button_blind.onClick = callback;
     }
-    void set_on_choose_clicked(const std::function<void(uint8_t button)>& callback) {
+    void set_on_choose_clicked(const std::function<void(size_t)>& callback) {
         _choose_clicked = callback;
     }
     void set_on_rev_clicked(const std::function<void()>& callback) {
@@ -267,9 +260,9 @@ private:
                    _button_open,
                    _button_settings;
 
-    std::function<void(uint8_t button)> _choose_clicked;
-    bool                                _connected { false };
-    colors                              _colors;
+    std::function<void(size_t)> _choose_clicked;
+    bool                        _connected {};
+    colors                      _colors;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(comp_toolbar)
 };

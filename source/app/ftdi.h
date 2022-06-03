@@ -14,40 +14,69 @@
 
 namespace abx {
 
-enum bit_t : uint8_t {
-    relay_a = 0,
-    btn_b   = 1,
-    unknown = 2,
-    btn_rev = 3,
-    relay_b = 4,
-    btn_hz  = 5,
-    btn_a   = 6,
-    btn_fwd = 7
-};
+constexpr size_t   _A = 1;
+constexpr size_t   _B = 2;
+constexpr size_t  _HZ = 3;
+constexpr size_t _REV = 4;
+constexpr size_t _FWD = 5;
 
-/*
-//////////////////////////////////////////////////////////////////////////////////////////
-*/
 class ftdi : public Thread,
              public Timer
 {
+private:
+    enum class bit_t : size_t {
+        relay_a = 0,
+        btn_b   = 1,
+        unknown = 2,
+        btn_rev = 3,
+        relay_b = 4,
+        btn_hz  = 5,
+        btn_a   = 6,
+        btn_fwd = 7
+    };
+
+    constexpr auto to_pos(bit_t bit) noexcept
+    {
+        return static_cast<std::underlying_type_t<bit_t>>(bit);
+    }
+
+    const std::map<bit_t, size_t> _bit_to_buttons
+    {
+        { bit_t::btn_a,     _A },
+        { bit_t::btn_b,     _B },
+        { bit_t::btn_hz,   _HZ },
+        { bit_t::btn_rev, _REV },
+        { bit_t::btn_fwd, _FWD }
+    };
+
 public:
 
     auto get_buttons_mask() {
         return _buttons_mask.to_ulong();
     }
 
-    void toggle_relay(bool blind, bit_t button_bt = unknown) {
+    void toggle_relay(bool blind, size_t button) {
+        if (!button) {
+            DBG("error #3");
+            return;
+        }
+
+        auto rand_relay = [this] {
+            return rand_range(2) == 0 ? to_pos(bit_t::relay_a) : to_pos(bit_t::relay_b);
+        };
+
         std::bitset<8> relay_bt;
         if (blind) {
-            relay_bt.set(rand_range(2) == 0 ? relay_a : relay_b);
+            relay_bt.set(rand_relay());
         }
         else {
-            if (button_bt == btn_a)  relay_bt.set(relay_a);
-            if (button_bt == btn_hz) relay_bt.set(rand_range(2) == 0 ? relay_a : relay_b);
-            if (button_bt == btn_b)  relay_bt.set(relay_b);
+            switch (button) {
+            case _A:  relay_bt.set(to_pos(bit_t::relay_a)); break;
+            case _B:  relay_bt.set(to_pos(bit_t::relay_b)); break;
+            case _HZ: relay_bt.set(rand_relay()); break;
+            }
         }
-        _relay = static_cast<uint8_t>(relay_bt.to_ulong());
+        _relay = relay_bt.to_ulong();
         DBG(std::format("toggle_relay: relay = {}", get_relay()));
     }
 
@@ -55,25 +84,29 @@ public:
         _relay = 0;
     }
 
-    uint8_t get_relay() {
-        return _relay.get();
+    size_t get_relay() {
+        std::bitset<8> relay_bt(static_cast<uint64_t>(_relay.get()));
+        if (relay_bt.test(to_pos(bit_t::relay_a))) return _A;
+        if (relay_bt.test(to_pos(bit_t::relay_b))) return _B;
+        return 0;
     };
 
-    ftdi() : Thread(""), _xs1024(abx::init_rnd())
+    /*
+    //////////////////////////////////////////////////////////////////////////////////////////
+    */
+    ftdi() : Thread(""),
+             _xs1024(abx::init_rnd())
     {
-        _buttons_mask.set(btn_rev);
-        _buttons_mask.set(btn_a);
-        _buttons_mask.set(btn_hz);
-        _buttons_mask.set(btn_b);
-        _buttons_mask.set(btn_fwd);
-
+        for (const auto [bit, button] : _bit_to_buttons) {
+            _buttons_mask.set(to_pos(bit));
+        }
         abx::init_rnd();
         startTimer(333); // check ftdi // todo: [10]
     }
 
     void run() override {
-        DWORD     written { };
-        FT_STATUS status  { };
+        DWORD     written {};
+        FT_STATUS status  {};
 
         _last_out = 0;
         _last_in  = 0;
@@ -126,7 +159,18 @@ public:
                     {
                         MessageManager::callAsync(
                             [=]() {
-                                _callback_on_button_press(_last_in);
+                                size_t button_pressed {};
+                                std::bitset<8> in(_last_in);
+                                in.flip();
+                                for (const auto [bit, button] : _bit_to_buttons)
+                                {
+                                    if (in.test(to_pos(bit)))
+                                    {
+                                        button_pressed = button;
+                                        break;
+                                    }
+                                }
+                                _callback_on_button_press(button_pressed);
                             }
                         );
                     }
@@ -140,7 +184,7 @@ public:
     }
 
     ~ftdi() {
-        DWORD written { };
+        DWORD written {};
         if (_handle != nullptr) {
             _ft_tx = 0;
             FT_Write(_handle, &_ft_tx, 1, &written);
@@ -148,11 +192,11 @@ public:
         }
     }
 
-    void set_on_button_press_callback(const std::function<void(uint8_t buttons_pressed)>& callback) {
+    void set_on_button_press_callback(const std::function<void(size_t)>& callback) {
         _callback_on_button_press = callback;
     }
 
-    void set_on_relay_change_callback(const std::function<void(uint8_t new_relay)>& callback) {
+    void set_on_relay_change_callback(const std::function<void(size_t)>& callback) {
         _callback_on_relay_change = callback;
     }
 
@@ -177,8 +221,8 @@ public:
             if (st != FT_OK || handle == nullptr) return;
 
             std::bitset<8> relays_mask;
-            relays_mask.set(relay_a);
-            relays_mask.set(relay_b);
+            relays_mask.set(to_pos(bit_t::relay_a));
+            relays_mask.set(to_pos(bit_t::relay_b));
             if (FT_OK != FT_SetBitMode     (handle, 0, 0) ||
                 FT_OK != FT_SetBitMode     (handle, static_cast<UCHAR>(relays_mask.to_ulong()), FT_BITMODE_SYNC_BITBANG) ||
                 FT_OK != FT_SetTimeouts    (handle, 100, 100) ||
@@ -201,20 +245,20 @@ public:
     }
 
 private:
-    FT_HANDLE         _handle   { };
     std::bitset<8>    _buttons_mask;
-    uint8_t           _ft_rx,
-                      _ft_tx,
-                      _last_in  { },
-                      _last_out { },
-                      _current_out;
-    Atomic<uint8_t>   _relay    { };
-    bool              _waiting  { true };
+    FT_HANDLE         _handle      {};
+    uint8_t           _ft_rx       {},
+                      _ft_tx       {},
+                      _last_in     {},
+                      _last_out    {},
+                      _current_out {};
+    Atomic<size_t>    _relay       {};
+    bool              _waiting     { true };
     uint64_t          _timer;
     abx::xorshift1024 _xs1024;
 
-    std::function<void(uint8_t buttons_pressed)> _callback_on_button_press;
-    std::function<void(uint8_t new_relay)>       _callback_on_relay_change;
+    std::function<void(size_t)> _callback_on_button_press;
+    std::function<void(size_t)> _callback_on_relay_change;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ftdi);
 };
