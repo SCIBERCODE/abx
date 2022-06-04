@@ -43,10 +43,8 @@ struct trial_t
 
 namespace settings_keys {
     static StringRef last_path { "last_path" };
-    static StringRef gain_a    { "gain_a"    };
-    static StringRef gain_b    { "gain_b"    };
-    static StringRef name_a    { "name_a"    };
-    static StringRef name_b    { "name_b"    };
+    static StringRef gain      { "gain"      };
+    static StringRef name      { "name"      };
 }
 
 /*
@@ -113,13 +111,12 @@ private:
     {
         static size_t last_relay {};
 
-        auto gain = _master_track.get_gain(_relay == _A ? 0 : 1);
-        _master_track.get_processor().set_gain(gain, last_relay != _relay);
+        auto gain = _master_track.gain_get();
+        _master_track.get_processor().set_gain(
+            _relay == _A ? gain.first : gain.second, last_relay != _relay
+        );
         last_relay = _relay;
-
-        _settings.getUserSettings()->setValue(settings_keys::gain_a, _master_track.get_gain(0));
-        _settings.getUserSettings()->setValue(settings_keys::gain_b, _master_track.get_gain(1));
-        _settings.saveIfNeeded();
+        settings_save(settings_keys::gain, std::format("{}/{}", gain.first, gain.second));
     };
 
     /*
@@ -237,7 +234,7 @@ private:
         }
         html += "</pre>\r\n</body>\r\n</html>";
 
-        auto last_path = _settings.getUserSettings()->getValue(settings_keys::last_path);
+        auto last_path = settings_read(settings_keys::last_path).getFirst().toString();
         FileChooser chooser("Save Trial Log to...", last_path, "*.html", true, false, this);
         if (chooser.browseForFileToSave(true))
         {
@@ -250,6 +247,28 @@ private:
 //////////////////////////////////////////////////////////////////////////////////////////
 */
 private:
+    Array<var> settings_read(const StringRef key) {
+        Array<var> result;
+        auto value = _settings.getUserSettings()->getValue(key);
+        if (value.containsChar('/'))
+        {
+            StringArray tokens;
+            tokens.addTokens(value, "/", ""); //! token for names
+            for (auto const & token : tokens) {
+                result.add(token);
+            }
+        }
+        else {
+            result.add(value);
+        }
+        return result;
+    }
+
+    void settings_save(const StringRef key, const String& value) {
+        _settings.getUserSettings()->setValue(key, value);
+        _settings.saveIfNeeded();
+    }
+
     AudioTransportSource                  _transport_source;
     state_t                               _state         { state_t::stopped };
     comp_track*                           _current_track {};

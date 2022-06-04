@@ -17,39 +17,44 @@ public:
     comp_track_master() {
 
         setOpaque(true);
+        auto init_controls = [&](std::unique_ptr<TextEditor>& edit, std::unique_ptr<slider_with_label>& slider)
+        {
+            edit   = std::make_unique<TextEditor>();
+            slider = std::make_unique<slider_with_label>(-40);
+            slider->set_label("Vol.");
 
-        for (size_t k = 0; k < 2; k++) {
+            edit->setTextToShowWhenEmpty("(click to enter device name)", Colours::grey);
+            edit->setIndents(0, 2);
+            edit->setColour(TextEditor::ColourIds::backgroundColourId, Colours::transparentWhite);
 
-            _edit_name[k] = std::make_unique<TextEditor>();
-            _slider_vol[k] = std::make_unique<slider_with_label>(-40);
-            _slider_vol[k]->set_label("Vol.");
-
-            _edit_name[k]->setTextToShowWhenEmpty("(click to enter device name)", Colours::grey);
-            _edit_name[k]->setIndents(0, 2);
-            _edit_name[k]->setColour(TextEditor::ColourIds::backgroundColourId, Colours::transparentWhite);
-
-            _edit_name[k]->onFocusLost = [=]() {
-                auto text = _edit_name[k]->getText();
+            edit->onFocusLost = [&]() {
+                auto text = edit->getText();
                 if (text.length())
-                    _edit_name[k]->setText("(" + text.removeCharacters("()") + ")");
+                    edit->setText("(" + text.removeCharacters("()") + ")");
             };
-            _edit_name[k]->onTextChange = [this]() {
+            edit->onTextChange = [this]() {
                 _callback_name_changed();
             };
+            addAndMakeVisible(*edit);
+            addAndMakeVisible(*slider);
+        };
+        init_controls(_edits.first,  _sliders.first);
+        init_controls(_edits.second, _sliders.second);
 
-            addAndMakeVisible(_label_name[k]);
-            addAndMakeVisible(*_edit_name[k]);
-            addAndMakeVisible(*_slider_vol[k]);
-        }
+        addAndMakeVisible(_labels.first);
+        addAndMakeVisible(_labels.second);
 
-        _slider_vol[0]->set_on_slider_value_changed([this](double value) {
-            _gain[0] = value;
-            _gain[1] = _slider_vol[1]->get_value();
+        _labels.first.setText ("A", dontSendNotification);
+        _labels.second.setText("B", dontSendNotification);
+
+        _sliders.first->set_on_slider_value_changed([this](double value) {
+            _gain.first  = value;
+            _gain.second = _sliders.first->get_value();
             _callback_gain_changed();
         });
-        _slider_vol[1]->set_on_slider_value_changed([this](double value) {
-            _gain[0] = _slider_vol[0]->get_value();
-            _gain[1] = value;
+        _sliders.second->set_on_slider_value_changed([this](double value) {
+            _gain.first  = _sliders.second->get_value();
+            _gain.second = value;
             _callback_gain_changed();
         });
 
@@ -67,19 +72,19 @@ public:
 
     void resized() override {
         auto bounds = getLocalBounds();
-
         bounds.removeFromTop(7);
-        for (size_t k = 0; k < 2; k++)
-        {
+
+        auto set_controls = [&](Component* label, Component* edit, Component* slider) {
             auto line = bounds.removeFromTop(20);
             line.removeFromLeft(10);
-            _label_name[k].setBounds(line.removeFromLeft(20));
-            _edit_name[k]->setBounds(line.removeFromLeft(215));
+            label->setBounds(line.removeFromLeft(20));
+            edit->setBounds(line.removeFromLeft(215));
             line.removeFromLeft(10);
-            _slider_vol[k]->setBounds(line);
-
+            slider->setBounds(line);
             bounds.removeFromTop(2);
-        }
+        };
+        set_controls(&_labels.first,  _edits.first.get(),  _sliders.first.get());
+        set_controls(&_labels.second, _edits.second.get(), _sliders.second.get());
     };
 
     std::pair<int, int> get_size() const {
@@ -98,39 +103,42 @@ public:
         _callback_name_changed = callback;
     }
 
-    double get_gain(size_t index) {
-        return _gain[index];
-    }
-
-    std::pair<String, String> get_names() const {
+    std::pair<String, String> names_get() const {
         return std::make_pair(
-            _edit_name[0]->getText(),
-            _edit_name[1]->getText()
+            _edits.first ->getText(),
+            _edits.second->getText()
         );
     };
 
-    void set_names(std::pair<String, String> names) const {
-        _edit_name[0]->setText(names.first);
-        _edit_name[1]->setText(names.second);
+    void names_set(std::pair<String, String> names) const {
+        _edits.first ->setText(names.first);
+        _edits.second->setText(names.second);
     };
 
-    void set_volumes(std::pair<double, double> volumes) const {
-        _slider_vol[0]->set_value(volumes.first);
-        _slider_vol[1]->set_value(volumes.second);
+    auto gain_get() {
+        return _gain;
+    }
+
+    void gain_set(std::pair<double, double> volumes) const {
+        _sliders.first ->set_value(volumes.first);
+        _sliders.second->set_value(volumes.second);
     };
 
 private:
-    track_processor _processor;
-    double          _gain[2];
+    track_processor           _processor;
+    std::pair<double, double> _gain;
+    std::pair<Label, Label>   _labels;
+    std::pair<std::unique_ptr<slider_with_label>,
+              std::unique_ptr<slider_with_label>>
+                              _sliders;
+    std::pair<std::unique_ptr<TextEditor>,
+              std::unique_ptr<TextEditor>>
+                              _edits;
 
-    Label                              _label_name[2] {{{}, "A" }, {{}, "B" }};
-    std::unique_ptr<slider_with_label> _slider_vol[2];
-    std::unique_ptr<TextEditor>        _edit_name[2];
+    std::function<void()>     _callback_gain_changed,
+                              _callback_name_changed;
 
-    std::function<void()> _callback_gain_changed,
-                          _callback_name_changed;
-
-    colors _colors;
+    colors                    _colors;
 
     //button_icon button_edit_name_a; // todo
     //button_icon button_edit_name_b;

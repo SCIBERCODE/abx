@@ -57,7 +57,7 @@ public:
 
     void toggle_relay(bool blind, size_t button) {
         if (!button) {
-            DBG("error #3");
+            DBG("error #2");
             return;
         }
 
@@ -247,7 +247,7 @@ public:
 private:
     std::bitset<8>    _buttons_mask;
     FT_HANDLE         _handle      {};
-    uint8_t           _ft_rx       {},
+    size_t            _ft_rx       {},
                       _ft_tx       {},
                       _last_in     {},
                       _last_out    {},
