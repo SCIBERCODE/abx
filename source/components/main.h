@@ -45,6 +45,8 @@ namespace settings_keys {
     static StringRef last_path { "last_path" };
     static StringRef gain      { "gain"      };
     static StringRef name      { "name"      };
+    static StringRef tracks    { "tracks"    };
+    static StringRef track     { "track"     };
 }
 
 /*
@@ -116,7 +118,7 @@ private:
             _relay == _A ? gain.first : gain.second, last_relay != _relay
         );
         last_relay = _relay;
-        settings_save(settings_keys::gain, std::format("{}/{}", gain.first, gain.second));
+        settings_save(settings_keys::gain, std::format("{}\n{}", gain.first, gain.second));
     };
 
     /*
@@ -250,10 +252,10 @@ private:
     Array<var> settings_read(const StringRef key) {
         Array<var> result;
         auto value = _settings.getUserSettings()->getValue(key);
-        if (value.containsChar('/'))
+        if (value.containsChar('\n'))
         {
             StringArray tokens;
-            tokens.addTokens(value, "/", ""); //! token for names
+            tokens.addTokens(value, "\n", "");
             for (auto const & token : tokens) {
                 result.add(token);
             }
@@ -268,6 +270,7 @@ private:
         _settings.getUserSettings()->setValue(key, value);
         _settings.saveIfNeeded();
     }
+
 
     AudioTransportSource                  _transport_source;
     state_t                               _state         { state_t::stopped };

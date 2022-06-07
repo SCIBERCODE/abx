@@ -82,7 +82,7 @@ comp_main::comp_main() :
     _master_track.set_on_gain_changed(gain_changed_callback);
     _master_track.set_on_name_changed([&]() {
         auto names = _master_track.names_get();
-        settings_save(settings_keys::name, std::format("{}/{}", names.first.toStdString(), names.second.toStdString()));
+        settings_save(settings_keys::name, std::format("{}\n{}", names.first.toStdString(), names.second.toStdString()));
     });
 
     auto names = settings_read(settings_keys::name);
@@ -161,7 +161,7 @@ void comp_main::track_activate(comp_track* selected_track_new, bool double_click
             _current_track = selected_track_new;
             if (_current_track) {
                 _current_track->activate(true);
-                _current_track->get_processor().load_file_to_transport(_current_track->getFilePath(), _transport_source);
+                _current_track->get_processor().load_file_to_transport(_current_track->get_file_path(), _transport_source);
                 _current_track->repaint();
                 _transport_source.setPosition(_current_track->get_marker());
                 if (played_before) {
@@ -280,6 +280,11 @@ void comp_main::filesDropped(const StringArray &files, int x, int y) {
 }
 
 void comp_main::track_add(const String& file_path) {
+    for (auto track : _tracks) {
+        if (track->get_file_path() == file_path)
+            return;
+    }
+
     auto _track = new comp_track(file_path, _transport_source);
     _track->update_info(_current_sample_rate);
     _track->set_on_mouse_event([this](comp_track* selected_track, bool double_click)

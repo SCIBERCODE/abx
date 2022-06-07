@@ -49,11 +49,11 @@ public:
 
         _sliders.first->set_on_slider_value_changed([this](double value) {
             _gain.first  = value;
-            _gain.second = _sliders.first->get_value();
+            _gain.second = _sliders.second->get_value();
             _callback_gain_changed();
         });
         _sliders.second->set_on_slider_value_changed([this](double value) {
-            _gain.first  = _sliders.second->get_value();
+            _gain.first  = _sliders.first->get_value();
             _gain.second = value;
             _callback_gain_changed();
         });

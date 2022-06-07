@@ -117,7 +117,7 @@ public:
         resized();
     }
 
-    const String& getFilePath() const {
+    const String& get_file_path() const {
         return _file_path;
     }
 
@@ -414,13 +414,13 @@ private:
     double                 _marker      {};
 
     colors                 _colors;
-    juce::Rectangle<int>   _rect_header;
-    juce::Rectangle<int>   _rect_header_top;
-    juce::Rectangle<int>   _rect_background;
+    juce::Rectangle<int>   _rect_header,
+                           _rect_header_top,
+                           _rect_background;
 
-    const int              _y            {  1 };
-    const int              _color_rect_w {  8 };
-    const int              _header_h     { 20 };
+    const int              _y            {  1 },
+                           _color_rect_w {  8 },
+                           _header_h     { 20 };
 
     Label                  _label_name,
                            _label_rate,

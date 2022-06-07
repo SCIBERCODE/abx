@@ -118,14 +118,14 @@ public:
         _button_settings.setTooltip("Audio Device Options");
         addAndMakeVisible(_button_settings);
 
-        auto default_size = get_size();
-        setSize(default_size.first, default_size.second);
+        setSize(get_size().first, get_size().second);
     }
 
     ~comp_toolbar() { };
 
     void paint(Graphics& g) override {
         g.fillAll(_colors.get(color_ids::bg_light));
+
         /*auto a = _button_a.getBounds();
         auto a_x = a.getX() + (a.getWidth() / 2.f);
         auto a_y = a.getBottom() + 2.f;
@@ -137,7 +137,7 @@ public:
         const auto spacing_small = 2;
         const auto button_size   = _button_a.get_size();
               auto x             = 4;
-              auto y             = (getHeight() - button_size) / 2;
+        const auto y             = x;
               auto resize_button = [&](button_toolbar& button, bool big_spacing = false)
               {
                   button.setBounds(x, y, button_size, button_size);
