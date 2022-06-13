@@ -43,14 +43,8 @@ window_audio_setup::window_audio_setup(AudioDeviceManager& device_manager)
     setLookAndFeel(&_theme);
     setTitleBarHeight(20);
     setUsingNativeTitleBar(false);
-
-    /*_viewport.setScrollBarThickness(11);
-    _viewport_inside = std::make_unique<comp_viewport>(device_manager);
-    _viewport.setViewedComponent(_viewport_inside.get(), false);*/
-
     auto main_comp = std::make_unique<comp_audio_settings>(device_manager);
     setContentOwned(main_comp.release(), true);
-    //setContentOwned(&_viewport, true);
     setResizable(true, true);
     centreWithSize(getWidth(), getHeight());
     addToDesktop();
