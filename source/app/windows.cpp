@@ -4,9 +4,9 @@
 
 namespace abx {
 
-window::window()
+    window::window(Component* comp_owned, const String& caption)
     : DocumentWindow(
-        "abx",
+        JUCEApplication::getInstance()->getApplicationName() + " " + caption,
         Desktop::getInstance().getDefaultLookAndFeel().findColour(ResizableWindow::backgroundColourId),
         DocumentWindow::allButtons
     )
@@ -14,47 +14,34 @@ window::window()
     setLookAndFeel(&_theme);
     setTitleBarHeight(20);
     setUsingNativeTitleBar(false);
-    auto main_comp = std::make_unique<comp_main>();
-    setContentOwned(main_comp.release(), true);
+    setContentOwned(comp_owned, true);
     setResizable(true, true);
     centreWithSize(getWidth(), getHeight());
-    setVisible(true);
-    setResizeLimits(504, 240, 1920 * 2, 1080 * 2);
 }
 
 window::~window() {
     setLookAndFeel(nullptr);
 };
 
-void window::closeButtonPressed() {
-    JUCEApplication::getInstance()->systemRequestedQuit();
-};
-
 /*
 //////////////////////////////////////////////////////////////////////////////////////////
 */
-window_audio_setup::window_audio_setup(AudioDeviceManager& device_manager)
-    : DocumentWindow(
-        "abx audio settings",
-        Desktop::getInstance().getDefaultLookAndFeel().findColour(ResizableWindow::backgroundColourId),
-        DocumentWindow::allButtons
-    )
+
+window_main::window_main() :
+    window(std::make_unique<comp_main>().release())
 {
-    setLookAndFeel(&_theme);
-    setTitleBarHeight(20);
-    setUsingNativeTitleBar(false);
-    auto main_comp = std::make_unique<comp_audio_settings>(device_manager);
-    setContentOwned(main_comp.release(), true);
-    setResizable(true, true);
-    centreWithSize(getWidth(), getHeight());
+    auto area = Desktop::getInstance().getDisplays().getTotalBounds(true);
+    setResizeLimits(504, 240, area.getWidth(), area.getHeight());
+    setVisible(true);
+};
+
+window_audio_setup::window_audio_setup(AudioDeviceManager& device_manager) :
+    window(std::make_unique<comp_audio_settings>(device_manager).release(), "audio settings")
+{
     addToDesktop();
 }
 
-window_audio_setup::~window_audio_setup() {
-    setLookAndFeel(nullptr);
-}
-void window_audio_setup::closeButtonPressed() {
-    exitModalState(0);
-}
+void window_main       ::closeButtonPressed() { JUCEApplication::getInstance()->systemRequestedQuit(); }
+void window_audio_setup::closeButtonPressed() { exitModalState(0); }
 
 }

@@ -6,14 +6,10 @@
 
 namespace abx {
 
-/*
-//////////////////////////////////////////////////////////////////////////////////////////
-*/
 class window : public DocumentWindow {
 public:
-     window();
+    window(Component* comp_owned, const String& caption = {});
     ~window();
-    void closeButtonPressed() override;
 private:
     theme _theme;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(window)
@@ -22,14 +18,16 @@ private:
 /*
 //////////////////////////////////////////////////////////////////////////////////////////
 */
-class window_audio_setup : public DocumentWindow {
+class window_main : public window {
+public:
+    window_main();
+    void closeButtonPressed() override;
+};
+
+class window_audio_setup : public window {
 public:
     window_audio_setup(AudioDeviceManager& device_manager);
-    ~window_audio_setup();
     void closeButtonPressed() override;
-private:
-    theme _theme;
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(window_audio_setup)
 };
 
 }

@@ -10,7 +10,7 @@ comp_main::comp_main() :
     setOpaque(true);
 
     PropertiesFile::Options params;
-    params.applicationName = L"abx";
+    params.applicationName = JUCEApplication::getInstance()->getApplicationName();
     params.filenameSuffix  = L".xml";
     params.folderName      = File::getCurrentWorkingDirectory().getFullPathName();
     params.storageFormat   = PropertiesFile::storeAsXML;
