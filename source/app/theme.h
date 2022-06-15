@@ -188,6 +188,8 @@ public:
         setColour(TooltipWindow::backgroundColourId, Colours::lightyellow);
         setColour(TooltipWindow::outlineColourId,    Colours::black);
         setColour(TooltipWindow::textColourId,       Colours::black);
+
+        setColour(TextEditor::outlineColourId,       Colours::black);
     }
     ~theme() { }
 
@@ -211,13 +213,6 @@ public:
         g.drawText(window.getName(), title_x, 0, text_width, height, Justification::centredLeft, true);
     }
 
-    void drawTextEditorOutline(Graphics& g, int width, int height, TextEditor& control) override
-    {
-        ignoreUnused(g);
-        ignoreUnused(width);
-        ignoreUnused(height);
-        ignoreUnused(control);
-    }
 private:
     colors _colors;
 };

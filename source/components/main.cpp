@@ -80,13 +80,6 @@ comp_main::comp_main() :
 
     _master_track.setAlwaysOnTop(true);
     _master_track.set_on_gain_changed(gain_changed_callback);
-    _master_track.set_on_name_changed([&]() {
-        auto names = _master_track.names_get();
-        settings_save(settings_keys::name, std::format("{}\n{}", names.first.toStdString(), names.second.toStdString()));
-    });
-
-    auto names = settings_read(settings_keys::name);
-    _master_track.names_set(std::make_pair(names.getFirst().toString(), names.getLast().toString()));
 
     auto gain = settings_read(settings_keys::gain);
     _master_track.gain_set(std::make_pair(gain.getFirst(), gain.getLast()));
@@ -114,6 +107,14 @@ comp_main::comp_main() :
         }
         _toolbar.repaint();
     });
+
+    _toolbar.set_on_name_changed([&]() {
+        auto names = _toolbar.names_get();
+        settings_save(settings_keys::name, std::format("{}\n{}", names.first.toStdString(), names.second.toStdString()));
+    });
+
+    auto names = settings_read(settings_keys::name);
+    _toolbar.names_set(std::make_pair(names.getFirst().toString(), names.getLast().toString()));
 
     _button_results_header.setClickingTogglesState(true);
     _button_results_header.setConnectedEdges(TextButton::ConnectedOnBottom);

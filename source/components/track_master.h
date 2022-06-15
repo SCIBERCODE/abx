@@ -17,35 +17,14 @@ public:
     comp_track_master() {
 
         setOpaque(true);
-        auto init_controls = [&](std::unique_ptr<TextEditor>& edit, std::unique_ptr<slider_with_label>& slider)
+        auto init_controls = [&](std::unique_ptr<slider_with_label>& slider)
         {
-            edit   = std::make_unique<TextEditor>();
             slider = std::make_unique<slider_with_label>(-40);
             slider->set_label("Vol.");
-
-            edit->setTextToShowWhenEmpty("(click to enter device name)", Colours::grey);
-            edit->setIndents(0, 2);
-            edit->setColour(TextEditor::ColourIds::backgroundColourId, Colours::transparentWhite);
-
-            edit->onFocusLost = [&]() {
-                auto text = edit->getText();
-                if (text.length())
-                    edit->setText("(" + text.removeCharacters("()") + ")");
-            };
-            edit->onTextChange = [this]() {
-                _callback_name_changed();
-            };
-            addAndMakeVisible(*edit);
             addAndMakeVisible(*slider);
         };
-        init_controls(_edits.first,  _sliders.first);
-        init_controls(_edits.second, _sliders.second);
-
-        addAndMakeVisible(_labels.first);
-        addAndMakeVisible(_labels.second);
-
-        _labels.first.setText ("A", dontSendNotification);
-        _labels.second.setText("B", dontSendNotification);
+        init_controls(_sliders.first);
+        init_controls(_sliders.second);
 
         _sliders.first->set_on_slider_value_changed([this](double value) {
             _gain.first  = value;
@@ -74,17 +53,14 @@ public:
         auto bounds = getLocalBounds();
         bounds.removeFromTop(7);
 
-        auto set_controls = [&](Component* label, Component* edit, Component* slider) {
+        auto set_controls = [&](Component* slider) {
             auto line = bounds.removeFromTop(20);
-            line.removeFromLeft(10);
-            label->setBounds(line.removeFromLeft(20));
-            edit->setBounds(line.removeFromLeft(215));
             line.removeFromLeft(10);
             slider->setBounds(line);
             bounds.removeFromTop(2);
         };
-        set_controls(&_labels.first,  _edits.first.get(),  _sliders.first.get());
-        set_controls(&_labels.second, _edits.second.get(), _sliders.second.get());
+        set_controls(_sliders.first.get());
+        set_controls(_sliders.second.get());
     };
 
     std::pair<int, int> get_size() const {
@@ -99,22 +75,6 @@ public:
         _callback_gain_changed = callback;
     }
 
-    void set_on_name_changed(const std::function<void()>& callback) {
-        _callback_name_changed = callback;
-    }
-
-    std::pair<String, String> names_get() const {
-        return std::make_pair(
-            _edits.first ->getText(),
-            _edits.second->getText()
-        );
-    };
-
-    void names_set(std::pair<String, String> names) const {
-        _edits.first ->setText(names.first);
-        _edits.second->setText(names.second);
-    };
-
     auto gain_get() {
         return _gain;
     }
@@ -127,21 +87,11 @@ public:
 private:
     track_processor           _processor;
     std::pair<double, double> _gain;
-    std::pair<Label, Label>   _labels;
     std::pair<std::unique_ptr<slider_with_label>,
               std::unique_ptr<slider_with_label>>
                               _sliders;
-    std::pair<std::unique_ptr<TextEditor>,
-              std::unique_ptr<TextEditor>>
-                              _edits;
-
-    std::function<void()>     _callback_gain_changed,
-                              _callback_name_changed;
-
+    std::function<void()>     _callback_gain_changed;
     colors                    _colors;
-
-    //button_icon button_edit_name_a; // todo
-    //button_icon button_edit_name_b;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(comp_track_master)
 };

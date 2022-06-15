@@ -4,12 +4,12 @@
 
 namespace abx {
 
-    window::window(Component* comp_owned, const String& caption)
-    : DocumentWindow(
-        JUCEApplication::getInstance()->getApplicationName() + " " + caption,
-        Desktop::getInstance().getDefaultLookAndFeel().findColour(ResizableWindow::backgroundColourId),
-        DocumentWindow::allButtons
-    )
+window::window(Component* comp_owned, const String& caption)
+: DocumentWindow(
+    JUCEApplication::getInstance()->getApplicationName() + " " + caption,
+    Desktop::getInstance().getDefaultLookAndFeel().findColour(ResizableWindow::backgroundColourId),
+    DocumentWindow::allButtons
+)
 {
     setLookAndFeel(&_theme);
     setTitleBarHeight(20);

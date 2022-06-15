@@ -118,19 +118,68 @@ public:
         _button_settings.setTooltip("Audio Device Options");
         addAndMakeVisible(_button_settings);
 
+        auto init_edit = [&](std::unique_ptr<TextEditor>& edit)
+        {
+            edit = std::make_unique<TextEditor>();
+            edit->setTextToShowWhenEmpty("click to enter device name", Colours::grey);
+            edit->setIndents(0, 2);
+            edit->setColour(TextEditor::ColourIds::backgroundColourId, Colours::transparentWhite);
+            edit->onTextChange = [this]()
+            {
+                _callback_name_changed();
+            };
+            addAndMakeVisible(*edit);
+        };
+
+        init_edit(_edits.first);
+        init_edit(_edits.second);
+
         setSize(get_size().first, get_size().second);
+
+        _edit_areas.first  = draw_reference_line(nullptr, _button_a, 31.f);
+        _edit_areas.second = draw_reference_line(nullptr, _button_b, 10.f);
+
+        resized();
     }
 
     ~comp_toolbar() { };
 
+    void set_on_name_changed(const std::function<void()>& callback) {
+        _callback_name_changed = callback;
+    }
+
+    void names_set(std::pair<String, String> names) const {
+        _edits.first ->setText(names.first);
+        _edits.second->setText(names.second);
+    };
+
+    std::pair<String, String> names_get() const {
+        return std::make_pair(
+            _edits.first ->getText(),
+            _edits.second->getText()
+        );
+    };
+
+    juce::Rectangle<int> draw_reference_line(Graphics* g, const button_toolbar& button, float y_boottom)
+    {
+        auto area   = button.getBounds();
+        auto edit_x = _button_restart.getX();
+        auto x      = area.getX() + (area.getWidth() / 2.f);
+        auto y      = button.getBottom() + 2.5f;
+
+        Line<float> line(x, y, x + y_boottom, y + y_boottom);
+        if (g) {
+            g->drawLine(line);
+            g->fillRect(line.getEndX(), line.getEndY() - .5f, edit_x - line.getEndX() - 2.f, 1.f);
+        }
+        return juce::Rectangle<int>(
+            edit_x, static_cast<int>(line.getEndY()) - 8, _button_rewind.getRight() - edit_x, 17);
+    };
+
     void paint(Graphics& g) override {
         g.fillAll(_colors.get(color_ids::bg_light));
-
-        /*auto a = _button_a.getBounds();
-        auto a_x = a.getX() + (a.getWidth() / 2.f);
-        auto a_y = a.getBottom() + 2.f;
-        Line<float> line_a(a_x, a_y, a_x + 20.f, a_y + 20.f);
-        g.drawLine(line_a);*/
+        draw_reference_line(&g, _button_a, 31.f);
+        draw_reference_line(&g, _button_b, 10.f);
     }
 
     void resized() override  {
@@ -163,10 +212,13 @@ public:
         _button_settings.setBounds(bounds.removeFromRight(button_size));
         bounds.removeFromRight(spacing_small);
         _button_open.setBounds(bounds.removeFromRight(button_size));
+
+        _edits.first ->setBounds(_edit_areas.first);
+        _edits.second->setBounds(_edit_areas.second);
     }
 
     std::pair<int, int> get_size() const {
-        return std::make_pair(300, 40);
+        return std::make_pair(300, 82);
     }
     void set_on_rewind_clicked(const std::function<void()>& callback) {
         _button_rewind.onClick = callback;
@@ -259,10 +311,20 @@ private:
                    _button_rewind,
                    _button_open,
                    _button_settings;
+    std::pair<juce::Rectangle<int>,
+              juce::Rectangle<int>>
+                   _edit_areas;
+    std::pair<std::unique_ptr<TextEditor>,
+              std::unique_ptr<TextEditor>>
+                   _edits;
 
     std::function<void(size_t)> _choose_clicked;
+    std::function<void()>       _callback_name_changed;
     bool                        _connected {};
     colors                      _colors;
+
+    //button_icon button_edit_name_a; // todo
+    //button_icon button_edit_name_b;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(comp_toolbar)
 };

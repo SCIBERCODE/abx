@@ -57,7 +57,7 @@ class comp_main : public AudioAppComponent,
                   public DragAndDropContainer,
                   public ChangeListener {
 public:
-    comp_main();
+     comp_main();
     ~comp_main();
 
     void prepareToPlay(int samplesPerBlockExpected, double sampleRate) override;

@@ -8,7 +8,7 @@ namespace abx {
 
 class window : public DocumentWindow {
 public:
-    window(Component* comp_owned, const String& caption = {});
+     window(Component* comp_owned, const String& caption = {});
     ~window();
 private:
     theme _theme;
