@@ -122,8 +122,8 @@ public:
         {
             edit = std::make_unique<TextEditor>();
             edit->setTextToShowWhenEmpty("click to enter device name", Colours::grey);
-            edit->setIndents(0, 2);
-            edit->setColour(TextEditor::ColourIds::backgroundColourId, Colours::transparentWhite);
+            edit->setIndents(3, 0);
+            //edit->setColour(TextEditor::ColourIds::backgroundColourId, Colours::transparentWhite);
             edit->onTextChange = [this]()
             {
                 _callback_name_changed();
@@ -183,14 +183,12 @@ public:
     }
 
     void resized() override  {
-        const auto spacing_small = 2;
         const auto button_size   = _button_a.get_size();
-              auto x             = 4;
-        const auto y             = x;
+              auto x             = margins::_medium;
               auto resize_button = [&](button_toolbar& button, bool big_spacing = false)
               {
-                  button.setBounds(x, y, button_size, button_size);
-                  x += button_size + (big_spacing ? spacing_small * 10 : spacing_small);
+                  button.setBounds(x, margins::_medium, button_size, button_size);
+                  x += button_size + (big_spacing ? margins::_small * 10 : margins::_small);
               };
 
         resize_button(_button_rev);
@@ -208,9 +206,10 @@ public:
         resize_button(_button_rewind, true);
 
         auto bounds = getLocalBounds();
-        bounds.reduce(4, 4);
+        bounds.reduce(margins::_medium, margins::_medium);
+        bounds.setHeight(button_size);
         _button_settings.setBounds(bounds.removeFromRight(button_size));
-        bounds.removeFromRight(spacing_small);
+        bounds.removeFromRight(margins::_small);
         _button_open.setBounds(bounds.removeFromRight(button_size));
 
         _edits.first ->setBounds(_edit_areas.first);
@@ -219,6 +218,12 @@ public:
 
     std::pair<int, int> get_size() const {
         return std::make_pair(300, 82);
+    }
+    auto get_settings_pos() const {
+        return localPointToGlobal(Point<int>(
+            _edit_areas.first.getX(),
+            _edit_areas.first.getBottom() + margins::_medium
+        ));
     }
     void set_on_rewind_clicked(const std::function<void()>& callback) {
         _button_rewind.onClick = callback;
@@ -322,9 +327,6 @@ private:
     std::function<void()>       _callback_name_changed;
     bool                        _connected {};
     colors                      _colors;
-
-    //button_icon button_edit_name_a; // todo
-    //button_icon button_edit_name_b;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(comp_toolbar)
 };

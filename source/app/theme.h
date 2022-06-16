@@ -2,6 +2,11 @@
 
 namespace abx {
 
+namespace margins {
+    constexpr size_t _small  = 2;
+    constexpr size_t _medium = _small * 2;
+}
+
 namespace color_ids {
     enum window_ids : size_t {
         header,
@@ -52,6 +57,8 @@ enum class icons_ids {
     play,
     stop,
     rewind,
+    // devices names
+    edit,
     // toolbar right sided
     open,
     settings,
@@ -60,9 +67,7 @@ enum class icons_ids {
     share,
     // tracks
     close,
-    warning,
-    // bottom toolbar
-    edit
+    warning
 };
 
 /*
@@ -80,13 +85,13 @@ private:
         { icons_ids::play,     BinaryData::play_svg     },
         { icons_ids::stop,     BinaryData::stop_svg     },
         { icons_ids::rewind,   BinaryData::rewind_svg   },
+        { icons_ids::edit,     BinaryData::edit_svg     },
         { icons_ids::open,     BinaryData::open_svg     },
         { icons_ids::settings, BinaryData::settings_svg },
         { icons_ids::clear,    BinaryData::clear_svg    },
         { icons_ids::share,    BinaryData::share_svg    },
         { icons_ids::close,    BinaryData::close_svg    },
-        { icons_ids::warning,  BinaryData::warning_svg  },
-        { icons_ids::edit,     BinaryData::edit_svg     }
+        { icons_ids::warning,  BinaryData::warning_svg  }
     };
 public:
      resources() { }
@@ -211,6 +216,26 @@ public:
         auto text_width = font.getStringWidth(window.getName());
         g.setColour(window.findColour(DocumentWindow::textColourId));
         g.drawText(window.getName(), title_x, 0, text_width, height, Justification::centredLeft, true);
+    }
+
+    void fillTextEditorBackground(Graphics& g, int width, int height, TextEditor& editor) override
+    {
+        if (dynamic_cast<AlertWindow*>(editor.getParentComponent()) == nullptr)
+            return;
+
+        auto focus = editor.hasKeyboardFocus(true) && !editor.isReadOnly();
+        g.setColour(focus ? Colours::white : editor.findColour(TextEditor::backgroundColourId));
+        g.fillRect(0, 0, width, height);
+    }
+
+    void drawTextEditorOutline(Graphics& g, int width, int height, TextEditor& editor) override
+    {
+        if (dynamic_cast<AlertWindow*>(editor.getParentComponent()) != nullptr)
+            return;
+
+        auto focus = editor.hasKeyboardFocus(true) && !editor.isReadOnly();
+        g.setColour(editor.findColour(focus ? TextEditor::focusedOutlineColourId : TextEditor::outlineColourId));
+        g.drawRect(0, 0, width, height);
     }
 
 private:

@@ -86,7 +86,7 @@ comp_main::comp_main() :
 
     addAndMakeVisible(_master_track);
 
-    setSize (900, 650);
+    setSize (845, 650);
     setAudioChannels(0, 2);
     _transport_source.addChangeListener(this);
 
@@ -505,6 +505,9 @@ void comp_main::trial_cycle(size_t button) {
 
 void comp_main::launch_audio_setup() {
     auto audio_setup = std::make_unique<window_audio_setup>(deviceManager).release();
+    auto pos         = _toolbar.get_settings_pos();
+
+    audio_setup->setTopLeftPosition(pos.x, pos.y);
     audio_setup->enterModalState(true, nullptr, true);
 }
 

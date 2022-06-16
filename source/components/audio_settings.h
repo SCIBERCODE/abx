@@ -17,7 +17,7 @@ public:
         _viewport.setViewedComponent(&_comp_audio_setup, false);
         _viewport.setScrollBarsShown(true, false);
         addAndMakeVisible(_viewport);
-        setSize(520, 450);
+        setSize(520, 400);
     }
     void paint(Graphics& g) override {
         g.fillAll(_colors.get(color_ids::bg_light));

@@ -17,14 +17,12 @@ public:
     comp_track_master() {
 
         setOpaque(true);
-        auto init_controls = [&](std::unique_ptr<slider_with_label>& slider)
-        {
-            slider = std::make_unique<slider_with_label>(-40);
-            slider->set_label("Vol.");
-            addAndMakeVisible(*slider);
-        };
-        init_controls(_sliders.first);
-        init_controls(_sliders.second);
+
+        _sliders.first  = std::make_unique<slider_with_label>(-40);
+        _sliders.second = std::make_unique<slider_with_label>(-40);
+
+        _sliders.first ->set_label("A Vol.");
+        _sliders.second->set_label("B Vol.");
 
         _sliders.first->set_on_slider_value_changed([this](double value) {
             _gain.first  = value;
@@ -36,6 +34,9 @@ public:
             _gain.second = value;
             _callback_gain_changed();
         });
+
+        addAndMakeVisible(_sliders.first.get());
+        addAndMakeVisible(_sliders.second.get());
 
         auto size = get_size();
         setSize(size.first, size.second);
