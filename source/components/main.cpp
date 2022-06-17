@@ -221,7 +221,7 @@ void comp_main::releaseResources()
 }
 
 void comp_main::paint(Graphics& g) {
-    g.fillAll(_colors.get(color_ids::bg_dark).brighter(.2f));
+    g.fillAll(_colours.get(colour_id::bg_dark).brighter(.2f));
 }
 
 void comp_main::resized() {

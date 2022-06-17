@@ -294,7 +294,7 @@ private:
     window_audio_setup                    _window_audio_setup;
     header_button_lf                      _theme_header;
     timer_long_pressed_button             _timer_long_pressed_button;
-    colors                                _colors;
+    colours                               _colours;
 
     bool              _fast_reverse     = false,
                       _fast_forward     = false,

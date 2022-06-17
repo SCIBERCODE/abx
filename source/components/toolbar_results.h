@@ -10,7 +10,7 @@ namespace abx {
 class comp_toolbar_results : public Component {
 public:
     comp_toolbar_results(const std::function<void()>& export_callback) :
-        _font(resources::get_font(font_ids::result, 65))
+        _font(resources::get_font(font_id::result, 65))
     {
         _label_result.setFont(_font.boldened().withHorizontalScale(1.15f));
         _label_result.setColour(Label::textColourId, Colours::white);
@@ -19,33 +19,36 @@ public:
 
         _button_share.set_border_radius_side(button_toolbar::border_radius_side_t::left);
         _button_clear.set_border_radius_side(button_toolbar::border_radius_side_t::right);
-        _button_share.set_icon(icons_ids::share);
-        _button_clear.set_icon(icons_ids::clear);
+        _button_share.set_icon(icon_id::share);
+        _button_clear.set_icon(icon_id::clear);
         _button_share.set_type(button_toolbar::button_t::utility);
         _button_clear.set_type(button_toolbar::button_t::utility);
         addAndMakeVisible(_button_share);
         addAndMakeVisible(_button_clear);
 
+        _share_menu.setLookAndFeel(&_theme);
         _share_menu.addItem("Copy to Clipboard", [=]() {
             SystemClipboard::copyTextToClipboard(_label_result.getText());
         });
         _share_menu.addItem("Save as HTML", export_callback);
-
         _button_share.onClick = [&] {
             _share_menu.showAt(&_button_share);
         };
 
         set_result();
     }
-    ~comp_toolbar_results() {};
+
+    ~comp_toolbar_results() {
+        _share_menu.setLookAndFeel(nullptr);
+    }
 
     void set_on_clear(const std::function<void()>& callback) {
         _button_clear.onClick = callback;
     }
 
     void paint(Graphics& g) override {
-        g.fillAll(_colors.get(color_ids::bg_dark).brighter(.3f));
-        g.setColour(_colors.get(color_ids::outline_dark));
+        g.fillAll  (_colours.get(colour_id::bg_dark).brighter(.3f));
+        g.setColour(_colours.get(colour_id::outline_dark));
         auto bounds = getLocalBounds();
         g.drawLine(
             static_cast<float>(bounds.getX()),
@@ -77,8 +80,10 @@ private:
     button_toolbar _button_clear, // todo: cancel last trial
                    _button_share;
     PopupMenu      _share_menu;
-    colors         _colors;
+    colours        _colours;
     Font           _font;
+    theme          _theme;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(comp_toolbar_results)
 };
 

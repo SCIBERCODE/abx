@@ -20,7 +20,7 @@ public:
         setSize(520, 400);
     }
     void paint(Graphics& g) override {
-        g.fillAll(_colors.get(color_ids::bg_light));
+        g.fillAll(_colours.get(colour_id::bg_light));
     }
     void resized() override {
         _comp_audio_setup.setBounds(getLocalBounds());
@@ -29,7 +29,7 @@ public:
 private:
     Viewport                     _viewport;
     AudioDeviceSelectorComponent _comp_audio_setup;
-    colors                       _colors;
+    colours                      _colours;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(comp_audio_settings)
 };
 

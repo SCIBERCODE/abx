@@ -13,7 +13,6 @@ public:
     track_processor() {
         _format_manager.registerBasicFormats();
     };
-    ~track_processor() { };
 
     void process(AudioBuffer<float>& buffer) noexcept {
         for (auto ch = 0; ch < buffer.getNumChannels(); ++ch)

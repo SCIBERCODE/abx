@@ -9,8 +9,7 @@ namespace abx {
 */
 class comp_tracks_viewport : public Component {
 public:
-     comp_tracks_viewport(OwnedArray<comp_track>& tracks) : _tracks(tracks) { }
-    ~comp_tracks_viewport() { };
+    comp_tracks_viewport(OwnedArray<comp_track>& tracks) : _tracks(tracks) { }
 public:
     void resized() override {
         auto area = getLocalBounds();

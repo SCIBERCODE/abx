@@ -77,7 +77,7 @@ public:
             }
         }
         _relay = relay_bt.to_ulong();
-        DBG(std::format("toggle_relay: relay = {}", get_relay()));
+        //DBG(std::format("toggle_relay: relay = {}", get_relay()));
     }
 
     void turn_off_relay() {

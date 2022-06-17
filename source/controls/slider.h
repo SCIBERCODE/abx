@@ -39,12 +39,12 @@ public:
             Path clip_region;
             clip_region.addRoundedRectangle(track_rect, 2);
             g.reduceClipRegion(clip_region);
-            g.setColour(_colors.get(color_ids::waveform_bg));
+            g.setColour(_colours.get(colour_id::waveform_bg));
             g.fillRect(track_rect);
 
             juce::Rectangle<int> groove_rect(track_rect);
             groove_rect.setWidth(static_cast<int>(groove_rect.getWidth() * ratio));
-            g.setColour(_colors.get(color_ids::outline));
+            g.setColour(_colours.get(colour_id::outline));
             g.fillRect(groove_rect);
         }
         g.restoreState();
@@ -59,18 +59,18 @@ public:
         Colour handle_colour;
 
         if (isMouseButtonDown())
-            handle_colour = _colors.get(color_ids::handle_pressed);
+            handle_colour = _colours.get(colour_id::handle_pressed);
         else if (isMouseOver())
-            handle_colour = _colors.get(color_ids::handle_hover);
+            handle_colour = _colours.get(colour_id::handle_hover);
         else
-            handle_colour = _colors.get(color_ids::handle_normal);
+            handle_colour = _colours.get(colour_id::handle_normal);
 
         g.setColour(handle_colour);
         g.fillPath(handle_path);
     }
 
 private:
-    colors _colors;
+    colours _colours;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(slider)
 };
 
@@ -82,14 +82,14 @@ class slider_with_label : public Component,
 {
 public:
     slider_with_label(double minimum = -90) :
-        _font(resources::get_font(font_ids::file_info)),
+        _font(resources::get_font(font_id::file_info)),
         _slider(minimum)
     {
         _label.setText("Vol.", NotificationType::dontSendNotification);
         _label.setFont(_font);
         _label.setColour(Label::textColourId, Colours::black);
         _label.setMinimumHorizontalScale(1.f);
-        addAndMakeVisible(_label);
+        addAndMakeVisible(_label); // todo: tormoza
 
         _label_value.setJustificationType(Justification(Justification::centred));
         _label_value.setFont(_font);
@@ -119,7 +119,7 @@ public:
         bounds.setHeight(bounds.getHeight() < _slider.getHeight() ? _slider.getHeight() : bounds.getHeight());
         bounds.setY((bounds.getHeight() - old_height) / 2);
 
-        _label.setBounds(bounds.removeFromLeft(34));
+        _label.setBounds(bounds.removeFromLeft(45)); // todo: string width
         _label_value.setBounds(bounds.removeFromRight(60));
         _slider.setBounds(bounds);
     }
@@ -157,7 +157,7 @@ private:
     std::function<void(double)> _callback;
 
     void update_label_value() {
-        _label_value.setText(String(_slider.getValue(), 1) + " dB", NotificationType::dontSendNotification);
+        _label_value.setText(std::format("{:.1f} dB", _slider.getValue()), NotificationType::dontSendNotification);
     }
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(slider_with_label)

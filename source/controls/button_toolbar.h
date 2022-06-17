@@ -24,16 +24,16 @@ public:
         utility
     };
 
+public:
     button_toolbar() : Button("") {
         _icon.setSize(16, 16);
         addAndMakeVisible(_icon);
         setSize(get_size(), get_size());
     }
-    ~button_toolbar() { };
 
-    void set_icon(icons_ids icon_id, float size = 14.f) {
+    void set_icon(icon_id id, float size = 14.f) {
         _icon.deleteAllChildren();
-        _icon.addAndMakeVisible(resources::get_drawable(icon_id, size, size));
+        _icon.addAndMakeVisible(resources::get_drawable(id, size, size));
         resized();
     }
 
@@ -59,16 +59,16 @@ public:
         const auto corner_size = 6.f;
 
         if (down)
-            g.setColour(_colors.get(color_ids::button_pressed));
+            g.setColour(_colours.get(colour_id::button_pressed));
         else if (highlighted)
-            g.setColour(_colors.get(color_ids::button_hover));
+            g.setColour(_colours.get(colour_id::button_hover));
         else
-            g.setColour(_colors.get(
-                _type == button_t::ftdi ? color_ids::header : color_ids::button_normal));
+            g.setColour(_colours.get(
+                _type == button_t::ftdi ? colour_id::header : colour_id::button_normal));
 
         if (_hard_pressed.first) {
-            g.setColour(_colors.get(
-                _hard_pressed.second ? color_ids::button_red : color_ids::button_green));
+            g.setColour(_colours.get(
+                _hard_pressed.second ? colour_id::button_red : colour_id::button_green));
         }
 
         Path path;
@@ -83,23 +83,23 @@ public:
         g.fillPath(path);
 
         if (_type == button_t::utility)
-            g.setColour(_colors.get(color_ids::outline_dark).brighter(.2f));
+            g.setColour(_colours.get(colour_id::outline_dark).brighter(.2f));
         else {
-            auto outline = _colors.get(color_ids::outline);
+            auto outline = _colours.get(colour_id::outline);
             g.setColour(isEnabled() ? outline : outline.brighter());
         }
         g.strokePath(path, PathStrokeType(1.f));
 
         if (getToggleState()) {
-            g.setColour(_colors.get(color_ids::button_pressed));
+            g.setColour(_colours.get(colour_id::button_pressed));
             g.fillPath(path);
-            g.setColour(_colors.get(color_ids::button_green));
+            g.setColour(_colours.get(colour_id::button_green));
             g.reduceClipRegion(path);
             g.fillRect(juce::Rectangle<float>(bounds.getX(), bounds.getBottom() - 3.f, bounds.getWidth(), 3.f));
         }
 
         if (_text.length()) {
-            g.setColour(isEnabled() ? Colours::black : _colors.get(color_ids::text_disabled));
+            g.setColour(isEnabled() ? Colours::black : _colours.get(colour_id::text_disabled));
             g.setFont(Font(20, Font::FontStyleFlags::plain));
             g.drawText(_text, bounds, Justification::centred);
         }
@@ -132,7 +132,7 @@ public:
     }
 
 private:
-    colors                _colors;
+    colours               _colours;
     DrawableComposite     _icon;
     String                _text               {};
     border_radius_side_t  _border_radius_side { border_radius_side_t::none   };

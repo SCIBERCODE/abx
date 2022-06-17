@@ -36,7 +36,7 @@ public:
 
         // user input
         _button_rev.set_border_radius_side(button_toolbar::border_radius_side_t::left);
-        _button_rev.set_icon(icons_ids::backward);
+        _button_rev.set_icon(icon_id::backward);
         _button_rev.set_type(button_toolbar::button_t::ftdi);
         addAndMakeVisible(_button_rev);
 
@@ -66,20 +66,20 @@ public:
         addAndMakeVisible(_button_hz);
 
         _button_fwd.set_border_radius_side(button_toolbar::border_radius_side_t::right);
-        _button_fwd.set_icon(icons_ids::forward);
+        _button_fwd.set_icon(icon_id::forward);
         _button_fwd.set_type(button_toolbar::button_t::ftdi);
         addAndMakeVisible(_button_fwd);
 
         // settings
         _button_restart.set_border_radius_side(button_toolbar::border_radius_side_t::left);
-        _button_restart.set_icon(icons_ids::restart, 16.f);
+        _button_restart.set_icon(icon_id::restart, 16.f);
         _button_restart.setTooltip("Restart Audio");
         _button_restart.setClickingTogglesState(true);
         _button_restart.setToggleState(true, dontSendNotification);
         addAndMakeVisible(_button_restart);
 
         _button_blind.set_border_radius_side(button_toolbar::border_radius_side_t::right);
-        _button_blind.set_icon(icons_ids::blind, 18.f);
+        _button_blind.set_icon(icon_id::blind, 18.f);
         _button_blind.setTooltip("Blind Mode");
         _button_blind.setClickingTogglesState(true);
         _button_blind.setToggleState(true, dontSendNotification);
@@ -87,34 +87,34 @@ public:
 
         // player
         _button_pause.set_border_radius_side(button_toolbar::border_radius_side_t::left);
-        _button_pause.set_icon(icons_ids::pause);
+        _button_pause.set_icon(icon_id::pause);
         _button_pause.setClickingTogglesState(true);
         addAndMakeVisible(_button_pause);
         _button_pause.setEnabled(false);
 
-        _button_play.set_icon(icons_ids::play);
+        _button_play.set_icon(icon_id::play);
         _button_play.setClickingTogglesState(true);
         addAndMakeVisible(_button_play);
         _button_play.setEnabled(false);
 
-        _button_stop.set_icon(icons_ids::stop, 12.f);
+        _button_stop.set_icon(icon_id::stop, 12.f);
         addAndMakeVisible(_button_stop);
         _button_stop.setEnabled(false);
 
         _button_rewind.set_border_radius_side(button_toolbar::border_radius_side_t::right);
-        _button_rewind.set_icon(icons_ids::rewind);
+        _button_rewind.set_icon(icon_id::rewind);
         _button_rewind.setTooltip("Go to Start");
         addAndMakeVisible(_button_rewind);
         _button_rewind.setEnabled(false);
 
         // right
         _button_open.set_border_radius_side(button_toolbar::border_radius_side_t::left);
-        _button_open.set_icon(icons_ids::open, 16.f);
+        _button_open.set_icon(icon_id::open, 16.f);
         _button_open.setTooltip("Add File");
         addAndMakeVisible(_button_open);
 
         _button_settings.set_border_radius_side(button_toolbar::border_radius_side_t::right);
-        _button_settings.set_icon(icons_ids::settings);
+        _button_settings.set_icon(icon_id::settings);
         _button_settings.setTooltip("Audio Device Options");
         addAndMakeVisible(_button_settings);
 
@@ -141,8 +141,6 @@ public:
 
         resized();
     }
-
-    ~comp_toolbar() { };
 
     void set_on_name_changed(const std::function<void()>& callback) {
         _callback_name_changed = callback;
@@ -177,19 +175,20 @@ public:
     };
 
     void paint(Graphics& g) override {
-        g.fillAll(_colors.get(color_ids::bg_light));
+        g.fillAll(_colours.get(colour_id::bg_light));
         draw_reference_line(&g, _button_a, 31.f);
         draw_reference_line(&g, _button_b, 10.f);
     }
 
     void resized() override  {
-        const auto button_size   = _button_a.get_size();
-              auto x             = margins::_medium;
-              auto resize_button = [&](button_toolbar& button, bool big_spacing = false)
-              {
-                  button.setBounds(x, margins::_medium, button_size, button_size);
-                  x += button_size + (big_spacing ? margins::_small * 10 : margins::_small);
-              };
+        const auto button_size = _button_a.get_size();
+
+        int x = margins::_medium;
+        auto resize_button = [&](button_toolbar& button, bool big_spacing = false)
+        {
+            button.setBounds(x, margins::_medium, button_size, button_size);
+            x += button_size + (big_spacing ? margins::_small * 10 : margins::_small);
+        };
 
         resize_button(_button_rev);
         resize_button(_button_a);
@@ -302,6 +301,40 @@ public:
     }
 
 private:
+    /*
+    //////////////////////////////////////////////////////////////////////////////////////////
+    */
+    class focus_aware_editor : juce::TextEditor
+    {
+        focus_aware_editor() = default;
+
+        void parentHierarchyChanged() override
+        {
+            if (getParentComponent())
+            {
+                juce::Desktop::getInstance().addGlobalMouseListener(this);
+            }
+            else
+            {
+                juce::Desktop::getInstance().removeGlobalMouseListener(this);
+            }
+        }
+
+        void mouseDown(const juce::MouseEvent& e) override
+        {
+            if (getScreenBounds().contains(e.getScreenPosition()))
+            {
+                juce::TextEditor::mouseDown(e);
+            }
+            else
+            {
+                //giveAwayKeyboardFocus();
+                unfocusAllComponents();
+            }
+        }
+        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(focus_aware_editor)
+    };
+
     // todo: [8]
     button_toolbar _button_rev,
                    _button_a,
@@ -326,7 +359,7 @@ private:
     std::function<void(size_t)> _choose_clicked;
     std::function<void()>       _callback_name_changed;
     bool                        _connected {};
-    colors                      _colors;
+    colours                     _colours;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(comp_toolbar)
 };

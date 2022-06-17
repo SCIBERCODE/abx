@@ -7,7 +7,7 @@ namespace margins {
     constexpr size_t _medium = _small * 2;
 }
 
-namespace color_ids {
+namespace colour_id {
     enum window_ids : size_t {
         header,
         bg_light,
@@ -41,11 +41,11 @@ namespace color_ids {
     };
 }
 
-enum class font_ids {
+enum class font_id {
     result, file_info
 };
 
-enum class icons_ids {
+enum class icon_id {
     // abx
     backward,
     forward,
@@ -76,31 +76,28 @@ enum class icons_ids {
 class resources
 {
 private:
-    static inline std::map<icons_ids, const char*> icons_svg {
-        { icons_ids::backward, BinaryData::backward_svg },
-        { icons_ids::forward,  BinaryData::forward_svg  },
-        { icons_ids::restart,  BinaryData::restart_svg  },
-        { icons_ids::blind,    BinaryData::blind_svg    },
-        { icons_ids::pause,    BinaryData::pause_svg    },
-        { icons_ids::play,     BinaryData::play_svg     },
-        { icons_ids::stop,     BinaryData::stop_svg     },
-        { icons_ids::rewind,   BinaryData::rewind_svg   },
-        { icons_ids::edit,     BinaryData::edit_svg     },
-        { icons_ids::open,     BinaryData::open_svg     },
-        { icons_ids::settings, BinaryData::settings_svg },
-        { icons_ids::clear,    BinaryData::clear_svg    },
-        { icons_ids::share,    BinaryData::share_svg    },
-        { icons_ids::close,    BinaryData::close_svg    },
-        { icons_ids::warning,  BinaryData::warning_svg  }
+    static inline std::map<icon_id, const char*> icons_svg {
+        { icon_id::backward, BinaryData::backward_svg },
+        { icon_id::forward,  BinaryData::forward_svg  },
+        { icon_id::restart,  BinaryData::restart_svg  },
+        { icon_id::blind,    BinaryData::blind_svg    },
+        { icon_id::pause,    BinaryData::pause_svg    },
+        { icon_id::play,     BinaryData::play_svg     },
+        { icon_id::stop,     BinaryData::stop_svg     },
+        { icon_id::rewind,   BinaryData::rewind_svg   },
+        { icon_id::edit,     BinaryData::edit_svg     },
+        { icon_id::open,     BinaryData::open_svg     },
+        { icon_id::settings, BinaryData::settings_svg },
+        { icon_id::clear,    BinaryData::clear_svg    },
+        { icon_id::share,    BinaryData::share_svg    },
+        { icon_id::close,    BinaryData::close_svg    },
+        { icon_id::warning,  BinaryData::warning_svg  }
     };
 public:
-     resources() { }
-    ~resources() { }
+    static Drawable* get_drawable(icon_id id, float width = 16.f, float height = 16.f) {
+        if (icons_svg.count(id) == 0) return nullptr;
 
-    static Drawable* get_drawable(icons_ids icon_id, float width = 16.f, float height = 16.f) {
-        if (icons_svg.count(icon_id) == 0) return nullptr;
-
-        std::unique_ptr<XmlElement> icon_svg_xml(XmlDocument::parse(icons_svg.at(icon_id)));
+        std::unique_ptr<XmlElement> icon_svg_xml(XmlDocument::parse(icons_svg.at(id)));
         auto drawable_svg = Drawable::createFromSVG(*(icon_svg_xml.get()));
 
         drawable_svg->setTransformToFit(
@@ -110,12 +107,12 @@ public:
         return drawable_svg.release();
     }
 
-    static auto get_font(font_ids font_id, float height = 13.f)
+    static auto get_font(font_id font_id, float height = 13.f)
     {
         String font_name {};
         switch (font_id) {
-        case font_ids::result:    font_name = "upcdl"; break;
-        case font_ids::file_info: font_name = "sfpro"; break;
+        case font_id::result:    font_name = "upcdl"; break;
+        case font_id::file_info: font_name = "sfpro"; break;
         }
         int binary_data_size;
         auto binary_data = BinaryData::getNamedResource((font_name + "_ttf").getCharPointer(), binary_data_size);
@@ -131,11 +128,11 @@ public:
 /*
 //////////////////////////////////////////////////////////////////////////////////////////
 */
-class colors
+class colours
 {
 public:
-    colors() {
-        using namespace color_ids;
+    colours() {
+        using namespace colour_id;
         _colours[header           ] = { 205, 217, 241 };
         _colours[bg_light         ] = { 247, 249, 255 };
         _colours[bg_dark          ] = {  98, 103, 133 };
@@ -160,7 +157,6 @@ public:
         _colours[header_focused   ] = { 213, 227, 255 };
         _colours[header_lines     ] = { 128, 128, 128 };
     }
-    ~colors() { }
 
     Colour get(size_t index) {
         return _colours.count(index) ? _colours.at(index) : Colours::darkgrey;
@@ -173,30 +169,38 @@ private:
 //////////////////////////////////////////////////////////////////////////////////////////
 */
 class theme : public LookAndFeel_V4 {
+private:
+    abx::colours _colours;
+    const std::map<int, Colour> _colours_sys = {
+        { TextButton   ::textColourOnId,     Colours::black                   },
+        { TooltipWindow::backgroundColourId, Colours::lightyellow             },
+        { TooltipWindow::outlineColourId,    Colours::black                   },
+        { TooltipWindow::textColourId,       Colours::black                   },
+
+        { PopupMenu    ::backgroundColourId,            _colours.get(colour_id::bg_light) },
+        { PopupMenu    ::highlightedBackgroundColourId, _colours.get(colour_id::header)   },
+        { PopupMenu    ::highlightedTextColourId,       Colours::black                    },
+
+        // restoring white background after init with ColourScheme::widgetBackground
+        { TextButton::buttonColourId,     Colours::white },
+        { TextEditor::backgroundColourId, Colours::white },
+        { ComboBox  ::backgroundColourId, Colours::white },
+        { ListBox   ::backgroundColourId, Colours::white }
+    };
+
 public:
     theme() {
         auto scheme = getLightColourScheme();
-        scheme.setUIColour(ColourScheme::outline, _colors.get(color_ids::outline));
-        scheme.setUIColour(ColourScheme::widgetBackground, _colors.get(color_ids::header)); // for the window title bar and buttons
+        scheme.setUIColour(ColourScheme::outline,          _colours.get(colour_id::outline));
+        scheme.setUIColour(ColourScheme::widgetBackground, _colours.get(colour_id::header)); // for the window title bar and buttons
         setColourScheme(scheme);
 
-        // restoring white background after init with ColourScheme::widgetBackground
-        setColour(TextEditor::backgroundColourId, Colours::white);
-        setColour(TextButton::buttonColourId,     Colours::white);
-        setColour(ComboBox::backgroundColourId,   Colours::white);
-        setColour(ListBox::backgroundColourId,    Colours::white);
+        for (const auto [id, colour] : _colours_sys)
+            setColour(id, colour);
 
         Desktop::getInstance().getDefaultLookAndFeel().setColour(TextButton::textColourOffId, Colours::black);
         Desktop::getInstance().getDefaultLookAndFeel().setColour(TextEditor::textColourId,    Colours::black);
-
-        setColour(TextButton::textColourOnId,        Colours::black);
-        setColour(TooltipWindow::backgroundColourId, Colours::lightyellow);
-        setColour(TooltipWindow::outlineColourId,    Colours::black);
-        setColour(TooltipWindow::textColourId,       Colours::black);
-
-        setColour(TextEditor::outlineColourId,       Colours::black);
     }
-    ~theme() { }
 
     void drawDocumentWindowTitleBar(DocumentWindow& window, Graphics& g,
         int width, int height, int title_x, int title_width,
@@ -237,9 +241,6 @@ public:
         g.setColour(editor.findColour(focus ? TextEditor::focusedOutlineColourId : TextEditor::outlineColourId));
         g.drawRect(0, 0, width, height);
     }
-
-private:
-    colors _colors;
 };
 
 /*
@@ -248,41 +249,38 @@ private:
 class header_button_lf : public theme
 {
 public:
-     header_button_lf() { }
-    ~header_button_lf() { }
-
-    void drawButtonBackground(Graphics& g,
-        Button& button,
-        const Colour&,
-        bool hover,
-        bool pressed) override
+    void drawButtonBackground(Graphics& g, Button& button, const Colour& bg_colour, bool hover, bool pressed) override
     {
+        ignoreUnused(bg_colour);
         auto bounds = button.getLocalBounds().toFloat();
         bounds.removeFromBottom(.5f);
 
         if (pressed)
-            g.setColour(_colors.get(color_ids::button_pressed));
+            g.setColour(_colours.get(colour_id::button_pressed));
         else if (hover)
-            g.setColour(_colors.get(color_ids::button_hover));
+            g.setColour(_colours.get(colour_id::button_hover));
         else
-            g.setColour(_colors.get(color_ids::bg_light));
+            g.setColour(_colours.get(colour_id::bg_light));
 
         g.fillRect(bounds);
-        g.setColour(_colors.get(color_ids::outline_dark));
+        g.setColour(_colours.get(colour_id::outline_dark));
 
         if (button.isConnectedOnBottom())
             g.drawLine(bounds.getX(), bounds.getBottom(), bounds.getWidth(), bounds.getBottom());
 
-        g.setColour(_colors.get(color_ids::outline));
+        g.setColour(_colours.get(colour_id::outline));
         g.drawLine(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getY());
     }
 
-    void drawButtonText(Graphics& g, TextButton& button, bool, bool)
+    void drawButtonText(Graphics& g, TextButton& button, bool highlighted, bool down)
     {
+        ignoreUnused(highlighted);
+        ignoreUnused(down);
+
         Font font(jmin(16.f, button.getHeight() * .6f));
         font.setBold(true);
         g.setFont(font);
-        g.setColour(_colors.get(color_ids::outline));
+        g.setColour(_colours.get(colour_id::outline));
 
         const int y           = jmin(4, button.proportionOfHeight(.3f));
         const int corner_size = jmin(button.getHeight(), button.getWidth()) / 2;
@@ -306,8 +304,10 @@ public:
         if (text_width > 0)
             g.drawFittedText(button.getButtonText(), x, y, text_width, button.getHeight() - y * 2, Justification::centredLeft, 2);
     }
+
 private:
-    colors _colors;
+    abx::colours _colours;
+
 };
 
 }

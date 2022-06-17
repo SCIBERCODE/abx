@@ -4,8 +4,6 @@
 
 class abx_application : public JUCEApplication {
 public:
-     abx_application() { }
-    ~abx_application() { }
 
     const String getApplicationName()              override { return "abx"; }
     const String getApplicationVersion()           override { return ProjectInfo::versionString; }

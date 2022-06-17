@@ -42,10 +42,8 @@ public:
         setSize(size.first, size.second);
     };
 
-    ~comp_track_master() { };
-
     void paint(Graphics& g) override {
-        g.fillAll(_colors.get(color_ids::bg_light));
+        g.fillAll(_colours.get(colour_id::bg_light));
         g.setColour(Colours::darkgrey.darker(0.7f));
         g.drawLine(0.f, .5f, static_cast<float>(getBounds().getWidth()), .5f, 1.f);
     };
@@ -92,7 +90,7 @@ private:
               std::unique_ptr<slider_with_label>>
                               _sliders;
     std::function<void()>     _callback_gain_changed;
-    colors                    _colors;
+    colours                   _colours;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(comp_track_master)
 };
