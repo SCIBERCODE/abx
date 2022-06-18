@@ -66,10 +66,13 @@ public:
             g.setColour(_colours.get(
                 _type == button_t::ftdi ? colour_id::header : colour_id::button_normal));
 
-        if (_hard_pressed.first) {
-            g.setColour(_colours.get(
-                _hard_pressed.second ? colour_id::button_red : colour_id::button_green));
+        if (_hard_pressed.first)
+#pragma warning(push)
+#pragma warning(disable : 26812)
+        {
+            g.setColour(_colours.get(_hard_pressed.second ? colour_id::button_red : colour_id::button_green));
         }
+#pragma warning(pop)
 
         Path path;
         path.addRoundedRectangle(bounds.getX(), bounds.getY(),

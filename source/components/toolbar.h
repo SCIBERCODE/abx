@@ -4,6 +4,7 @@
 
 #include "../controls/button_toolbar.h"
 #include "../controls/slider.h"
+#include "../controls/editor.h"
 #include "../app/theme.h"
 
 namespace abx {
@@ -118,12 +119,9 @@ public:
         _button_settings.setTooltip("Audio Device Options");
         addAndMakeVisible(_button_settings);
 
-        auto init_edit = [&](std::unique_ptr<TextEditor>& edit)
+        auto init_edit = [&](std::unique_ptr<editor>& edit)
         {
-            edit = std::make_unique<TextEditor>();
-            edit->setTextToShowWhenEmpty("click to enter device name", Colours::grey);
-            edit->setIndents(3, 0);
-            //edit->setColour(TextEditor::ColourIds::backgroundColourId, Colours::transparentWhite);
+            edit = std::make_unique<editor>("click to enter device name");
             edit->onTextChange = [this]()
             {
                 _callback_name_changed();
@@ -147,14 +145,14 @@ public:
     }
 
     void names_set(std::pair<String, String> names) const {
-        _edits.first ->setText(names.first);
-        _edits.second->setText(names.second);
+        _edits.first ->text_set(names.first);
+        _edits.second->text_set(names.second);
     };
 
     std::pair<String, String> names_get() const {
         return std::make_pair(
-            _edits.first ->getText(),
-            _edits.second->getText()
+            _edits.first ->text_get(),
+            _edits.second->text_get()
         );
     };
 
@@ -167,6 +165,7 @@ public:
 
         Line<float> line(x, y, x + y_boottom, y + y_boottom);
         if (g) {
+            g->setColour(_colours.get(colour_id::outline));
             g->drawLine(line);
             g->fillRect(line.getEndX(), line.getEndY() - .5f, edit_x - line.getEndX() - 2.f, 1.f);
         }
@@ -301,40 +300,6 @@ public:
     }
 
 private:
-    /*
-    //////////////////////////////////////////////////////////////////////////////////////////
-    */
-    class focus_aware_editor : juce::TextEditor
-    {
-        focus_aware_editor() = default;
-
-        void parentHierarchyChanged() override
-        {
-            if (getParentComponent())
-            {
-                juce::Desktop::getInstance().addGlobalMouseListener(this);
-            }
-            else
-            {
-                juce::Desktop::getInstance().removeGlobalMouseListener(this);
-            }
-        }
-
-        void mouseDown(const juce::MouseEvent& e) override
-        {
-            if (getScreenBounds().contains(e.getScreenPosition()))
-            {
-                juce::TextEditor::mouseDown(e);
-            }
-            else
-            {
-                //giveAwayKeyboardFocus();
-                unfocusAllComponents();
-            }
-        }
-        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(focus_aware_editor)
-    };
-
     // todo: [8]
     button_toolbar _button_rev,
                    _button_a,
@@ -352,8 +317,8 @@ private:
     std::pair<juce::Rectangle<int>,
               juce::Rectangle<int>>
                    _edit_areas;
-    std::pair<std::unique_ptr<TextEditor>,
-              std::unique_ptr<TextEditor>>
+    std::pair<std::unique_ptr<editor>,
+              std::unique_ptr<editor>>
                    _edits;
 
     std::function<void(size_t)> _choose_clicked;

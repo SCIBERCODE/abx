@@ -171,22 +171,33 @@ private:
 class theme : public LookAndFeel_V4 {
 private:
     abx::colours _colours;
-    const std::map<int, Colour> _colours_sys = {
-        { TextButton   ::textColourOnId,     Colours::black                   },
-        { TooltipWindow::backgroundColourId, Colours::lightyellow             },
-        { TooltipWindow::outlineColourId,    Colours::black                   },
-        { TooltipWindow::textColourId,       Colours::black                   },
 
+#pragma warning(push)
+#pragma warning(disable : 26812)
+
+    const std::map<int, Colour> _colours_sys =
+    {
+        { TextButton   ::textColourOnId,     Colours::black            },
+        { TextButton   ::buttonColourId,     Colours::transparentWhite },
+
+        { ComboBox     ::backgroundColourId, Colours::white            },
+        { ListBox      ::backgroundColourId, Colours::white            },
+
+        { TooltipWindow::backgroundColourId, Colours::lightyellow      },
+        { TooltipWindow::outlineColourId,    Colours::black            },
+        { TooltipWindow::textColourId,       Colours::black            },
+
+        { PopupMenu    ::highlightedTextColourId,        Colours::black                   },
         { PopupMenu    ::backgroundColourId,            _colours.get(colour_id::bg_light) },
         { PopupMenu    ::highlightedBackgroundColourId, _colours.get(colour_id::header)   },
-        { PopupMenu    ::highlightedTextColourId,       Colours::black                    },
 
-        // restoring white background after init with ColourScheme::widgetBackground
-        { TextButton::buttonColourId,     Colours::white },
-        { TextEditor::backgroundColourId, Colours::white },
-        { ComboBox  ::backgroundColourId, Colours::white },
-        { ListBox   ::backgroundColourId, Colours::white }
+        { TextEditor   ::outlineColourId,               _colours.get(colour_id::outline)  },
+        { TextEditor   ::backgroundColourId,             Colours::transparentWhite        },
+        { TextEditor   ::focusedOutlineColourId,         Colours::black                   },
+        { TextEditor   ::highlightedTextColourId,        Colours::black                   }
     };
+
+#pragma warning(pop)
 
 public:
     theme() {
@@ -222,24 +233,12 @@ public:
         g.drawText(window.getName(), title_x, 0, text_width, height, Justification::centredLeft, true);
     }
 
-    void fillTextEditorBackground(Graphics& g, int width, int height, TextEditor& editor) override
-    {
-        if (dynamic_cast<AlertWindow*>(editor.getParentComponent()) == nullptr)
-            return;
-
-        auto focus = editor.hasKeyboardFocus(true) && !editor.isReadOnly();
-        g.setColour(focus ? Colours::white : editor.findColour(TextEditor::backgroundColourId));
-        g.fillRect(0, 0, width, height);
-    }
-
     void drawTextEditorOutline(Graphics& g, int width, int height, TextEditor& editor) override
     {
-        if (dynamic_cast<AlertWindow*>(editor.getParentComponent()) != nullptr)
-            return;
-
-        auto focus = editor.hasKeyboardFocus(true) && !editor.isReadOnly();
-        g.setColour(editor.findColour(focus ? TextEditor::focusedOutlineColourId : TextEditor::outlineColourId));
-        g.drawRect(0, 0, width, height);
+        ignoreUnused(g);
+        ignoreUnused(width);
+        ignoreUnused(height);
+        ignoreUnused(editor);
     }
 };
 
