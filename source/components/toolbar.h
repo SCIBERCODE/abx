@@ -7,6 +7,7 @@
 #include "../controls/editor.h"
 #include "../app/theme.h"
 
+
 namespace abx {
 
 /*
@@ -14,6 +15,9 @@ namespace abx {
 */
 class comp_toolbar : public Component
 {
+private:
+    using p_edit = std::unique_ptr<editor>;
+
 public:
     enum class button_t {
         rev, a, hz, b, fwd,
@@ -119,7 +123,7 @@ public:
         _button_settings.setTooltip("Audio Device Options");
         addAndMakeVisible(_button_settings);
 
-        auto init_edit = [&](std::unique_ptr<editor>& edit)
+        auto init_edit = [&](p_edit& edit)
         {
             edit = std::make_unique<editor>("click to enter device name");
             edit->onTextChange = [this]()
@@ -149,7 +153,7 @@ public:
         _edits.second->text_set(names.second);
     };
 
-    std::pair<String, String> names_get() const {
+    auto names_get() const {
         return std::make_pair(
             _edits.first ->text_get(),
             _edits.second->text_get()
@@ -317,8 +321,7 @@ private:
     std::pair<juce::Rectangle<int>,
               juce::Rectangle<int>>
                    _edit_areas;
-    std::pair<std::unique_ptr<editor>,
-              std::unique_ptr<editor>>
+    std::pair<p_edit, p_edit>
                    _edits;
 
     std::function<void(size_t)> _choose_clicked;

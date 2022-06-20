@@ -13,7 +13,12 @@
 #include "toolbar.h"
 #include "toolbar_results.h"
 
+#pragma warning(disable : 26812)
+
 namespace abx {
+
+template<typename T>
+using pair_ptr = std::pair<std::unique_ptr<T>, std::unique_ptr<T>>; // todo: make it work
 
 enum class state_t
 {

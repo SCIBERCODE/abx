@@ -171,10 +171,6 @@ private:
 class theme : public LookAndFeel_V4 {
 private:
     abx::colours _colours;
-
-#pragma warning(push)
-#pragma warning(disable : 26812)
-
     const std::map<int, Colour> _colours_sys =
     {
         { TextButton   ::textColourOnId,     Colours::black            },
@@ -190,14 +186,7 @@ private:
         { PopupMenu    ::highlightedTextColourId,        Colours::black                   },
         { PopupMenu    ::backgroundColourId,            _colours.get(colour_id::bg_light) },
         { PopupMenu    ::highlightedBackgroundColourId, _colours.get(colour_id::header)   },
-
-        { TextEditor   ::outlineColourId,               _colours.get(colour_id::outline)  },
-        { TextEditor   ::backgroundColourId,             Colours::transparentWhite        },
-        { TextEditor   ::focusedOutlineColourId,         Colours::black                   },
-        { TextEditor   ::highlightedTextColourId,        Colours::black                   }
     };
-
-#pragma warning(pop)
 
 public:
     theme() {
@@ -208,9 +197,6 @@ public:
 
         for (const auto [id, colour] : _colours_sys)
             setColour(id, colour);
-
-        Desktop::getInstance().getDefaultLookAndFeel().setColour(TextButton::textColourOffId, Colours::black);
-        Desktop::getInstance().getDefaultLookAndFeel().setColour(TextEditor::textColourId,    Colours::black);
     }
 
     void drawDocumentWindowTitleBar(DocumentWindow& window, Graphics& g,
@@ -231,14 +217,6 @@ public:
         auto text_width = font.getStringWidth(window.getName());
         g.setColour(window.findColour(DocumentWindow::textColourId));
         g.drawText(window.getName(), title_x, 0, text_width, height, Justification::centredLeft, true);
-    }
-
-    void drawTextEditorOutline(Graphics& g, int width, int height, TextEditor& editor) override
-    {
-        ignoreUnused(g);
-        ignoreUnused(width);
-        ignoreUnused(height);
-        ignoreUnused(editor);
     }
 };
 

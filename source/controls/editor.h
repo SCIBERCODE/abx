@@ -29,13 +29,29 @@ private:
     {
     public:
         laf() {
-            setColour(TextEditor::highlightedTextColourId, Colours::black);
+            set_enabled(false);
             setColour(TextEditor::focusedOutlineColourId,  Colours::black);
             setColour(TextEditor::backgroundColourId,      Colours::transparentWhite);
             setColour(TextEditor::outlineColourId,        _colours.get(colour_id::outline));
         }
         auto get_colour(size_t index) {
             return _colours.get(index);
+        }
+        void set_enabled(bool enabled) {
+            setColour(TextEditor::highlightedTextColourId, enabled ? Colours::black : Colours::grey);
+            setColour(TextEditor::textColourId,            enabled ? Colours::black : Colours::grey);
+        }
+        void drawTextEditorOutline(Graphics& g, int width, int height, TextEditor& editor) override
+        {
+            auto focus = editor.hasKeyboardFocus(true) && !editor.isReadOnly();
+            g.setColour(findColour(focus ? TextEditor::focusedOutlineColourId : TextEditor::outlineColourId));
+            g.drawRect(0.f, 0.f, static_cast<float>(width), static_cast<float>(height), focus ? 1.3f : 1.f);
+        }
+        void fillTextEditorBackground(Graphics& g, int width, int height, TextEditor& editor) override
+        {
+            auto focus = editor.hasKeyboardFocus(true) && !editor.isReadOnly();
+            g.setColour(focus ? Colours::white : findColour(TextEditor::backgroundColourId));
+            g.fillRect(0, 0, width, height);
         }
     private:
         abx::colours _colours;
@@ -68,33 +84,26 @@ public:
             Desktop::getInstance().removeGlobalMouseListener(this);
     }
 
-    void paint(Graphics& g) override
-    {
-        auto focus = hasKeyboardFocus(true) && !isReadOnly();
-
-        g.setColour(focus ? Colours::white : findColour(TextEditor::backgroundColourId));
-        g.fillRect(getLocalBounds());
-
-        g.setColour(findColour(focus ? TextEditor::focusedOutlineColourId : TextEditor::outlineColourId));
-        g.drawRect(getLocalBounds());
-    }
-
     void mouseDown(const MouseEvent& e) override
     {
         if (getScreenBounds().contains(e.getScreenPosition()))
         {
             TextEditor::mouseDown(e);
 
-            if (_listener.get_text().length() == 0)
-                setText(String {}, false);
+            if (_listener.get_text().length() == 0) {
+                _laf.set_enabled(true);
+                setText(String{}, false);
+            }
 
             setReadOnly(false);
             setMouseCursor(MouseCursor::IBeamCursor);
             setColour(TextEditor::highlightColourId, _laf.get_colour(colour_id::header));
         }
         else {
-            if (_listener.get_text().length() == 0)
+            if (_listener.get_text().length() == 0) {
+                _laf.set_enabled(false);
                 setText(_text_empty, false);
+            }
 
             setReadOnly(true);
             setMouseCursor(MouseCursor::NormalCursor);
@@ -104,8 +113,10 @@ public:
 
     void text_set(const String& text)
     {
-        if (text.length())
+        if (text.length()) {
+            _laf.set_enabled(true);
             setText(text, true);
+        }
         else
             setText(_text_empty, true);
     }

@@ -254,7 +254,7 @@ private:
                       _current_out {};
     Atomic<size_t>    _relay       {};
     bool              _waiting     { true };
-    uint64_t          _timer;
+    uint64_t          _timer       {};
     abx::xorshift1024 _xs1024;
 
     std::function<void(size_t)> _callback_on_button_press;
