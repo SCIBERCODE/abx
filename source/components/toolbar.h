@@ -13,7 +13,8 @@ namespace abx {
 /*
 //////////////////////////////////////////////////////////////////////////////////////////
 */
-class comp_toolbar : public Component
+class comp_toolbar : public Component,
+                     public ChangeListener
 {
 private:
     using p_edit = std::unique_ptr<editor>;
@@ -126,6 +127,7 @@ public:
         auto init_edit = [&](p_edit& edit)
         {
             edit = std::make_unique<editor>("click to enter device name");
+            edit->addChangeListener(this);
             edit->onTextChange = [this]()
             {
                 _callback_name_changed();
@@ -144,6 +146,18 @@ public:
         resized();
     }
 
+    ~comp_toolbar() {
+        _edits.first ->removeChangeListener(this);
+        _edits.second->removeChangeListener(this);
+    }
+
+    void changeListenerCallback(ChangeBroadcaster* source) override {
+        ignoreUnused(source);
+        _button_a.stress(_edits.first ->is_active());
+        _button_b.stress(_edits.second->is_active());
+        repaint();
+    };
+
     void set_on_name_changed(const std::function<void()>& callback) {
         _callback_name_changed = callback;
     }
@@ -160,7 +174,7 @@ public:
         );
     };
 
-    juce::Rectangle<int> draw_reference_line(Graphics* g, const button_toolbar& button, float y_boottom)
+    juce::Rectangle<int> draw_reference_line(Graphics* g, const button_toolbar& button, float y_boottom, bool active = false)
     {
         auto area   = button.getBounds();
         auto edit_x = _button_restart.getX();
@@ -169,7 +183,7 @@ public:
 
         Line<float> line(x, y, x + y_boottom, y + y_boottom);
         if (g) {
-            g->setColour(_colours.get(colour_id::outline));
+            g->setColour(active ? Colours::black : _colours.get(colour_id::outline));
             g->drawLine(line);
             g->fillRect(line.getEndX(), line.getEndY() - .5f, edit_x - line.getEndX() - 2.f, 1.f);
         }
@@ -179,8 +193,8 @@ public:
 
     void paint(Graphics& g) override {
         g.fillAll(_colours.get(colour_id::bg_light));
-        draw_reference_line(&g, _button_a, 31.f);
-        draw_reference_line(&g, _button_b, 10.f);
+        draw_reference_line(&g, _button_a, 31.f, _edits.first ->is_active());
+        draw_reference_line(&g, _button_b, 10.f, _edits.second->is_active());
     }
 
     void resized() override  {

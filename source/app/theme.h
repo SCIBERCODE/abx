@@ -1,5 +1,7 @@
 #pragma once
 
+#pragma warning(disable : 26812)
+
 namespace abx {
 
 namespace margins {

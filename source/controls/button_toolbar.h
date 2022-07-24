@@ -53,6 +53,10 @@ public:
         _hard_pressed.second = wrong;
     }
 
+    void stress(bool should_be_stressed) {
+        _stressed = should_be_stressed;
+    }
+
     void paintButton(Graphics& g, bool highlighted, bool down) override
     {
         const auto bounds = getLocalBounds().toFloat().reduced(.5f, .5f);
@@ -67,12 +71,7 @@ public:
                 _type == button_t::ftdi ? colour_id::header : colour_id::button_normal));
 
         if (_hard_pressed.first)
-#pragma warning(push)
-#pragma warning(disable : 26812)
-        {
             g.setColour(_colours.get(_hard_pressed.second ? colour_id::button_red : colour_id::button_green));
-        }
-#pragma warning(pop)
 
         Path path;
         path.addRoundedRectangle(bounds.getX(), bounds.getY(),
@@ -91,7 +90,10 @@ public:
             auto outline = _colours.get(colour_id::outline);
             g.setColour(isEnabled() ? outline : outline.brighter());
         }
-        g.strokePath(path, PathStrokeType(1.f));
+        if (_stressed)
+            g.setColour(Colours::black);
+
+        g.strokePath(path, PathStrokeType(_stressed ? 1.5f : 1.f));
 
         if (getToggleState()) {
             g.setColour(_colours.get(colour_id::button_pressed));
@@ -141,6 +143,7 @@ private:
     border_radius_side_t  _border_radius_side { border_radius_side_t::none   };
     button_t              _type               { button_t::normal             };
     std::pair<bool, bool> _hard_pressed       { std::make_pair(false, false) };
+    bool                  _stressed           {};
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(button_toolbar)
 };

@@ -1,5 +1,7 @@
 #pragma once
 
+#pragma warning(disable : 4706)
+
 #include "../../JuceLibraryCode/JuceHeader.h"
 
 #include "../app/theme.h"
@@ -9,7 +11,8 @@ namespace abx {
 /*
 //////////////////////////////////////////////////////////////////////////////////////////
 */
-class editor : public TextEditor
+class editor : public TextEditor,
+               public ChangeBroadcaster
 {
 private:
     class listener : public TextEditor::Listener
@@ -60,6 +63,7 @@ private:
     listener _listener;
     String   _text_empty;
     laf      _laf;
+    bool     _active = false;
 
 public:
 
@@ -86,7 +90,7 @@ public:
 
     void mouseDown(const MouseEvent& e) override
     {
-        if (getScreenBounds().contains(e.getScreenPosition()))
+        if (_active = getScreenBounds().contains(e.getScreenPosition()))
         {
             TextEditor::mouseDown(e);
 
@@ -109,6 +113,11 @@ public:
             setMouseCursor(MouseCursor::NormalCursor);
             setColour(TextEditor::highlightColourId, Colours::transparentWhite);
         }
+        sendChangeMessage();
+    }
+
+    auto is_active() {
+        return _active;
     }
 
     void text_set(const String& text)

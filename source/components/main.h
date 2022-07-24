@@ -13,8 +13,6 @@
 #include "toolbar.h"
 #include "toolbar_results.h"
 
-#pragma warning(disable : 26812)
-
 namespace abx {
 
 template<typename T>
