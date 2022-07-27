@@ -28,6 +28,19 @@ private:
         String _text;
     };
 
+    /*
+    //////////////////////////////////////////////////////////////////////////////////////////
+    */
+    class filter : public TextEditor::InputFilter
+    {
+        String filterNewText(TextEditor&, const String& input) override {
+            return input.replaceCharacter('|', '_');
+        }
+    };
+
+    /*
+    //////////////////////////////////////////////////////////////////////////////////////////
+    */
     class laf : public juce::LookAndFeel_V4
     {
     public:
@@ -61,6 +74,7 @@ private:
     };
 
     listener _listener;
+    filter   _filter;
     String   _text_empty;
     laf      _laf;
     bool     _active = false;
@@ -73,6 +87,7 @@ public:
         setIndents(3, 0);
         setText(text_empty, false);
         setMouseCursor(MouseCursor::NormalCursor);
+        setInputFilter(&_filter, false);
         addListener(&_listener);
     }
 

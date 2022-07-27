@@ -9,12 +9,13 @@ comp_main::comp_main() :
 {
     setOpaque(true);
 
-    PropertiesFile::Options params;
-    params.applicationName = JUCEApplication::getInstance()->getApplicationName();
-    params.filenameSuffix  = L".xml";
-    params.folderName      = File::getCurrentWorkingDirectory().getFullPathName();
-    params.storageFormat   = PropertiesFile::storeAsXML;
-    _settings.setStorageParameters(params);
+    if (_settings_file.existsAsFile())
+    {
+        if (auto xml = parseXML(_settings_file)) {
+            _settings = ValueTree::fromXml(*xml);
+        }
+    }
+    _settings.addListener(this);
 
     _viewport_tracks.setScrollBarThickness(11);
     _viewport_tracks_inside = std::make_unique<comp_tracks_viewport>(_tracks);
@@ -59,7 +60,7 @@ comp_main::comp_main() :
         static bool already_opened = false;
         if (!already_opened) {
             already_opened = true;
-            auto last_path = settings_read(settings_keys::last_path).getFirst().toString();
+            auto last_path = settings_read_single(settings_ids::path);
             FileChooser chooser({}, last_path, _filter->getDescription(), true, false, this);
             if (chooser.browseForMultipleFilesToOpen()) {
                 for (auto const& file : chooser.getResults()) {
@@ -81,8 +82,10 @@ comp_main::comp_main() :
     _master_track.setAlwaysOnTop(true);
     _master_track.set_on_gain_changed(gain_changed_callback);
 
-    auto gain = settings_read(settings_keys::gain);
-    _master_track.gain_set(std::make_pair(gain.getFirst(), gain.getLast()));
+    auto gain = settings_read(settings_ids::gain);
+    if (gain.size() == 2) {
+        _master_track.gain_set(std::make_pair(gain[0].getDoubleValue(), gain[1].getDoubleValue()));
+    }
 
     addAndMakeVisible(_master_track);
 
@@ -110,11 +113,13 @@ comp_main::comp_main() :
 
     _toolbar.set_on_name_changed([&]() {
         auto names = _toolbar.names_get();
-        settings_save(settings_keys::name, std::format("{}\n{}", names.first.toStdString(), names.second.toStdString()));
+        settings_save(settings_ids::name, { names.first, names.second });
     });
 
-    auto names = settings_read(settings_keys::name);
-    _toolbar.names_set(std::make_pair(names.getFirst().toString(), names.getLast().toString()));
+    auto names = settings_read(settings_ids::name);
+    if (names.size() == 2) {
+        _toolbar.names_set(std::make_pair(names[0], names[1]));
+    }
 
     _button_results_header.setClickingTogglesState(true);
     _button_results_header.setConnectedEdges(TextButton::ConnectedOnBottom);
@@ -141,7 +146,6 @@ comp_main::~comp_main() {
     shutdownAudio();
     _transport_source.setSource(nullptr);
     _ftdi.stopThread(200);
-    _settings.closeFiles();
 }
 
 void comp_main::track_activate(comp_track* selected_track_new, bool double_click) {
@@ -324,7 +328,7 @@ void comp_main::track_add(const String& file_path) {
         track_activate(_track, true);
     }
     resized();
-    settings_save(settings_keys::last_path, File(file_path).getParentDirectory().getFullPathName());
+    settings_save(settings_ids::path, { File(file_path).getParentDirectory().getFullPathName() });
 }
 
 void comp_main::change_state(state_t new_state)
