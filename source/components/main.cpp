@@ -136,6 +136,8 @@ comp_main::comp_main() :
         _toolbar_results.set_result();
     });
     addAndMakeVisible(_toolbar_results);
+
+    settings_load_tracks();
 }
 
 comp_main::~comp_main() {
@@ -284,7 +286,7 @@ void comp_main::filesDropped(const StringArray &files, int x, int y) {
     }
 }
 
-void comp_main::track_add(const String& file_path) {
+void comp_main::track_add(const String& file_path, bool save_settings) {
     for (auto track : _tracks) {
         if (track->get_file_path() == file_path)
             return;
@@ -319,10 +321,12 @@ void comp_main::track_add(const String& file_path) {
                 _user_stopped = false;
             }
             _tracks.remove(index);
+            settings_save_tracks();
             parent->resized();
     });
     _transport_source.addChangeListener(_track);
     _tracks.add(_track);
+    if (save_settings) settings_save_tracks();
     _viewport_tracks_inside->addAndMakeVisible(_track);
     if (_tracks.size() == 1) {
         track_activate(_track, true);

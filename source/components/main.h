@@ -45,9 +45,11 @@ struct trial_t
 };
 
 namespace settings_ids {
-    static Identifier gain{ "gain" };
-    static Identifier path{ "path" };
-    static Identifier name{ "name" };
+    static Identifier tracks { "tracks" };
+    static Identifier track  { "track"  };
+    static Identifier gain   { "gain"   };
+    static Identifier path   { "path"   };
+    static Identifier name   { "name"   };
 }
 
 /*
@@ -72,7 +74,7 @@ public:
     void changeListenerCallback(ChangeBroadcaster* source) override;
 
 private:
-    void track_add(const String &file_path);
+    void track_add(const String &file_path, bool save_settings = true);
     void track_activate(comp_track*, bool double_click);
     void track_change(comp_track* _track, bool is_next);
     void change_state(state_t new_state);
@@ -259,6 +261,25 @@ private:
         _settings
             .getOrCreateChildWithName(id, nullptr)
             .setProperty("value", strings.joinIntoString("|"), nullptr);
+    }
+
+    void settings_save_tracks() { // todo: optimize
+        auto node = _settings.getOrCreateChildWithName(settings_ids::tracks, nullptr);
+        node.removeAllChildren(nullptr);
+        for (auto track : _tracks)
+        {
+            ValueTree new_node(settings_ids::track);
+            new_node.setProperty("value", track->get_file_path(), nullptr);
+            node.appendChild(new_node, nullptr);
+        }
+    }
+
+    void settings_load_tracks() {
+        auto tracks_node = _settings.getChildWithName(settings_ids::tracks);
+        if (!tracks_node.isValid()) return;
+        for (size_t k = 0; k < tracks_node.getNumChildren(); k++) {
+            track_add(tracks_node.getChild(k).getProperty("value"), false);
+        }
     }
 
     StringArray settings_read(const Identifier id) {
