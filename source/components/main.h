@@ -5,6 +5,7 @@
 #include "../app/ftdi.h"
 #include "../app/theme.h"
 #include "../app/windows.h"
+#include "../app/settings.h"
 
 #include "track.h"
 #include "track_master.h"
@@ -44,22 +45,13 @@ struct trial_t
     bool   blind;
 };
 
-namespace settings_ids {
-    static Identifier tracks { "tracks" };
-    static Identifier track  { "track"  };
-    static Identifier gain   { "gain"   };
-    static Identifier path   { "path"   };
-    static Identifier name   { "name"   };
-}
-
 /*
 //////////////////////////////////////////////////////////////////////////////////////////
 */
 class comp_main : public AudioAppComponent,
                   public FileDragAndDropTarget,
                   public DragAndDropContainer,
-                  public ChangeListener,
-                  public ValueTree::Listener {
+                  public ChangeListener {
 public:
      comp_main();
     ~comp_main();
@@ -74,9 +66,10 @@ public:
     void changeListenerCallback(ChangeBroadcaster* source) override;
 
 private:
-    void track_add(const String &file_path, bool save_settings = true);
+    comp_track *track_add(const String &file_path, bool save_settings = true);
     void track_activate(comp_track*, bool double_click);
     void track_change(comp_track* _track, bool is_next);
+    void tracks_state_save();
     void change_state(state_t new_state);
     void trial_cycle(size_t button_bt);
     void launch_audio_setup();
@@ -122,7 +115,7 @@ private:
             _relay == _A ? gain.first : gain.second, last_relay != _relay
         );
         last_relay = _relay;
-        settings_save(settings_ids::gain, { gain.first, gain.second });
+        _settings.save(settings_ids::gain, { gain.first, gain.second });
     };
 
     /*
@@ -240,7 +233,7 @@ private:
         }
         html += "</pre>\r\n</body>\r\n</html>";
 
-        auto last_path = settings_read_single(settings_ids::path);
+        auto last_path = _settings.read_single(settings_ids::path);
         FileChooser chooser("Save Trial Log to...", last_path, "*.html", true, false, this);
         if (chooser.browseForFileToSave(true))
         {
@@ -253,59 +246,6 @@ private:
 //////////////////////////////////////////////////////////////////////////////////////////
 */
 private:
-    void settings_save(const Identifier id, const Array<var> values) {
-        StringArray strings;
-        for (const auto& value : values) {
-            strings.add(value.toString());
-        }
-        _settings
-            .getOrCreateChildWithName(id, nullptr)
-            .setProperty("value", strings.joinIntoString("|"), nullptr);
-    }
-
-    void settings_save_tracks() { // todo: optimize
-        auto node = _settings.getOrCreateChildWithName(settings_ids::tracks, nullptr);
-        node.removeAllChildren(nullptr);
-        for (auto track : _tracks)
-        {
-            ValueTree new_node(settings_ids::track);
-            new_node.setProperty("value", track->get_file_path(), nullptr);
-            node.appendChild(new_node, nullptr);
-        }
-    }
-
-    void settings_load_tracks() {
-        auto tracks_node = _settings.getChildWithName(settings_ids::tracks);
-        if (!tracks_node.isValid()) return;
-        for (size_t k = 0; k < tracks_node.getNumChildren(); k++) {
-            track_add(tracks_node.getChild(k).getProperty("value"), false);
-        }
-    }
-
-    StringArray settings_read(const Identifier id) {
-        auto child = _settings.getChildWithName(id);
-        if (child.isValid()) {
-            return StringArray::fromTokens(child["value"].toString(), "|", "");
-        }
-        return {};
-    }
-
-    String settings_read_single(const Identifier id) {
-        auto values = settings_read(id);
-        if (values.isEmpty()) return {};
-        return values[0];
-    }
-
-    void save() {
-        _settings.createXml()->writeTo(_settings_file);
-    }
-
-    void valueTreePropertyChanged(ValueTree&, const Identifier&) override { save(); }
-    void valueTreeChildRemoved(ValueTree&, ValueTree&, int)      override { save(); }
-    void valueTreeChildOrderChanged(ValueTree&, int, int)        override { save(); }
-    void valueTreeChildAdded(ValueTree&, ValueTree&)             override { save(); }
-    void valueTreeParentChanged(ValueTree&)                      override { save(); }
-
     AudioTransportSource                  _transport_source;
     state_t                               _state         { state_t::stopped };
     comp_track*                           _current_track {};
@@ -315,10 +255,8 @@ private:
                                           _current_skip_interval;
     std::unique_ptr<WildcardFileFilter>   _filter;
     OwnedArray<comp_track>                _tracks;
-    ValueTree                             _settings      { ProjectInfo::projectName };
-    File                                  _settings_file { File::getCurrentWorkingDirectory().getChildFile(String(ProjectInfo::projectName) + ".xml").getFullPathName() };
     ftdi                                  _ftdi;
-
+    settings                              _settings;
     comp_track_master                     _master_track;
     comp_toolbar                          _toolbar;
     comp_toolbar_results                  _toolbar_results;

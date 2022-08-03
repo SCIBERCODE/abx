@@ -302,8 +302,12 @@ public:
         return _active;
     }
 
-    double get_marker() {
+    double marker_get() {
         return _marker;
+    }
+
+    double marker_set(double new_marker) {
+        update_user_marker(new_marker);
     }
 
     void repaint_header() { }

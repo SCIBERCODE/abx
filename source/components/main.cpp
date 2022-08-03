@@ -9,14 +9,6 @@ comp_main::comp_main() :
 {
     setOpaque(true);
 
-    if (_settings_file.existsAsFile())
-    {
-        if (auto xml = parseXML(_settings_file)) {
-            _settings = ValueTree::fromXml(*xml);
-        }
-    }
-    _settings.addListener(this);
-
     _viewport_tracks.setScrollBarThickness(11);
     _viewport_tracks_inside = std::make_unique<comp_tracks_viewport>(_tracks);
     _viewport_tracks.setViewedComponent(_viewport_tracks_inside.get(), false);
@@ -60,7 +52,7 @@ comp_main::comp_main() :
         static bool already_opened = false;
         if (!already_opened) {
             already_opened = true;
-            auto last_path = settings_read_single(settings_ids::path);
+            auto last_path = _settings.read_single(settings_ids::path);
             FileChooser chooser({}, last_path, _filter->getDescription(), true, false, this);
             if (chooser.browseForMultipleFilesToOpen()) {
                 for (auto const& file : chooser.getResults()) {
@@ -82,7 +74,7 @@ comp_main::comp_main() :
     _master_track.setAlwaysOnTop(true);
     _master_track.set_on_gain_changed(gain_changed_callback);
 
-    auto gain = settings_read(settings_ids::gain);
+    auto gain = _settings.read(settings_ids::gain);
     if (gain.size() == 2) {
         _master_track.gain_set(std::make_pair(gain[0].getDoubleValue(), gain[1].getDoubleValue()));
     }
@@ -113,10 +105,10 @@ comp_main::comp_main() :
 
     _toolbar.set_on_name_changed([&]() {
         auto names = _toolbar.names_get();
-        settings_save(settings_ids::name, { names.first, names.second });
+        _settings.save(settings_ids::name, { names.first, names.second });
     });
 
-    auto names = settings_read(settings_ids::name);
+    auto names = _settings.read(settings_ids::name);
     if (names.size() == 2) {
         _toolbar.names_set(std::make_pair(names[0], names[1]));
     }
@@ -137,7 +129,20 @@ comp_main::comp_main() :
     });
     addAndMakeVisible(_toolbar_results);
 
-    settings_load_tracks();
+    auto tracks = _settings.load_tracks();
+    comp_track *active = nullptr, *last_one = nullptr;
+    for (auto const& track : tracks)
+    {
+        last_one = track_add(track.path, false);
+        if (track.active) active = last_one;
+    }
+    if (active) {
+        active->focus(true);
+        track_activate(active, true);
+    }
+    else {
+        track_activate(last_one, true);
+    }
 }
 
 comp_main::~comp_main() {
@@ -170,7 +175,7 @@ void comp_main::track_activate(comp_track* selected_track_new, bool double_click
                 _current_track->activate(true);
                 _current_track->get_processor().load_file_to_transport(_current_track->get_file_path(), _transport_source);
                 _current_track->repaint();
-                _transport_source.setPosition(_current_track->get_marker());
+                _transport_source.setPosition(_current_track->marker_get());
                 if (played_before) {
                     change_state(state_t::starting);
                 }
@@ -263,7 +268,7 @@ void comp_main::resized() {
     _viewport_tracks.setBounds(area);
 
     _toolbar.toFront(false);
-    _toolbar.set_enabled(comp_toolbar::button_t::rewind, _current_track && _current_track->get_marker() > 0);
+    _toolbar.set_enabled(comp_toolbar::button_t::rewind, _current_track && _current_track->marker_get() > 0);
 }
 
 bool comp_main::isInterestedInFileDrag(const StringArray &files) {
@@ -286,10 +291,23 @@ void comp_main::filesDropped(const StringArray &files, int x, int y) {
     }
 }
 
-void comp_main::track_add(const String& file_path, bool save_settings) {
+void comp_main::tracks_state_save() {
+    Array<track_options> tracks;
+    track_options options;
+    for (auto track : _tracks)
+    {
+        options.path   = track->get_file_path();
+        options.active = track->is_active();
+        options.marker = track->marker_get();
+        tracks.add(options);
+    }
+    _settings.save_tracks(tracks);
+};
+
+comp_track *comp_main::track_add(const String& file_path, bool save_settings) {
     for (auto track : _tracks) {
         if (track->get_file_path() == file_path)
-            return;
+            return nullptr;
     }
 
     auto _track = new comp_track(file_path, _transport_source);
@@ -297,7 +315,8 @@ void comp_main::track_add(const String& file_path, bool save_settings) {
     _track->set_on_mouse_event([this](comp_track* selected_track, bool double_click)
     {
         track_activate(selected_track, double_click);
-        _toolbar.set_enabled(comp_toolbar::button_t::rewind, _current_track->get_marker() > 0);
+        _toolbar.set_enabled(comp_toolbar::button_t::rewind, _current_track->marker_get() > 0);
+        tracks_state_save();
     });
     _track->set_on_close([this](comp_track* selected_track)
     {
@@ -321,18 +340,23 @@ void comp_main::track_add(const String& file_path, bool save_settings) {
                 _user_stopped = false;
             }
             _tracks.remove(index);
-            settings_save_tracks();
+            parent->tracks_state_save();
             parent->resized();
     });
     _transport_source.addChangeListener(_track);
     _tracks.add(_track);
-    if (save_settings) settings_save_tracks();
     _viewport_tracks_inside->addAndMakeVisible(_track);
-    if (_tracks.size() == 1) {
-        track_activate(_track, true);
-    }
     resized();
-    settings_save(settings_ids::path, { File(file_path).getParentDirectory().getFullPathName() });
+
+    if (save_settings) {
+        if (_tracks.size() == 1) {
+            track_activate(_track, true);
+        }
+        tracks_state_save();
+        _settings.save(settings_ids::path, { File(file_path).getParentDirectory().getFullPathName() });
+    }
+
+    return _track;
 }
 
 void comp_main::change_state(state_t new_state)
@@ -443,7 +467,7 @@ void comp_main::changeListenerCallback(ChangeBroadcaster* source)
             change_state(state_t::paused);
         }
         if (_current_track) {
-            _toolbar.set_enabled(comp_toolbar::button_t::rewind, _current_track->get_marker() > 0);
+            _toolbar.set_enabled(comp_toolbar::button_t::rewind, _current_track->marker_get() > 0);
         }
     }
 }
