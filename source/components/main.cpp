@@ -71,15 +71,8 @@ comp_main::comp_main() :
     _toolbar.setAlwaysOnTop(true);
     addAndMakeVisible(_toolbar);
 
-    _master_track.setAlwaysOnTop(true);
-    _master_track.set_on_gain_changed(gain_changed_callback);
-
-    auto gain = _settings.read(settings_ids::gain);
-    if (gain.size() == 2) {
-        _master_track.gain_set(std::make_pair(gain[0].getDoubleValue(), gain[1].getDoubleValue()));
-    }
-
-    addAndMakeVisible(_master_track);
+    _toolbar_bottom.setAlwaysOnTop(true);
+    addAndMakeVisible(_toolbar_bottom);
 
     setSize (845, 650);
     setAudioChannels(0, 2);
@@ -113,6 +106,12 @@ comp_main::comp_main() :
         _toolbar.names_set(std::make_pair(names[0], names[1]));
     }
 
+    _toolbar.set_on_gain_changed(gain_changed_callback);
+    auto gain = _settings.read(settings_ids::gain);
+    if (gain.size() == 2) {
+        _toolbar.gain_set(std::make_pair(gain[0].getDoubleValue(), gain[1].getDoubleValue()));
+    }
+
     _button_results_header.setClickingTogglesState(true);
     _button_results_header.setConnectedEdges(TextButton::ConnectedOnBottom);
     _button_results_header.setLookAndFeel(&_theme_header);
@@ -127,13 +126,14 @@ comp_main::comp_main() :
         _trials.clear();
         _toolbar_results.set_result();
     });
+
     addAndMakeVisible(_toolbar_results);
 
     auto tracks = _settings.load_tracks();
     comp_track *active = nullptr, *last_one = nullptr;
     for (auto const& track : tracks)
     {
-        last_one = track_add(track.path, false);
+        last_one = track_add(track.path, track.marker, false);
         if (track.active) active = last_one;
     }
     if (active) {
@@ -223,7 +223,7 @@ void comp_main::getNextAudioBlock(const AudioSourceChannelInfo& buffer) noexcept
 
         _current_track->get_processor().process(*buffer.buffer);
     }
-    _master_track.get_processor().process(*buffer.buffer);
+    _toolbar.get_processor().process(*buffer.buffer);
 }
 
 void comp_main::releaseResources()
@@ -247,14 +247,14 @@ void comp_main::resized() {
     if (_results_expanded)
         _toolbar_results.setBounds(area.removeFromTop(50));
 
-    const auto mastertrack_size = _master_track.get_size();
-    _master_track.setBounds(0, getHeight() - mastertrack_size.second, getWidth(), mastertrack_size.second);
+    const auto bottom_size = _toolbar_bottom.get_size();
+    _toolbar_bottom.setBounds(0, getHeight() - bottom_size.second, getWidth(), bottom_size.second);
 
     auto tracks_height = 5 + (_tracks.size() * 2);
     for (auto track : _tracks) {
         tracks_height += track->getHeight();
     }
-    area.removeFromBottom(_master_track.getBounds().getHeight());
+    area.removeFromBottom(_toolbar_bottom.getBounds().getHeight());
 
     auto area_tracks = area;
     area_tracks.setHeight(tracks_height);
@@ -304,7 +304,7 @@ void comp_main::tracks_state_save() {
     _settings.save_tracks(tracks);
 };
 
-comp_track *comp_main::track_add(const String& file_path, bool save_settings) {
+comp_track *comp_main::track_add(const String& file_path, double marker, bool save_settings) {
     for (auto track : _tracks) {
         if (track->get_file_path() == file_path)
             return nullptr;
@@ -315,8 +315,12 @@ comp_track *comp_main::track_add(const String& file_path, bool save_settings) {
     _track->set_on_mouse_event([this](comp_track* selected_track, bool double_click)
     {
         track_activate(selected_track, double_click);
-        _toolbar.set_enabled(comp_toolbar::button_t::rewind, _current_track->marker_get() > 0);
         tracks_state_save();
+
+        if (_current_track) {
+            _toolbar.set_enabled(comp_toolbar::button_t::rewind, _current_track->marker_get() > 0);
+        }
+
     });
     _track->set_on_close([this](comp_track* selected_track)
     {
@@ -346,7 +350,6 @@ comp_track *comp_main::track_add(const String& file_path, bool save_settings) {
     _transport_source.addChangeListener(_track);
     _tracks.add(_track);
     _viewport_tracks_inside->addAndMakeVisible(_track);
-    resized();
 
     if (save_settings) {
         if (_tracks.size() == 1) {
@@ -355,6 +358,9 @@ comp_track *comp_main::track_add(const String& file_path, bool save_settings) {
         tracks_state_save();
         _settings.save(settings_ids::path, { File(file_path).getParentDirectory().getFullPathName() });
     }
+
+    _track->marker_set(marker);
+    resized();
 
     return _track;
 }

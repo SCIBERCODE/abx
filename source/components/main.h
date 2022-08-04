@@ -8,11 +8,11 @@
 #include "../app/settings.h"
 
 #include "track.h"
-#include "track_master.h"
 #include "tracks_viewport.h"
 
 #include "toolbar.h"
 #include "toolbar_results.h"
+#include "toolbar_bottom.h"
 
 namespace abx {
 
@@ -66,7 +66,7 @@ public:
     void changeListenerCallback(ChangeBroadcaster* source) override;
 
 private:
-    comp_track *track_add(const String &file_path, bool save_settings = true);
+    comp_track *track_add(const String &file_path, double marker = 0., bool save_settings = true);
     void track_activate(comp_track*, bool double_click);
     void track_change(comp_track* _track, bool is_next);
     void tracks_state_save();
@@ -110,8 +110,8 @@ private:
     {
         static size_t last_relay {};
 
-        auto gain = _master_track.gain_get();
-        _master_track.get_processor().set_gain(
+        auto gain = _toolbar.gain_get();
+        _toolbar.get_processor().set_gain(
             _relay == _A ? gain.first : gain.second, last_relay != _relay
         );
         last_relay = _relay;
@@ -257,9 +257,9 @@ private:
     OwnedArray<comp_track>                _tracks;
     ftdi                                  _ftdi;
     settings                              _settings;
-    comp_track_master                     _master_track;
     comp_toolbar                          _toolbar;
     comp_toolbar_results                  _toolbar_results;
+    comp_toolbar_bottom                   _toolbar_bottom;
     Viewport                              _viewport_tracks;
     std::unique_ptr<comp_tracks_viewport> _viewport_tracks_inside;
     TextButton                            _button_results_header { "trial score" };

@@ -7,6 +7,7 @@
 #include "../controls/editor.h"
 #include "../app/theme.h"
 
+#include "../app/play.h"
 
 namespace abx {
 
@@ -124,6 +125,7 @@ public:
         _button_settings.setTooltip("Audio Device Options");
         addAndMakeVisible(_button_settings);
 
+        // names
         auto init_edit = [&](p_edit& edit)
         {
             edit = std::make_unique<editor>("click to enter device name");
@@ -142,6 +144,24 @@ public:
 
         _edit_areas.first  = draw_reference_line(nullptr, _button_a, 31.f);
         _edit_areas.second = draw_reference_line(nullptr, _button_b, 10.f);
+
+        // gain
+        _sliders.first  = std::make_unique<slider_with_label>(-40);
+        _sliders.second = std::make_unique<slider_with_label>(-40);
+
+        _sliders.first->set_on_slider_value_changed([this](double value) {
+            _gain.first = value;
+            _gain.second = _sliders.second->get_value();
+            _callback_gain_changed();
+        });
+        _sliders.second->set_on_slider_value_changed([this](double value) {
+            _gain.first = _sliders.first->get_value();
+            _gain.second = value;
+            _callback_gain_changed();
+        });
+
+        addAndMakeVisible(_sliders.first.get());
+        addAndMakeVisible(_sliders.second.get());
 
         resized();
     }
@@ -228,8 +248,20 @@ public:
         bounds.removeFromRight(margins::_small);
         _button_open.setBounds(bounds.removeFromRight(button_size));
 
-        _edits.first ->setBounds(_edit_areas.first);
+        _edits.first->setBounds(_edit_areas.first);
         _edits.second->setBounds(_edit_areas.second);
+
+        auto slider_rect = [&](p_edit& parent)
+        {
+            int x = parent->getRight() + margins::_small;
+            int w = getLocalBounds().getRight() - x - margins::_small;
+            return juce::Rectangle<int>(x, parent->getY(), w, parent->getHeight());
+        };
+
+        if (_edits.first->getRight()) {
+            _sliders.first->setBounds(slider_rect(_edits.first));
+            _sliders.second->setBounds(slider_rect(_edits.second));
+        }
     }
 
     std::pair<int, int> get_size() const {
@@ -317,29 +349,54 @@ public:
         }
     }
 
+    void set_on_gain_changed(const std::function<void()>& callback) {
+        _callback_gain_changed = callback;
+    }
+
+    auto gain_get() {
+        return _gain;
+    }
+
+    void gain_set(std::pair<double, double> volumes) const {
+        _sliders.first ->set_value(volumes.first);
+        _sliders.second->set_value(volumes.second);
+    };
+
+    track_processor& get_processor() {
+        return _processor;
+    }
+
 private:
+    track_processor _processor;
+
     // todo: [8]
-    button_toolbar _button_rev,
-                   _button_a,
-                   _button_hz,
-                   _button_b,
-                   _button_fwd,
-                   _button_restart,
-                   _button_blind,
-                   _button_pause,
-                   _button_play,
-                   _button_stop,
-                   _button_rewind,
-                   _button_open,
-                   _button_settings;
+    button_toolbar  _button_rev,
+                    _button_a,
+                    _button_hz,
+                    _button_b,
+                    _button_fwd,
+                    _button_restart,
+                    _button_blind,
+                    _button_pause,
+                    _button_play,
+                    _button_stop,
+                    _button_rewind,
+                    _button_open,
+                    _button_settings;
     std::pair<juce::Rectangle<int>,
               juce::Rectangle<int>>
-                   _edit_areas;
+                    _edit_areas;
     std::pair<p_edit, p_edit>
-                   _edits;
+                    _edits;
+    std::pair<double, double>
+                    _gain;
+    std::pair<std::unique_ptr<slider_with_label>,
+              std::unique_ptr<slider_with_label>>
+                    _sliders;
 
     std::function<void(size_t)> _choose_clicked;
     std::function<void()>       _callback_name_changed;
+    std::function<void()>       _callback_gain_changed;
     bool                        _connected {};
     colours                     _colours;
 

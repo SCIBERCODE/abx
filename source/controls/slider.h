@@ -89,9 +89,9 @@ public:
         _label.setFont(_font);
         _label.setColour(Label::textColourId, Colours::black);
         _label.setMinimumHorizontalScale(1.f);
-        addAndMakeVisible(_label); // todo: tormoza
+        //addAndMakeVisible(_label); // todo: tormoza
 
-        _label_value.setJustificationType(Justification(Justification::centred));
+        _label_value.setJustificationType(Justification(Justification::right));
         _label_value.setFont(_font);
         _label_value.setColour(Label::textColourId, Colours::black);
         _label_value.setMinimumHorizontalScale(1.f);
@@ -119,8 +119,8 @@ public:
         bounds.setHeight(bounds.getHeight() < _slider.getHeight() ? _slider.getHeight() : bounds.getHeight());
         bounds.setY((bounds.getHeight() - old_height) / 2);
 
-        _label.setBounds(bounds.removeFromLeft(45)); // todo: string width
-        _label_value.setBounds(bounds.removeFromRight(60));
+        //_label.setBounds(bounds.removeFromLeft(45)); // todo: string width
+        _label_value.setBounds(bounds.removeFromLeft(60));
         _slider.setBounds(bounds);
     }
 

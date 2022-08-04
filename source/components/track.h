@@ -306,7 +306,7 @@ public:
         return _marker;
     }
 
-    double marker_set(double new_marker) {
+    void marker_set(double new_marker) {
         update_user_marker(new_marker);
     }
 
@@ -378,7 +378,7 @@ private:
         draw_user_marker();
         _marker_user.setVisible(new_marker);
         _dull_colour.setVisible(new_marker);
-        _callback_mouse_event(this, false);
+        if (_callback_mouse_event) _callback_mouse_event(this, false);
     }
 
     void draw_user_marker() // todo: [15]
@@ -416,7 +416,7 @@ private:
     bool                   _focused     {},
                            _active      {},
                            _paused      {};
-    double                 _marker      {};
+    double                 _marker;
 
     colours                _colours;
     juce::Rectangle<int>   _rect_header,
