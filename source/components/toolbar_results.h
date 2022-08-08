@@ -17,12 +17,19 @@ public:
         _label_result.setJustificationType(Justification::centred);
         addAndMakeVisible(_label_result);
 
+        _button_undo.set_border_radius_side(button_toolbar::border_radius_side_t::all);
         _button_share.set_border_radius_side(button_toolbar::border_radius_side_t::left);
         _button_clear.set_border_radius_side(button_toolbar::border_radius_side_t::right);
+
+        _button_undo.set_icon(icon_id::undo);
         _button_share.set_icon(icon_id::share);
         _button_clear.set_icon(icon_id::clear);
+
+        _button_undo.set_type(button_toolbar::button_t::utility);
         _button_share.set_type(button_toolbar::button_t::utility);
         _button_clear.set_type(button_toolbar::button_t::utility);
+
+        addAndMakeVisible(_button_undo);
         addAndMakeVisible(_button_share);
         addAndMakeVisible(_button_clear);
 
@@ -46,6 +53,10 @@ public:
         _button_clear.onClick = callback;
     }
 
+    void set_on_cancel(const std::function<void()>& callback) {
+        _button_undo.onClick = callback;
+    }
+
     void paint(Graphics& g) override {
         g.fillAll  (_colours.get(colour_id::bg_dark).brighter(.3f));
         g.setColour(_colours.get(colour_id::outline_dark));
@@ -62,12 +73,14 @@ public:
         _label_result.setBounds(area.withTrimmedBottom(2));
         area.reduce(4, 4);
         auto button_size = _button_clear.get_size();
+        _button_undo.setBounds(area.removeFromLeft(button_size).withSizeKeepingCentre(button_size, button_size));
         _button_clear.setBounds(area.removeFromRight(button_size).withSizeKeepingCentre(button_size, button_size));
         area.removeFromRight(2);
         _button_share.setBounds(area.removeFromRight(button_size).withSizeKeepingCentre(button_size, button_size));
     };
 
     void set_result(String text = {}) {
+        _button_undo.setEnabled(text.length());
         _button_clear.setEnabled(text.length());
         _button_share.setEnabled(text.length());
         if (text.length() == 0) {
@@ -77,7 +90,8 @@ public:
     }
 private:
     Label          _label_result;
-    button_toolbar _button_clear, // todo: cancel last trial
+    button_toolbar _button_undo,
+                   _button_clear,
                    _button_share;
     PopupMenu      _share_menu;
     colours        _colours;

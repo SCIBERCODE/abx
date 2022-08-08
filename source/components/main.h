@@ -67,12 +67,13 @@ public:
 
 private:
     comp_track *track_add(const String &file_path, double marker = 0., bool save_settings = true);
-    void track_activate(comp_track*, bool double_click);
-    void track_change(comp_track* _track, bool is_next);
-    void tracks_state_save();
-    void change_state(state_t new_state);
-    void trial_cycle(size_t button_bt);
-    void launch_audio_setup();
+    void        track_activate(comp_track*, bool double_click);
+    void        track_change(comp_track* _track, bool is_next);
+    void        tracks_state_save();
+    void        change_state(state_t new_state);
+    void        trial_display();
+    void        trial_cycle(size_t button_bt);
+    void        launch_audio_setup();
 
     /*
     //////////////////////////////////////////////////////////////////////////////////////////

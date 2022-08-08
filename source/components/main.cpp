@@ -127,6 +127,11 @@ comp_main::comp_main() :
         _toolbar_results.set_result();
     });
 
+    _toolbar_results.set_on_cancel([&]() {
+        if (_trials.size()) _trials.pop_back();
+        trial_display();
+    });
+
     addAndMakeVisible(_toolbar_results);
 
     auto tracks = _settings.load_tracks();
@@ -478,20 +483,11 @@ void comp_main::changeListenerCallback(ChangeBroadcaster* source)
     }
 }
 
-void comp_main::trial_cycle(size_t button) {
-    _ready = false;
-    auto blind = _toolbar.get_state(comp_toolbar::button_t::blind);
-    if (_state != state_t::playing && _state != state_t::starting)
-    {
-        DBG(std::format("trial_cycle: {} != playing", state_names.at(_state)));
-        _ftdi.toggle_relay(blind, button);
-        Sleep(300);
-        change_state(state_t::starting);
+void comp_main::trial_display() {
+    if (_trials.size() == 0) {
+        _toolbar_results.set_result();
         return;
     }
-    auto relay = _ftdi.get_relay();
-    _trials.push_back({ button, relay, blind });
-
     size_t count_all = 0, count_correct = 0;
     for (const auto& trial : _trials)
     {
@@ -517,6 +513,22 @@ void comp_main::trial_cycle(size_t button) {
         display += std::format(", {:.2f}", pval);
     }
     _toolbar_results.set_result(display);
+}
+
+void comp_main::trial_cycle(size_t button) {
+    _ready = false;
+    auto blind = _toolbar.get_state(comp_toolbar::button_t::blind);
+    if (_state != state_t::playing && _state != state_t::starting)
+    {
+        DBG(std::format("trial_cycle: {} != playing", state_names.at(_state)));
+        _ftdi.toggle_relay(blind, button);
+        Sleep(300);
+        change_state(state_t::starting);
+        return;
+    }
+    auto relay = _ftdi.get_relay();
+    _trials.push_back({ button, relay, blind });
+    trial_display();
 
     if (_toolbar.get_state(comp_toolbar::button_t::restart))
     {

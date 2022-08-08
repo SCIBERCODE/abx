@@ -28,6 +28,7 @@
       <FILE id="FzfMsz" name="settings.svg" compile="0" resource="1" file="bin/icons/settings.svg"/>
       <FILE id="kWynRu" name="share.svg" compile="0" resource="1" file="bin/icons/share.svg"/>
       <FILE id="yfnmUr" name="stop.svg" compile="0" resource="1" file="bin/icons/stop.svg"/>
+      <FILE id="I5e19z" name="undo.svg" compile="0" resource="1" file="bin/icons/undo.svg"/>
       <FILE id="wfY3sj" name="warning.svg" compile="0" resource="1" file="bin/icons/warning.svg"/>
     </GROUP>
     <GROUP id="{D42A9B75-343E-4E65-F5D9-94440239B709}" name="source">
@@ -40,6 +41,8 @@
         <FILE id="MU7Rrs" name="windows.h" compile="0" resource="0" file="source/app/windows.h"/>
       </GROUP>
       <GROUP id="{4468EE0B-C806-72BC-5707-F2630D5804F6}" name="components">
+        <FILE id="OXmGtg" name="toolbar_bottom.h" compile="0" resource="0"
+              file="source/components/toolbar_bottom.h"/>
         <FILE id="h5Qicz" name="main.cpp" compile="1" resource="0" file="source/components/main.cpp"/>
         <FILE id="kTWyWd" name="main.h" compile="0" resource="0" file="source/components/main.h"/>
         <FILE id="NrWbVe" name="audio_settings.h" compile="0" resource="0"
@@ -48,7 +51,6 @@
         <FILE id="qlTaTm" name="toolbar_results.h" compile="0" resource="0"
               file="source/components/toolbar_results.h"/>
         <FILE id="G8mP80" name="track.h" compile="0" resource="0" file="source/components/track.h"/>
-        <FILE id="NnehTA" name="track_master.h" compile="0" resource="0" file="source/components/track_master.h"/>
         <FILE id="dIKR1c" name="tracks_viewport.h" compile="0" resource="0"
               file="source/components/tracks_viewport.h"/>
       </GROUP>
