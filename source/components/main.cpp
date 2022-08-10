@@ -13,6 +13,7 @@ comp_main::comp_main() :
     if (auto state = parseXML(_settings.read_single(settings_ids::audio))) {
         deviceManager.initialise(0, 2, state.get(), true);
     }
+    setAudioChannels(0, 2);
 
     setSize(845, 650);
     _transport_source.addChangeListener(this);
@@ -143,12 +144,13 @@ comp_main::comp_main() :
         if (track.active) active = last_one;
     }
     if (active) {
-        active->focus(true);
+        track_activate(active, false);
         track_activate(active, true);
     }
     else {
         track_activate(last_one, true);
     }
+    _settings.set_autosave(true);
 }
 
 comp_main::~comp_main() {
@@ -484,7 +486,7 @@ void comp_main::changeListenerCallback(ChangeBroadcaster* source)
     if (source == &deviceManager) {
         if (auto device = deviceManager.getCurrentAudioDevice()) {
             auto str = deviceManager.getCurrentAudioDeviceType() + ": " +
-                device->getName() + " (" + String(device->getCurrentSampleRate() / 1000) + " KHz)";
+                device->getName() + " (" + String(device->getCurrentSampleRate() / 1000) + " kHz)";
             _toolbar_bottom.set_device_audio(str);
         }
         if (auto state = deviceManager.createStateXml())

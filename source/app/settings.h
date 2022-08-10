@@ -49,7 +49,13 @@ public:
                 _settings = ValueTree::fromXml(*xml);
             }
         }
-        _settings.addListener(this);
+    }
+
+    void set_autosave(bool should_autosave) {
+        if (should_autosave)
+            _settings.addListener(this);
+        else
+            _settings.removeListener(this);
     }
 
     void save(const Identifier id, const Array<var> values) {
