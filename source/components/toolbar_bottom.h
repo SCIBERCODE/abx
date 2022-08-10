@@ -17,10 +17,11 @@ public:
         addAndMakeVisible(_labels[0]);
         addAndMakeVisible(_labels[1]);
 
-        _warning = resources::get_drawable_(icon_id::warning, margins::_icon_small);
-        _ok      = resources::get_drawable_(icon_id::ok, margins::_icon_small);
+        _warning = resources::get_drawable(icon_id::warning, margins::_icon_small);
+        _ok      = resources::get_drawable(icon_id::ok, margins::_icon_small);
 
-        set_text({ "","" });
+        set_device_audio({});
+        set_device_ftdi ({});
     };
 
     void paint(Graphics& g) override {
@@ -30,34 +31,34 @@ public:
 
         auto area = getLocalBounds();
         area.reduce(margins::_medium, 3);
+
         _icons[0] = area.removeFromLeft(margins::_icon_small).toFloat();
-        area.removeFromLeft(margins::_small);
         auto width = _labels[0].getFont().getStringWidth(_labels[0].getText());
         _labels[0].setBounds(area.removeFromLeft(width + margins::_small));
+
         _icons[1] = area.removeFromLeft(margins::_icon_small).toFloat();
-        area.removeFromLeft(margins::_small);
         _labels[1].setBounds(area);
 
-        for (int k = 0; k < 2; k++)
-            if (!_devices[k].length())
-                _warning->drawAt(g, _icons[k].getX(), _icons[k].getY(), 1.f);
-            else
-                _ok->drawAt(g, _icons[k].getX(), _icons[k].getY(), 1.f);
+        for (int k = 0; k < 2; k++) {
+            Drawable* icon = _devices[k].length() ? _ok.get() : _warning.get();
+            icon->drawAt(g, _icons[k].getX(), _icons[k].getY(), 1.f);
+        }
     };
 
-    void set_text(StringArray devices) {
-        if (devices.size() != 2) return;
-        const String defaults[2] { "No FTDI device", "No audio device" };
+    void set_device_audio(const String& audio) {
+        _labels[1].setText(audio.length() ? audio : "No audio device", sendNotificationAsync);
+        _devices[1] = audio;
+        repaint();
+    }
 
-        for (int k = 0; k < 2; k++)
-            _labels[k].setText(devices[k].length() ? devices[k] : defaults[k], sendNotificationAsync);
-
-        _devices = devices;
+    void set_device_ftdi(const String& ftdi) {
+        _labels[0].setText(ftdi.length() ? ftdi : "No remote control", sendNotificationAsync);
+        _devices[0] = ftdi;
         repaint();
     }
 
 private:
-    StringArray               _devices;
+    String                    _devices[2];
     Label                     _labels[2];
     std::unique_ptr<Drawable> _warning,
                               _ok;

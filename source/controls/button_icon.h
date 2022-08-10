@@ -34,7 +34,7 @@ public:
 
     void set_icon(icon_id id) {
         _icon.deleteAllChildren();
-        _icon.addAndMakeVisible(resources::get_drawable(id, 9, 9));
+        _icon.addAndMakeVisible(resources::get_drawable(id, 9).release());
     }
 
 private:

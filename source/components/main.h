@@ -142,6 +142,14 @@ private:
     /*
     //////////////////////////////////////////////////////////////////////////////////////////
     */
+    std::function<void(String)> ftdi_status_change_callback = [this](String device)
+    {
+        _toolbar_bottom.set_device_ftdi(device);
+    };
+
+    /*
+    //////////////////////////////////////////////////////////////////////////////////////////
+    */
     std::function<void(size_t)> on_button_press = [this](size_t button)
     {
         DBG(std::format("on_button_press: button = {}", button));

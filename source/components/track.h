@@ -38,7 +38,7 @@ public:
         _label_format.setMinimumHorizontalScale(1.f);
         addAndMakeVisible(_label_format);
 
-        _icon.addAndMakeVisible(resources::get_drawable(icon_id::warning, 14, 14));
+        _icon.addAndMakeVisible(resources::get_drawable(icon_id::warning, margins::_icon_small).release());
         addAndMakeVisible(&_icon);
         _icon.setVisible(false);
 

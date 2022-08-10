@@ -31,9 +31,9 @@ public:
         setSize(get_size(), get_size());
     }
 
-    void set_icon(icon_id id, float size = 14.f) {
+    void set_icon(icon_id id, float size = margins::_icon_small) {
         _icon.deleteAllChildren();
-        _icon.addAndMakeVisible(resources::get_drawable(id, size, size));
+        _icon.addAndMakeVisible(resources::get_drawable(id, size).release());
         resized();
     }
 

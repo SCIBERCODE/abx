@@ -14,6 +14,9 @@ comp_main::comp_main() :
         deviceManager.initialise(0, 2, state.get(), true);
     }
 
+    setSize(845, 650);
+    _transport_source.addChangeListener(this);
+
     _viewport_tracks.setScrollBarThickness(11);
     _viewport_tracks_inside = std::make_unique<comp_tracks_viewport>(_tracks);
     _viewport_tracks.setViewedComponent(_viewport_tracks_inside.get(), false);
@@ -68,20 +71,12 @@ comp_main::comp_main() :
         }
     });
     _toolbar.set_on_choose_clicked(on_button_press);
-
     _toolbar.set_on_settings_clicked([&]() {
         launch_audio_setup();
     });
 
-    //_toolbar.setAlwaysOnTop(true);
     addAndMakeVisible(_toolbar);
-
-    //_toolbar_bottom.setAlwaysOnTop(true);
     addAndMakeVisible(_toolbar_bottom);
-
-    setSize (845, 650);
-    setAudioChannels(0, 2);
-    _transport_source.addChangeListener(this);
 
     AudioFormatManager formatManager;
     formatManager.registerBasicFormats();
@@ -89,6 +84,7 @@ comp_main::comp_main() :
 
     _ftdi.set_on_button_press_callback(on_button_press);
     _ftdi.set_on_relay_change_callback(relay_change_callback);
+    _ftdi.set_on_status_change_callback(ftdi_status_change_callback);
 
     _toolbar.set_on_blind_clicked([=]()
     {
@@ -486,6 +482,11 @@ void comp_main::changeListenerCallback(ChangeBroadcaster* source)
         }
     }
     if (source == &deviceManager) {
+        if (auto device = deviceManager.getCurrentAudioDevice()) {
+            auto str = deviceManager.getCurrentAudioDeviceType() + ": " +
+                device->getName() + " (" + String(device->getCurrentSampleRate() / 1000) + " KHz)";
+            _toolbar_bottom.set_device_audio(str);
+        }
         if (auto state = deviceManager.createStateXml())
             _settings.save(settings_ids::audio, { state.get()->toString() });
     }

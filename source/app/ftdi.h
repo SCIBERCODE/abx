@@ -200,6 +200,10 @@ public:
         _callback_on_relay_change = callback;
     }
 
+    void set_on_status_change_callback(const std::function<void(String)>& callback) {
+        _callback_on_status_change = callback;
+    }
+
     void timerCallback() override { // bug: [1]
         FT_STATUS st;
         DWORD     num;
@@ -211,7 +215,10 @@ public:
             stopThread(500);
             FT_Close(&_handle);
             _handle = nullptr;
-            //_toolbar.disconnect(); // todo: [11]
+            MessageManager::callAsync(
+                [=]() {
+                    _callback_on_status_change({});
+                });
             return;
         }
         if (num && _handle == nullptr)
@@ -234,7 +241,13 @@ public:
                 _handle = nullptr;
                 return;
             }
-            //_toolbar.connect();
+            char name[MAX_PATH] { };
+            FT_GetDeviceInfo(_handle, nullptr, nullptr, nullptr, &name[0], nullptr);
+
+            MessageManager::callAsync(
+                [=]() {
+                    _callback_on_status_change("Remote: " + (strlen(name) ? String(name) : "FTDI device"));
+                });
             startThread();
         }
     }
@@ -259,6 +272,7 @@ private:
 
     std::function<void(size_t)> _callback_on_button_press;
     std::function<void(size_t)> _callback_on_relay_change;
+    std::function<void(String)> _callback_on_status_change;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ftdi);
 };

@@ -28,16 +28,6 @@ public:
         open
     };
 
-    void connect(bool shoud_be_connected) {
-        _connected = shoud_be_connected;
-
-        _button_rev.setEnabled(_connected);
-        _button_a  .setEnabled(_connected);
-        _button_hz .setEnabled(_connected);
-        _button_b  .setEnabled(_connected);
-        _button_fwd.setEnabled(_connected);
-    }
-
     comp_toolbar() { // todo: [9]
         setOpaque(true);
 
@@ -397,7 +387,6 @@ private:
     std::function<void(size_t)> _choose_clicked;
     std::function<void()>       _callback_name_changed;
     std::function<void()>       _callback_gain_changed;
-    bool                        _connected {};
     colours                     _colours;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(comp_toolbar)

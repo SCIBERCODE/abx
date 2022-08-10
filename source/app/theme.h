@@ -103,26 +103,7 @@ private:
         { icon_id::warning,  BinaryData::warning_svg  }
     };
 public:
-    static Drawable* get_drawable(icon_id id, float width = 16.f, float height = 16.f, bool mirror = false) {
-        if (icons_svg.count(id) == 0) return nullptr;
-
-        std::unique_ptr<XmlElement> icon_svg_xml(XmlDocument::parse(icons_svg.at(id)));
-        auto drawable_svg = Drawable::createFromSVG(*(icon_svg_xml.get()));
-
-        if (mirror) {
-            //drawable_svg->setTransform(AffineTransform{ -1.f, 0.f, width, 0.f, 1.f, 0.f });
-            //transform="scale(-1, 1) translate(-512, 0)"
-        }
-
-        drawable_svg->setTransformToFit(
-            juce::Rectangle<float>(0.f, 0.f, width, height),
-            RectanglePlacement::centred
-        );
-
-        return drawable_svg.release();
-    }
-
-    static std::unique_ptr<Drawable> get_drawable_(icon_id id, float size = 16.f) {
+    static std::unique_ptr<Drawable> get_drawable(icon_id id, float size = 16.f) {
         if (icons_svg.count(id) == 0) return nullptr;
 
         std::unique_ptr<XmlElement> icon_svg_xml(XmlDocument::parse(icons_svg.at(id)));
