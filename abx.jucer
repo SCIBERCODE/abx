@@ -20,6 +20,7 @@
       <FILE id="c8wgab" name="close.svg" compile="0" resource="1" file="bin/icons/close.svg"/>
       <FILE id="qDTruv" name="edit.svg" compile="0" resource="1" file="bin/icons/edit.svg"/>
       <FILE id="zHhDrB" name="forward.svg" compile="0" resource="1" file="bin/icons/forward.svg"/>
+      <FILE id="x8ScAy" name="ok.svg" compile="0" resource="1" file="bin/icons/ok.svg"/>
       <FILE id="r0s0Fk" name="open.svg" compile="0" resource="1" file="bin/icons/open.svg"/>
       <FILE id="FzTlde" name="pause.svg" compile="0" resource="1" file="bin/icons/pause.svg"/>
       <FILE id="WLZ65N" name="play.svg" compile="0" resource="1" file="bin/icons/play.svg"/>
@@ -36,6 +37,7 @@
         <FILE id="yq0lR1" name="ftdi.h" compile="0" resource="0" file="source/app/ftdi.h"/>
         <FILE id="HBnXDj" name="play.h" compile="0" resource="0" file="source/app/play.h"/>
         <FILE id="jOBZjw" name="rand.h" compile="0" resource="0" file="source/app/rand.h"/>
+        <FILE id="TMagG9" name="settings.h" compile="0" resource="0" file="source/app/settings.h"/>
         <FILE id="c3ecrc" name="theme.h" compile="0" resource="0" file="source/app/theme.h"/>
         <FILE id="iOqNvF" name="windows.cpp" compile="1" resource="0" file="source/app/windows.cpp"/>
         <FILE id="MU7Rrs" name="windows.h" compile="0" resource="0" file="source/app/windows.h"/>
@@ -58,6 +60,7 @@
         <FILE id="V9OACx" name="button_icon.h" compile="0" resource="0" file="source/controls/button_icon.h"/>
         <FILE id="AoMAHe" name="button_toolbar.h" compile="0" resource="0"
               file="source/controls/button_toolbar.h"/>
+        <FILE id="wIbTl7" name="editor.h" compile="0" resource="0" file="source/controls/editor.h"/>
         <FILE id="yjlEqa" name="slider.h" compile="0" resource="0" file="source/controls/slider.h"/>
       </GROUP>
       <FILE id="ABKJby" name="app.cpp" compile="1" resource="0" file="source/app.cpp"/>

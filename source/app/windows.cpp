@@ -12,7 +12,7 @@ window::window(Component* comp_owned, const String& caption)
 )
 {
     setLookAndFeel(&_theme);
-    setTitleBarHeight(20);
+    setTitleBarHeight(margins::_line);
     setUsingNativeTitleBar(false);
     setContentOwned(comp_owned, true);
     setResizable(true, true);

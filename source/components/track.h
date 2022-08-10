@@ -423,9 +423,9 @@ private:
                            _rect_header_top,
                            _rect_background;
 
-    const int              _y             {  1 },
-                           _colour_rect_w {  8 },
-                           _header_h      { 20 };
+    const int              _y             { 1 },
+                           _colour_rect_w { 8 },
+                           _header_h      { margins::_line };
 
     Label                  _label_name,
                            _label_rate,

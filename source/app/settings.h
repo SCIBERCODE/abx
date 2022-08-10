@@ -7,6 +7,7 @@ namespace abx {
 namespace settings_ids {
     static Identifier tracks { "tracks" };
     static Identifier track  { "track"  };
+    static Identifier audio  { "audio"  };
     static Identifier gain   { "gain"   };
     static Identifier path   { "path"   };
     static Identifier name   { "name"   };

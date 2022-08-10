@@ -9,6 +9,11 @@ comp_main::comp_main() :
 {
     setOpaque(true);
 
+    deviceManager.addChangeListener(this);
+    if (auto state = parseXML(_settings.read_single(settings_ids::audio))) {
+        deviceManager.initialise(0, 2, state.get(), true);
+    }
+
     _viewport_tracks.setScrollBarThickness(11);
     _viewport_tracks_inside = std::make_unique<comp_tracks_viewport>(_tracks);
     _viewport_tracks.setViewedComponent(_viewport_tracks_inside.get(), false);
@@ -68,10 +73,10 @@ comp_main::comp_main() :
         launch_audio_setup();
     });
 
-    _toolbar.setAlwaysOnTop(true);
+    //_toolbar.setAlwaysOnTop(true);
     addAndMakeVisible(_toolbar);
 
-    _toolbar_bottom.setAlwaysOnTop(true);
+    //_toolbar_bottom.setAlwaysOnTop(true);
     addAndMakeVisible(_toolbar_bottom);
 
     setSize (845, 650);
@@ -247,13 +252,12 @@ void comp_main::resized() {
     _toolbar.setBounds(area.removeFromTop(_toolbar.get_size().second));
 
     // results header button
-    _button_results_header.setBounds(area.removeFromTop(20));
+    _button_results_header.setBounds(area.removeFromTop(margins::_line));
     _toolbar_results.setVisible(_results_expanded);
     if (_results_expanded)
         _toolbar_results.setBounds(area.removeFromTop(50));
 
-    const auto bottom_size = _toolbar_bottom.get_size();
-    _toolbar_bottom.setBounds(0, getHeight() - bottom_size.second, getWidth(), bottom_size.second);
+    _toolbar_bottom.setBounds(0, getHeight() - margins::_line, getWidth(), margins::_line);
 
     auto tracks_height = 5 + (_tracks.size() * 2);
     for (auto track : _tracks) {
@@ -480,6 +484,10 @@ void comp_main::changeListenerCallback(ChangeBroadcaster* source)
         if (_current_track) {
             _toolbar.set_enabled(comp_toolbar::button_t::rewind, _current_track->marker_get() > 0);
         }
+    }
+    if (source == &deviceManager) {
+        if (auto state = deviceManager.createStateXml())
+            _settings.save(settings_ids::audio, { state.get()->toString() });
     }
 }
 

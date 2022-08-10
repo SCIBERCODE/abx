@@ -5,8 +5,10 @@
 namespace abx {
 
 namespace margins {
-    constexpr size_t _small  = 2;
-    constexpr size_t _medium = _small * 2;
+    constexpr size_t _small      = 2;
+    constexpr size_t _medium     = _small * 2;
+    constexpr size_t _line       = _small * 10;
+    constexpr size_t _icon_small = 14;
 }
 
 namespace colour_id {
@@ -70,6 +72,8 @@ enum class icon_id {
     share,
     // tracks
     close,
+    // common
+    ok,
     warning
 };
 
@@ -95,6 +99,7 @@ private:
         { icon_id::clear,    BinaryData::clear_svg    },
         { icon_id::share,    BinaryData::share_svg    },
         { icon_id::close,    BinaryData::close_svg    },
+        { icon_id::ok,       BinaryData::ok_svg       },
         { icon_id::warning,  BinaryData::warning_svg  }
     };
 public:
@@ -114,8 +119,21 @@ public:
             RectanglePlacement::centred
         );
 
-
         return drawable_svg.release();
+    }
+
+    static std::unique_ptr<Drawable> get_drawable_(icon_id id, float size = 16.f) {
+        if (icons_svg.count(id) == 0) return nullptr;
+
+        std::unique_ptr<XmlElement> icon_svg_xml(XmlDocument::parse(icons_svg.at(id)));
+        auto drawable_svg = Drawable::createFromSVG(*(icon_svg_xml.get()));
+
+        drawable_svg->setTransformToFit(
+            juce::Rectangle<float>(0.f, 0.f, size, size),
+            RectanglePlacement::centred
+        );
+
+        return drawable_svg;
     }
 
     static auto get_font(font_id font_id, float height = 13.f)
