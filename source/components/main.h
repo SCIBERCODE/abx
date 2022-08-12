@@ -7,6 +7,16 @@
 #include "../app/windows.h"
 #include "../app/settings.h"
 
+namespace command_ids
+{
+    constexpr int add_files = 1;
+    constexpr int play      = 2;
+    constexpr int fwd       = 3;
+    constexpr int rev       = 4;
+    constexpr int rewind    = 5;
+    constexpr int options   = 6;
+};
+
 #include "track.h"
 #include "tracks_viewport.h"
 
@@ -51,7 +61,9 @@ struct trial_t
 class comp_main : public AudioAppComponent,
                   public FileDragAndDropTarget,
                   public DragAndDropContainer,
-                  public ChangeListener {
+                  public ChangeListener,
+                  public ApplicationCommandTarget
+{
 public:
      comp_main();
     ~comp_main();
@@ -65,6 +77,10 @@ public:
     void filesDropped(const StringArray &files, int x, int y) override;
     void changeListenerCallback(ChangeBroadcaster* source) override;
 
+    auto get_keys() {
+        return &_commands;
+    }
+
 private:
     comp_track *track_add(const String &file_path, double marker = 0., bool save_settings = true);
     void        track_activate(comp_track*, bool double_click);
@@ -74,6 +90,54 @@ private:
     void        trial_display();
     void        trial_cycle(size_t button_bt);
     void        launch_audio_setup();
+
+    ApplicationCommandTarget* getNextCommandTarget() override { return nullptr; }
+
+    void getAllCommands(Array<CommandID>& commands) override
+    {
+        Array<CommandID> ids {
+            command_ids::add_files, command_ids::options,
+            command_ids::play,      command_ids::rewind,
+            command_ids::fwd,       command_ids::rev
+        };
+        commands.addArray(ids);
+    }
+
+    void getCommandInfo(CommandID cmd_id, ApplicationCommandInfo& result) override
+    {
+        switch (cmd_id)
+        {
+        case command_ids::add_files:
+            result.setInfo("Add file(s)", "Add file(s)\r\n[" + _filter->getDescription().removeCharacters("*.") + "]\r\n", "Button", 0);
+            result.addDefaultKeypress('o', 0);
+            result.addDefaultKeypress('o', ModifierKeys::ctrlModifier);
+            break;
+        case command_ids::play:
+            result.setInfo("Play", "Play current track", "Button", 0);
+            result.addDefaultKeypress('p', 0);
+            break;
+        case command_ids::fwd:
+            result.setInfo("Forward", "Skip to the next track", "Button", 0);
+            result.addDefaultKeypress('f', 0);
+            result.addDefaultKeypress('.', ModifierKeys::shiftModifier);
+            break;
+        case command_ids::rev:
+            result.setInfo("Previous", "Skip to the previous track", "Button", 0);
+            result.addDefaultKeypress('r', 0);
+            result.addDefaultKeypress(',', ModifierKeys::shiftModifier);
+            break;
+        case command_ids::rewind:
+            result.setInfo("Rewind", "Go to start & clear marker", "Button", 0);
+            result.addDefaultKeypress('r', ModifierKeys::ctrlModifier);
+            break;
+        case command_ids::options:
+            result.setInfo("Options", "Audio device preferences", "Button", 0);
+            result.addDefaultKeypress('p', ModifierKeys::ctrlModifier);
+            break;
+        }
+    }
+
+    bool perform(const InvocationInfo& info) override;
 
     /*
     //////////////////////////////////////////////////////////////////////////////////////////
@@ -266,6 +330,7 @@ private:
     OwnedArray<comp_track>                _tracks;
     ftdi                                  _ftdi;
     settings                              _settings;
+    ApplicationCommandManager             _commands;
     comp_toolbar                          _toolbar;
     comp_toolbar_results                  _toolbar_results;
     comp_toolbar_bottom                   _toolbar_bottom;

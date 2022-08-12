@@ -25,7 +25,10 @@ public:
     };
 
 public:
-    button_toolbar() : Button("") {
+    button_toolbar(const String& text = String()) :
+        Button(String()),
+        _text(text)
+    {
         _icon.setSize(16, 16);
         addAndMakeVisible(_icon);
         setSize(get_size(), get_size());
@@ -126,10 +129,6 @@ public:
     void clicked() override {
         Button::clicked();
         resized();
-    }
-
-    void set_text(const String& new_text) {
-        _text = new_text;
     }
 
     void set_type(const button_t type) {

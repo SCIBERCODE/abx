@@ -9,6 +9,7 @@ namespace margins {
     constexpr size_t _medium     = _small * 2;
     constexpr size_t _line       = _small * 10;
     constexpr size_t _icon_small = 14;
+    constexpr size_t _width      = 845;
 }
 
 namespace colour_id {

@@ -28,18 +28,17 @@ public:
         open
     };
 
-    comp_toolbar() { // todo: [9]
+    comp_toolbar(ApplicationCommandManager& commands) :
+        _commands(commands)
+    { // todo: [9]
         setOpaque(true);
 
         // user input
         _button_rev.set_border_radius_side(button_toolbar::border_radius_side_t::left);
         _button_rev.set_icon(icon_id::backward);
         _button_rev.set_type(button_toolbar::button_t::ftdi);
+        _button_rev.setCommandToTrigger(&_commands, command_ids::rev, true);
         addAndMakeVisible(_button_rev);
-
-        _button_a.set_text("A");
-        _button_b.set_text("B");
-        _button_hz.set_text("?");
 
         _button_a.set_type(button_toolbar::button_t::ftdi);
         _button_b.set_type(button_toolbar::button_t::ftdi);
@@ -65,6 +64,7 @@ public:
         _button_fwd.set_border_radius_side(button_toolbar::border_radius_side_t::right);
         _button_fwd.set_icon(icon_id::forward);
         _button_fwd.set_type(button_toolbar::button_t::ftdi);
+        _button_fwd.setCommandToTrigger(&_commands, command_ids::fwd, true);
         addAndMakeVisible(_button_fwd);
 
         // settings
@@ -86,33 +86,33 @@ public:
         _button_pause.set_border_radius_side(button_toolbar::border_radius_side_t::left);
         _button_pause.set_icon(icon_id::pause);
         _button_pause.setClickingTogglesState(true);
-        addAndMakeVisible(_button_pause);
         _button_pause.setEnabled(false);
+        addAndMakeVisible(_button_pause);
 
         _button_play.set_icon(icon_id::play);
         _button_play.setClickingTogglesState(true);
-        addAndMakeVisible(_button_play);
         _button_play.setEnabled(false);
+        addAndMakeVisible(_button_play);
 
         _button_stop.set_icon(icon_id::stop, 12.f);
-        addAndMakeVisible(_button_stop);
         _button_stop.setEnabled(false);
+        addAndMakeVisible(_button_stop);
 
         _button_rewind.set_border_radius_side(button_toolbar::border_radius_side_t::right);
         _button_rewind.set_icon(icon_id::rewind);
-        _button_rewind.setTooltip("Go to Start");
-        addAndMakeVisible(_button_rewind);
+        _button_rewind.setCommandToTrigger(&_commands, command_ids::rewind, true);
         _button_rewind.setEnabled(false);
+        addAndMakeVisible(_button_rewind);
 
         // right
         _button_open.set_border_radius_side(button_toolbar::border_radius_side_t::left);
         _button_open.set_icon(icon_id::open, 16.f);
-        _button_open.setTooltip("Add File");
+        _button_open.setCommandToTrigger(&_commands, command_ids::add_files, true);
         addAndMakeVisible(_button_open);
 
         _button_settings.set_border_radius_side(button_toolbar::border_radius_side_t::right);
         _button_settings.set_icon(icon_id::settings);
-        _button_settings.setTooltip("Audio Device Options");
+        _button_settings.setCommandToTrigger(&_commands, command_ids::options, true);
         addAndMakeVisible(_button_settings);
 
         // names
@@ -130,7 +130,7 @@ public:
         init_edit(_edits.first);
         init_edit(_edits.second);
 
-        setSize(get_size().first, get_size().second);
+        setSize(margins::_width, get_height());
 
         _edit_areas.first  = draw_reference_line(nullptr, _button_a, 31.f);
         _edit_areas.second = draw_reference_line(nullptr, _button_b, 10.f);
@@ -254,20 +254,14 @@ public:
         }
     }
 
-    std::pair<int, int> get_size() const {
-        return std::make_pair(300, 82);
+    int get_height() const {
+        return 82;
     }
     auto get_settings_pos() const {
         return localPointToGlobal(Point<int>(
             _edit_areas.first.getX(),
             _edit_areas.first.getBottom() + margins::_medium
         ));
-    }
-    void set_on_rewind_clicked(const std::function<void()>& callback) {
-        _button_rewind.onClick = callback;
-    }
-    void set_on_open_clicked(const std::function<void()>& callback) {
-        _button_open.onClick = callback;
     }
     void set_on_play_clicked(const std::function<void()>& callback) {
         _button_play.onClick = callback;
@@ -283,15 +277,6 @@ public:
     }
     void set_on_choose_clicked(const std::function<void(size_t)>& callback) {
         _choose_clicked = callback;
-    }
-    void set_on_rev_clicked(const std::function<void()>& callback) {
-        _button_rev.onClick = callback;
-    }
-    void set_on_fwd_clicked(const std::function<void()>& callback) {
-        _button_fwd.onClick = callback;
-    }
-    void set_on_settings_clicked(const std::function<void()>& callback) {
-        _button_settings.onClick = callback;
     }
 
     button_toolbar* get_button(button_t button) {
@@ -357,13 +342,14 @@ public:
     }
 
 private:
-    track_processor _processor;
+    track_processor            _processor;
+    ApplicationCommandManager& _commands;
 
     // todo: [8]
     button_toolbar  _button_rev,
-                    _button_a,
-                    _button_hz,
-                    _button_b,
+                    _button_a  { "A" },
+                    _button_hz { "?" },
+                    _button_b  { "B" },
                     _button_fwd,
                     _button_restart,
                     _button_blind,

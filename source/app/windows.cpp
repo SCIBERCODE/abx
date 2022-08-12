@@ -4,12 +4,11 @@
 
 namespace abx {
 
-window::window(Component* comp_owned, const String& caption)
-: DocumentWindow(
-    JUCEApplication::getInstance()->getApplicationName() + " " + caption,
-    Desktop::getInstance().getDefaultLookAndFeel().findColour(ResizableWindow::backgroundColourId),
-    DocumentWindow::allButtons
-)
+window::window(Component* comp_owned, const String& caption) :
+    DocumentWindow(
+        JUCEApplication::getInstance()->getApplicationName() + " " + caption,
+        Desktop::getInstance().getDefaultLookAndFeel().findColour(ResizableWindow::backgroundColourId),
+        DocumentWindow::allButtons)
 {
     setLookAndFeel(&_theme);
     setTitleBarHeight(margins::_line);
@@ -33,7 +32,14 @@ window_main::window_main() :
     auto area = Desktop::getInstance().getDisplays().getTotalBounds(true);
     setResizeLimits(504, 240, area.getWidth(), area.getHeight());
     setVisible(true);
+
+    if (auto* content = dynamic_cast<comp_main*>(getContentComponent()))
+        addKeyListener(content->get_keys()->getKeyMappings());
 };
+
+/*
+//////////////////////////////////////////////////////////////////////////////////////////
+*/
 
 window_audio_setup::window_audio_setup(AudioDeviceManager& device_manager) :
     window(std::make_unique<comp_audio_settings>(device_manager).release(), "audio settings")

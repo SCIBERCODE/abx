@@ -72,7 +72,7 @@ public:
         _dull_colour.setVisible(false);
 
         _thumbnail.addChangeListener(this);
-        setSize(300, 96);
+        setSize(margins::_width, 96);
 
         _label_name.setText(File(_file_path).getFileNameWithoutExtension(), NotificationType::dontSendNotification);
 

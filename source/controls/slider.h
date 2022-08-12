@@ -101,7 +101,7 @@ public:
         _slider.setColour(Slider::backgroundColourId, Colours::red);
         addAndMakeVisible(_slider);
 
-        setSize(300, 18);
+        setSize(margins::_width, 18);
         update_label_value();
     }
 

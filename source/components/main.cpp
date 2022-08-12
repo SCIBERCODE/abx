@@ -2,10 +2,52 @@
 
 namespace abx {
 
+bool comp_main::perform(const InvocationInfo& info) {
+    switch (info.commandID)
+    {
+    case command_ids::add_files:
+    {
+        static bool already_opened = false;
+        if (!already_opened) {
+            already_opened = true;
+            auto last_path = _settings.read_single(settings_ids::path);
+            FileChooser chooser({}, last_path, _filter->getDescription(), true, false, this);
+            if (chooser.browseForMultipleFilesToOpen()) {
+                for (auto const& file : chooser.getResults()) {
+                    track_add(file.getFullPathName());
+                }
+            }
+            already_opened = false;
+        }
+    }
+    break;
+    case command_ids::play:    trial_cycle(_HZ); break;
+    case command_ids::fwd:     track_change(_current_track, true); break;
+    case command_ids::rev:     track_change(_current_track, false); break;
+    case command_ids::options: launch_audio_setup(); break;
+    case command_ids::rewind:
+    {
+        _current_track->rewind();
+        if (_state == state_t::paused) {
+            _user_stopped = true;
+            change_state(state_t::stopped);
+        }
+        if (_state == state_t::playing) {
+            //change_state(state_t::stopping);
+        }
+    }
+    break;
+    default:
+        return false;
+    }
+    return true;
+}
+
 comp_main::comp_main() :
     _window_audio_setup(deviceManager),
     _toolbar_results(trial_save),
-    _timer_long_pressed_button(_fast_reverse, _fast_forward)
+    _timer_long_pressed_button(_fast_reverse, _fast_forward),
+    _toolbar(_commands)
 {
     setOpaque(true);
 
@@ -15,7 +57,7 @@ comp_main::comp_main() :
     }
     setAudioChannels(0, 2);
 
-    setSize(845, 650);
+    setSize(margins::_width, 650);
     _transport_source.addChangeListener(this);
 
     _viewport_tracks.setScrollBarThickness(11);
@@ -23,25 +65,8 @@ comp_main::comp_main() :
     _viewport_tracks.setViewedComponent(_viewport_tracks_inside.get(), false);
     addAndMakeVisible(_viewport_tracks);
 
-    _toolbar.set_on_fwd_clicked([&]() {
-        track_change(_current_track, true);
-    });
-    _toolbar.set_on_rev_clicked([&]() {
-        track_change(_current_track, false);
-    });
-
-    _toolbar.set_on_rewind_clicked([&](){
-        _current_track->rewind();
-        if (_state == state_t::paused) {
-            _user_stopped = true;
-            change_state(state_t::stopped);
-        }
-        if (_state == state_t::playing) {
-            //change_state(state_t::stopping);
-        }
-    });
-    _toolbar.set_on_play_clicked([&](){
-        trial_cycle(_HZ);
+    _toolbar.set_on_play_clicked([&]() { // todo: applicationCommandListChanged
+        invokeDirectly(command_ids::play, false);
     });
     _toolbar.set_on_pause_clicked([&]() {
         if (_state == state_t::playing)
@@ -57,24 +82,7 @@ comp_main::comp_main() :
             change_state(state_t::stopping);
         }
     });
-    _toolbar.set_on_open_clicked([&](){
-        static bool already_opened = false;
-        if (!already_opened) {
-            already_opened = true;
-            auto last_path = _settings.read_single(settings_ids::path);
-            FileChooser chooser({}, last_path, _filter->getDescription(), true, false, this);
-            if (chooser.browseForMultipleFilesToOpen()) {
-                for (auto const& file : chooser.getResults()) {
-                    track_add(file.getFullPathName());
-                }
-            }
-            already_opened = false;
-        }
-    });
     _toolbar.set_on_choose_clicked(on_button_press);
-    _toolbar.set_on_settings_clicked([&]() {
-        launch_audio_setup();
-    });
 
     addAndMakeVisible(_toolbar);
     addAndMakeVisible(_toolbar_bottom);
@@ -151,6 +159,8 @@ comp_main::comp_main() :
         track_activate(last_one, true);
     }
     _settings.set_autosave(true);
+
+    _commands.registerAllCommandsForTarget(this);
 }
 
 comp_main::~comp_main() {
@@ -247,7 +257,7 @@ void comp_main::resized() {
     auto area = getLocalBounds();
 
     // toolbar
-    _toolbar.setBounds(area.removeFromTop(_toolbar.get_size().second));
+    _toolbar.setBounds(area.removeFromTop(_toolbar.get_height()));
 
     // results header button
     _button_results_header.setBounds(area.removeFromTop(margins::_line));
