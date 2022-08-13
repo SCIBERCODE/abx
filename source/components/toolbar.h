@@ -11,6 +11,13 @@
 
 namespace abx {
 
+enum class button_t {
+    rev, a, hz, b, fwd,
+    restart, blind,
+    pause, play, stop, rewind,
+    open
+};
+
 /*
 //////////////////////////////////////////////////////////////////////////////////////////
 */
@@ -21,13 +28,6 @@ private:
     using p_edit = std::unique_ptr<editor>;
 
 public:
-    enum class button_t {
-        rev, a, hz, b, fwd,
-        restart, blind,
-        pause, play, stop, rewind,
-        open
-    };
-
     comp_toolbar(ApplicationCommandManager& commands) :
         _commands(commands)
     { // todo: [9]
@@ -36,26 +36,17 @@ public:
         // user input
         _button_rev.set_border_radius_side(button_toolbar::border_radius_side_t::left);
         _button_rev.set_icon(icon_id::backward);
-        _button_rev.set_type(button_toolbar::button_t::ftdi);
+        _button_rev.set_type(button_toolbar::button_type_t::ftdi);
         _button_rev.setCommandToTrigger(&_commands, command_ids::rev, true);
         addAndMakeVisible(_button_rev);
 
-        _button_a.set_type(button_toolbar::button_t::ftdi);
-        _button_b.set_type(button_toolbar::button_t::ftdi);
-        _button_hz.set_type(button_toolbar::button_t::ftdi);
+        _button_a .set_type(button_toolbar::button_type_t::ftdi);
+        _button_b .set_type(button_toolbar::button_type_t::ftdi);
+        _button_hz.set_type(button_toolbar::button_type_t::ftdi);
 
-        _button_a.onClick = [this]() {
-            _choose_clicked(_A);
-            _choose_clicked(0);
-        };
-        _button_b.onClick = [this]() {
-            _choose_clicked(_B);
-            _choose_clicked(0);
-        };
-        _button_hz.onClick = [this]() {
-            _choose_clicked(_HZ);
-            _choose_clicked(0);
-        };
+        _button_a .setCommandToTrigger(&_commands, command_ids::a,  true);
+        _button_b .setCommandToTrigger(&_commands, command_ids::b,  true);
+        _button_hz.setCommandToTrigger(&_commands, command_ids::hz, true);
 
         addAndMakeVisible(_button_a);
         addAndMakeVisible(_button_b);
@@ -63,7 +54,7 @@ public:
 
         _button_fwd.set_border_radius_side(button_toolbar::border_radius_side_t::right);
         _button_fwd.set_icon(icon_id::forward);
-        _button_fwd.set_type(button_toolbar::button_t::ftdi);
+        _button_fwd.set_type(button_toolbar::button_type_t::ftdi);
         _button_fwd.setCommandToTrigger(&_commands, command_ids::fwd, true);
         addAndMakeVisible(_button_fwd);
 
@@ -95,6 +86,7 @@ public:
         addAndMakeVisible(_button_play);
 
         _button_stop.set_icon(icon_id::stop, 12.f);
+        _button_stop.setCommandToTrigger(&_commands, command_ids::stop, true);
         _button_stop.setEnabled(false);
         addAndMakeVisible(_button_stop);
 
@@ -269,14 +261,8 @@ public:
     void set_on_pause_clicked(const std::function<void()>& callback) {
         _button_pause.onClick = callback;
     }
-    void set_on_stop_clicked(const std::function<void()>& callback) {
-        _button_stop.onClick = callback;
-    }
     void set_on_blind_clicked(const std::function<void()>& callback) {
         _button_blind.onClick = callback;
-    }
-    void set_on_choose_clicked(const std::function<void(size_t)>& callback) {
-        _choose_clicked = callback;
     }
 
     button_toolbar* get_button(button_t button) {
@@ -370,10 +356,9 @@ private:
               std::unique_ptr<slider_with_label>>
                     _sliders;
 
-    std::function<void(size_t)> _choose_clicked;
-    std::function<void()>       _callback_name_changed;
-    std::function<void()>       _callback_gain_changed;
-    colours                     _colours;
+    std::function<void()> _callback_name_changed;
+    std::function<void()> _callback_gain_changed;
+    colours               _colours;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(comp_toolbar)
 };

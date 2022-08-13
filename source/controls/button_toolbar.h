@@ -18,7 +18,7 @@ public:
         all
     };
 
-    enum class button_t {
+    enum class button_type_t {
         normal,
         ftdi,
         utility
@@ -71,7 +71,7 @@ public:
             g.setColour(_colours.get(colour_id::button_hover));
         else
             g.setColour(_colours.get(
-                _type == button_t::ftdi ? colour_id::header : colour_id::button_normal));
+                _type == button_type_t::ftdi ? colour_id::header : colour_id::button_normal));
 
         if (_hard_pressed.first)
             g.setColour(_colours.get(_hard_pressed.second ? colour_id::button_red : colour_id::button_green));
@@ -87,7 +87,7 @@ public:
 
         g.fillPath(path);
 
-        if (_type == button_t::utility)
+        if (_type == button_type_t::utility)
             g.setColour(_colours.get(colour_id::outline_dark).brighter(.2f));
         else {
             auto outline = _colours.get(colour_id::outline);
@@ -131,7 +131,7 @@ public:
         resized();
     }
 
-    void set_type(const button_t type) {
+    void set_type(const button_type_t type) {
         _type = type;
     }
 
@@ -140,7 +140,7 @@ private:
     DrawableComposite     _icon;
     String                _text               {};
     border_radius_side_t  _border_radius_side { border_radius_side_t::none   };
-    button_t              _type               { button_t::normal             };
+    button_type_t         _type               { button_type_t::normal        };
     std::pair<bool, bool> _hard_pressed       { std::make_pair(false, false) };
     bool                  _stressed           {};
 

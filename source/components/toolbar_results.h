@@ -25,9 +25,9 @@ public:
         _button_share.set_icon(icon_id::share);
         _button_clear.set_icon(icon_id::clear);
 
-        _button_undo.set_type(button_toolbar::button_t::utility);
-        _button_share.set_type(button_toolbar::button_t::utility);
-        _button_clear.set_type(button_toolbar::button_t::utility);
+        _button_undo.set_type(button_toolbar::button_type_t::utility);
+        _button_share.set_type(button_toolbar::button_type_t::utility);
+        _button_clear.set_type(button_toolbar::button_type_t::utility);
 
         addAndMakeVisible(_button_undo);
         addAndMakeVisible(_button_share);

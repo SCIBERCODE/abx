@@ -9,12 +9,19 @@
 
 namespace command_ids
 {
-    constexpr int add_files = 1;
-    constexpr int play      = 2;
-    constexpr int fwd       = 3;
-    constexpr int rev       = 4;
-    constexpr int rewind    = 5;
-    constexpr int options   = 6;
+    // abx
+    constexpr int rev       =  1;
+    constexpr int a         =  2;
+    constexpr int hz        =  3;
+    constexpr int b         =  4;
+    constexpr int fwd       =  5;
+    // player
+    constexpr int play      =  6;
+    constexpr int stop      =  7;
+    constexpr int rewind    =  8;
+    // toolbar right sided
+    constexpr int add_files =  9;
+    constexpr int options   = 10;
 };
 
 #include "track.h"
@@ -91,49 +98,52 @@ private:
     void        trial_cycle(size_t button_bt);
     void        launch_audio_setup();
 
+    struct command_t {
+        String          name;
+        String          description;
+        Array<KeyPress> keys;
+    };
+
+    const std::map<int, command_t> commands_ {
+        // abx
+        { command_ids::rev,       { "Previous",    "Skip to the previous track", { KeyPress(',', ModifierKeys::shiftModifier, '<'), KeyPress(KeyPress::upKey), KeyPress(KeyPress::leftKey) }}},
+        { command_ids::a,         { "A",           " ",                          { KeyPress('a') }}},
+        { command_ids::hz,        { "?",           "I dont know..",              { KeyPress('/', ModifierKeys::shiftModifier, '?') }}},
+        { command_ids::b,         { "B",           " ",                          { KeyPress('b') }}},
+        { command_ids::fwd,       { "Forward",     "Skip to the next track",     { KeyPress('.', ModifierKeys::shiftModifier, '>'), KeyPress(KeyPress::downKey), KeyPress(KeyPress::rightKey) }}},
+        // player
+        { command_ids::play,      { "Play",        "Play current track",         { KeyPress('p') }}},
+        { command_ids::stop,      { "Stop",        "Stop playing current track", { KeyPress('s') }}},
+        { command_ids::rewind,    { "Rewind",      "Go to start & clear marker", { KeyPress('r', ModifierKeys::ctrlModifier, 'r') }}},
+        // toolbar right sided
+        { command_ids::add_files, { "Add file(s)", "Add file(s)",                { KeyPress('o'), KeyPress('o', ModifierKeys::ctrlModifier, 'o') }}},
+        { command_ids::options,   { "Options",     "Audio device preferences",   { KeyPress('p', ModifierKeys::ctrlModifier, 'p') }}}
+    };
+
     ApplicationCommandTarget* getNextCommandTarget() override { return nullptr; }
 
     void getAllCommands(Array<CommandID>& commands) override
     {
-        Array<CommandID> ids {
-            command_ids::add_files, command_ids::options,
-            command_ids::play,      command_ids::rewind,
-            command_ids::fwd,       command_ids::rev
-        };
-        commands.addArray(ids);
+        for (auto const& [id, cmd] : commands_) {
+            commands.add(id);
+        }
     }
 
     void getCommandInfo(CommandID cmd_id, ApplicationCommandInfo& result) override
     {
-        switch (cmd_id)
+        if (commands_.count(cmd_id))
         {
-        case command_ids::add_files:
-            result.setInfo("Add file(s)", "Add file(s)\r\n[" + _filter->getDescription().removeCharacters("*.") + "]\r\n", "Button", 0);
-            result.addDefaultKeypress('o', 0);
-            result.addDefaultKeypress('o', ModifierKeys::ctrlModifier);
-            break;
-        case command_ids::play:
-            result.setInfo("Play", "Play current track", "Button", 0);
-            result.addDefaultKeypress('p', 0);
-            break;
-        case command_ids::fwd:
-            result.setInfo("Forward", "Skip to the next track", "Button", 0);
-            result.addDefaultKeypress('f', 0);
-            result.addDefaultKeypress('.', ModifierKeys::shiftModifier);
-            break;
-        case command_ids::rev:
-            result.setInfo("Previous", "Skip to the previous track", "Button", 0);
-            result.addDefaultKeypress('r', 0);
-            result.addDefaultKeypress(',', ModifierKeys::shiftModifier);
-            break;
-        case command_ids::rewind:
-            result.setInfo("Rewind", "Go to start & clear marker", "Button", 0);
-            result.addDefaultKeypress('r', ModifierKeys::ctrlModifier);
-            break;
-        case command_ids::options:
-            result.setInfo("Options", "Audio device preferences", "Button", 0);
-            result.addDefaultKeypress('p', ModifierKeys::ctrlModifier);
-            break;
+            auto cmd = commands_.at(cmd_id);
+            switch (cmd_id) {
+            case command_ids::add_files:
+                cmd.description += "\r\n[" + _filter->getDescription().removeCharacters(" * .") + "]";
+                break;
+            }
+            result.setInfo(cmd.name, cmd.description, {}, 0);
+
+            for (auto const& key : cmd.keys) {
+                result.defaultKeypresses.add(key);
+            }
         }
     }
 
@@ -191,14 +201,14 @@ private:
         DBG("relay_change_callback");
 
         _relay = relay;
-        auto blind = _toolbar.get_state(comp_toolbar::button_t::blind);
+        auto blind = _toolbar.get_state(button_t::blind);
         if (relay) {
             gain_changed_callback();
         }
         if (!blind)
         {
-            _toolbar.hard_press(comp_toolbar::button_t::a, relay == _A);
-            _toolbar.hard_press(comp_toolbar::button_t::b, relay == _B);
+            _toolbar.hard_press(button_t::a, relay == _A);
+            _toolbar.hard_press(button_t::b, relay == _B);
             _toolbar.repaint();
         }
     };
@@ -218,13 +228,13 @@ private:
     {
         DBG(std::format("on_button_press: button = {}", button));
 
-        _toolbar.hard_press(comp_toolbar::button_t::rev, button == _REV);
-        _toolbar.hard_press(comp_toolbar::button_t::fwd, button == _FWD);
-        _toolbar.hard_press(comp_toolbar::button_t::hz,  button == _HZ);
+        _toolbar.hard_press(button_t::rev, button == _REV);
+        _toolbar.hard_press(button_t::fwd, button == _FWD);
+        _toolbar.hard_press(button_t::hz,  button == _HZ);
 
         auto correct = button == _ftdi.get_relay();
-        _toolbar.hard_press(comp_toolbar::button_t::a, button == _A, !correct);
-        _toolbar.hard_press(comp_toolbar::button_t::b, button == _B, !correct);
+        _toolbar.hard_press(button_t::a, button == _A, !correct);
+        _toolbar.hard_press(button_t::b, button == _B, !correct);
         _toolbar.repaint();
 
         if (!_ready) return;
@@ -249,7 +259,7 @@ private:
 
         if (_tracks.size() == 0) {
             if (button) {
-                _toolbar.click(comp_toolbar::button_t::open);
+                invokeDirectly(command_ids::add_files, false);
             }
             return;
         }

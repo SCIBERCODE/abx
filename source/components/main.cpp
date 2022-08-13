@@ -22,9 +22,33 @@ bool comp_main::perform(const InvocationInfo& info) {
     }
     break;
     case command_ids::play:    trial_cycle(_HZ); break;
-    case command_ids::fwd:     track_change(_current_track, true); break;
+    case command_ids::fwd:     track_change(_current_track, true ); break;
     case command_ids::rev:     track_change(_current_track, false); break;
     case command_ids::options: launch_audio_setup(); break;
+    case command_ids::stop: {
+        if (_state == state_t::paused)
+            change_state(state_t::stopped);
+        else {
+            _user_stopped = true;
+            change_state(state_t::stopping);
+        }
+    }
+    break;
+    case command_ids::a: {
+        on_button_press(_A);
+        on_button_press(0); // wtf?
+    }
+    break;
+    case command_ids::b: {
+        on_button_press(_B);
+        on_button_press(0);
+    }
+    break;
+    case command_ids::hz: {
+        on_button_press(_HZ);
+        on_button_press(0);
+    }
+    break;
     case command_ids::rewind:
     {
         _current_track->rewind();
@@ -74,15 +98,6 @@ comp_main::comp_main() :
         else
             change_state(state_t::starting);
     });
-    _toolbar.set_on_stop_clicked([&](){
-        if (_state == state_t::paused)
-            change_state(state_t::stopped);
-        else {
-            _user_stopped = true;
-            change_state(state_t::stopping);
-        }
-    });
-    _toolbar.set_on_choose_clicked(on_button_press);
 
     addAndMakeVisible(_toolbar);
     addAndMakeVisible(_toolbar_bottom);
@@ -97,7 +112,7 @@ comp_main::comp_main() :
 
     _toolbar.set_on_blind_clicked([=]()
     {
-        if (_toolbar.get_state(comp_toolbar::button_t::blind)) {
+        if (_toolbar.get_state(button_t::blind)) {
             relay_change_callback(0);
         }
         else {
@@ -199,7 +214,7 @@ void comp_main::track_activate(comp_track* selected_track_new, bool double_click
                 }
             }
         }
-        _toolbar.set_enabled(comp_toolbar::button_t::play, _tracks.size() > 0 && _current_track);
+        _toolbar.set_enabled(button_t::play, _tracks.size() > 0 && _current_track);
     }
 }
 
@@ -285,7 +300,7 @@ void comp_main::resized() {
     _viewport_tracks.setBounds(area);
 
     _toolbar.toFront(false);
-    _toolbar.set_enabled(comp_toolbar::button_t::rewind, _current_track && _current_track->marker_get() > 0);
+    _toolbar.set_enabled(button_t::rewind, _current_track && _current_track->marker_get() > 0);
 }
 
 bool comp_main::isInterestedInFileDrag(const StringArray &files) {
@@ -335,7 +350,7 @@ comp_track *comp_main::track_add(const String& file_path, double marker, bool sa
         tracks_state_save();
 
         if (_current_track) {
-            _toolbar.set_enabled(comp_toolbar::button_t::rewind, _current_track->marker_get() > 0);
+            _toolbar.set_enabled(button_t::rewind, _current_track->marker_get() > 0);
         }
 
     });
@@ -394,23 +409,23 @@ void comp_main::change_state(state_t new_state)
             if (_user_stopped) {
                 _ftdi.turn_off_relay();
             }
-            _toolbar.set_state  (comp_toolbar::button_t::pause, false);
-            _toolbar.set_state  (comp_toolbar::button_t::play,  false);
-            _toolbar.set_enabled(comp_toolbar::button_t::stop,  false);
-            _toolbar.set_enabled(comp_toolbar::button_t::pause, false);
-            _current_track->stop(_toolbar.get_state(comp_toolbar::button_t::restart));
+            _toolbar.set_state  (button_t::pause, false);
+            _toolbar.set_state  (button_t::play,  false);
+            _toolbar.set_enabled(button_t::stop,  false);
+            _toolbar.set_enabled(button_t::pause, false);
+            _current_track->stop(_toolbar.get_state(button_t::restart));
             break;
 
         case state_t::starting:
             _transport_source.start();
-            _current_track->play(_toolbar.get_state(comp_toolbar::button_t::restart));
+            _current_track->play(_toolbar.get_state(button_t::restart));
             break;
 
         case state_t::playing:
-            _toolbar.set_state  (comp_toolbar::button_t::pause, false);
-            _toolbar.set_state  (comp_toolbar::button_t::play,  true);
-            _toolbar.set_enabled(comp_toolbar::button_t::stop,  true);
-            _toolbar.set_enabled(comp_toolbar::button_t::pause, true);
+            _toolbar.set_state  (button_t::pause, false);
+            _toolbar.set_state  (button_t::play,  true);
+            _toolbar.set_enabled(button_t::stop,  true);
+            _toolbar.set_enabled(button_t::pause, true);
             _ready = true;
             break;
 
@@ -420,7 +435,7 @@ void comp_main::change_state(state_t new_state)
             break;
 
         case state_t::paused:
-            _toolbar.set_state(comp_toolbar::button_t::pause, true);
+            _toolbar.set_state(button_t::pause, true);
             break;
 
         case state_t::stopping:
@@ -490,7 +505,7 @@ void comp_main::changeListenerCallback(ChangeBroadcaster* source)
             change_state(state_t::paused);
         }
         if (_current_track) {
-            _toolbar.set_enabled(comp_toolbar::button_t::rewind, _current_track->marker_get() > 0);
+            _toolbar.set_enabled(button_t::rewind, _current_track->marker_get() > 0);
         }
     }
     if (source == &deviceManager) {
@@ -538,7 +553,7 @@ void comp_main::trial_display() {
 
 void comp_main::trial_cycle(size_t button) {
     _ready = false;
-    auto blind = _toolbar.get_state(comp_toolbar::button_t::blind);
+    auto blind = _toolbar.get_state(button_t::blind);
     if (_state != state_t::playing && _state != state_t::starting)
     {
         DBG(std::format("trial_cycle: {} != playing", state_names.at(_state)));
@@ -551,7 +566,7 @@ void comp_main::trial_cycle(size_t button) {
     _trials.push_back({ button, relay, blind });
     trial_display();
 
-    if (_toolbar.get_state(comp_toolbar::button_t::restart))
+    if (_toolbar.get_state(button_t::restart))
     {
         if (_state == state_t::paused)
             change_state(state_t::stopped);
