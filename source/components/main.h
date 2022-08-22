@@ -7,21 +7,42 @@
 #include "../app/windows.h"
 #include "../app/settings.h"
 
-namespace command_ids
+namespace commands
 {
-    // abx
-    constexpr int rev       =  1;
-    constexpr int a         =  2;
-    constexpr int hz        =  3;
-    constexpr int b         =  4;
-    constexpr int fwd       =  5;
-    // player
-    constexpr int play      =  6;
-    constexpr int stop      =  7;
-    constexpr int rewind    =  8;
-    // toolbar right sided
-    constexpr int add_files =  9;
-    constexpr int options   = 10;
+    enum ids : int {
+    /* abx          */ rev = 1, a, hz, b, fwd,
+    /* abx settings */ restart, blind,
+    /* player       */ pause, play, stop, rewind,
+    /* right sided  */ add_files, options,
+    /* trial        */ undo, share, clear,
+    /* tracks       */ close
+    };
+
+    struct command_t {
+        bool            toggle;
+        String          description;
+        Array<KeyPress> keys;
+    };
+
+    const std::map<ids, command_t> info {
+        // abx
+        { rev,       { false, "Skip to the previous track", { KeyPress(',', ModifierKeys::shiftModifier, 0), KeyPress(KeyPress::upKey), KeyPress(KeyPress::leftKey) }}},
+        { a,         { false, " ",                          { KeyPress('a') }}},
+        { hz,        { false, "I dont know..",              { KeyPress('/', ModifierKeys::shiftModifier, 0) }}},
+        { b,         { false, " ",                          { KeyPress('b') }}},
+        { fwd,       { false, "Skip to the next track",     { KeyPress('.', ModifierKeys::shiftModifier, 0), KeyPress(KeyPress::downKey), KeyPress(KeyPress::rightKey) }}},
+        // abx settings
+        { blind,     { true,  "Blind mode",                 { KeyPress('b', ModifierKeys::ctrlModifier, 0) }}},
+        { restart,   { true,  "Restart audio",              { KeyPress('r', ModifierKeys::ctrlModifier, 0) }}},
+        // player
+        { play,      { false, "Play current track",         { KeyPress('p') }}},
+        { stop,      { false, "Stop playing current track", { KeyPress('s') }}},
+        { rewind,    { false, "Go to start & clear marker", { KeyPress('r') }}},
+        // toolbar right sided
+        { add_files, { false, "Add file(s)",                { KeyPress('o'), KeyPress('o', ModifierKeys::ctrlModifier, 0) }}},
+        { options,   { false, "Audio device preferences",   { KeyPress('p', ModifierKeys::ctrlModifier, 0) }}}
+    };
+
 };
 
 #include "track.h"
@@ -69,7 +90,7 @@ class comp_main : public AudioAppComponent,
                   public FileDragAndDropTarget,
                   public DragAndDropContainer,
                   public ChangeListener,
-                  public ApplicationCommandTarget
+                  public ApplicationCommandTarget//,                  public ApplicationCommandManagerListener
 {
 public:
      comp_main();
@@ -98,48 +119,45 @@ private:
     void        trial_cycle(size_t button_bt);
     void        launch_audio_setup();
 
-    struct command_t {
-        String          name;
-        String          description;
-        Array<KeyPress> keys;
-    };
-
-    const std::map<int, command_t> commands_ {
-        // abx
-        { command_ids::rev,       { "Previous",    "Skip to the previous track", { KeyPress(',', ModifierKeys::shiftModifier, '<'), KeyPress(KeyPress::upKey), KeyPress(KeyPress::leftKey) }}},
-        { command_ids::a,         { "A",           " ",                          { KeyPress('a') }}},
-        { command_ids::hz,        { "?",           "I dont know..",              { KeyPress('/', ModifierKeys::shiftModifier, '?') }}},
-        { command_ids::b,         { "B",           " ",                          { KeyPress('b') }}},
-        { command_ids::fwd,       { "Forward",     "Skip to the next track",     { KeyPress('.', ModifierKeys::shiftModifier, '>'), KeyPress(KeyPress::downKey), KeyPress(KeyPress::rightKey) }}},
-        // player
-        { command_ids::play,      { "Play",        "Play current track",         { KeyPress('p') }}},
-        { command_ids::stop,      { "Stop",        "Stop playing current track", { KeyPress('s') }}},
-        { command_ids::rewind,    { "Rewind",      "Go to start & clear marker", { KeyPress('r', ModifierKeys::ctrlModifier, 'r') }}},
-        // toolbar right sided
-        { command_ids::add_files, { "Add file(s)", "Add file(s)",                { KeyPress('o'), KeyPress('o', ModifierKeys::ctrlModifier, 'o') }}},
-        { command_ids::options,   { "Options",     "Audio device preferences",   { KeyPress('p', ModifierKeys::ctrlModifier, 'p') }}}
-    };
+    const String create_tooltip(commands::ids id) {
+        if (commands::info.count(id)) {
+            auto tt = commands::info.at(id).description;
+            for (auto& kp : _commands.getKeyMappings()->getKeyPressesAssignedToCommand(id))
+            {
+                auto key = kp.getTextDescription();
+                tt << " [";
+                if (key.length() == 1)
+                    tt << TRANS("shortcut") << ": '" << key << "']";
+                else
+                    tt << key << ']';
+            }
+            return tt;
+        }
+        return {};
+    }
 
     ApplicationCommandTarget* getNextCommandTarget() override { return nullptr; }
 
     void getAllCommands(Array<CommandID>& commands) override
     {
-        for (auto const& [id, cmd] : commands_) {
+        for (auto const& [id, cmd] : commands::info) {
             commands.add(id);
         }
     }
 
     void getCommandInfo(CommandID cmd_id, ApplicationCommandInfo& result) override
     {
-        if (commands_.count(cmd_id))
+        auto id = commands::ids(cmd_id);
+        if (commands::info.count(id))
         {
-            auto cmd = commands_.at(cmd_id);
-            switch (cmd_id) {
-            case command_ids::add_files:
-                cmd.description += "\r\n[" + _filter->getDescription().removeCharacters(" * .") + "]";
+            auto cmd = commands::info.at(id);
+            switch (id) {
+            case commands::add_files:
+                if (_filter)
+                    cmd.description << "\r\n[" << _filter->getDescription().removeCharacters(" * .") << "]";
                 break;
             }
-            result.setInfo(cmd.name, cmd.description, {}, 0);
+            result.setInfo(cmd.description, cmd.description, {}, 0);
 
             for (auto const& key : cmd.keys) {
                 result.defaultKeypresses.add(key);
@@ -259,7 +277,7 @@ private:
 
         if (_tracks.size() == 0) {
             if (button) {
-                invokeDirectly(command_ids::add_files, false);
+                invokeDirectly(commands::add_files, false);
             }
             return;
         }

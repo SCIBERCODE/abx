@@ -5,7 +5,7 @@ namespace abx {
 bool comp_main::perform(const InvocationInfo& info) {
     switch (info.commandID)
     {
-    case command_ids::add_files:
+    case commands::add_files:
     {
         static bool already_opened = false;
         if (!already_opened) {
@@ -21,11 +21,11 @@ bool comp_main::perform(const InvocationInfo& info) {
         }
     }
     break;
-    case command_ids::play:    trial_cycle(_HZ); break;
-    case command_ids::fwd:     track_change(_current_track, true ); break;
-    case command_ids::rev:     track_change(_current_track, false); break;
-    case command_ids::options: launch_audio_setup(); break;
-    case command_ids::stop: {
+    case commands::play:    trial_cycle(_HZ); break;
+    case commands::fwd:     track_change(_current_track, true ); break;
+    case commands::rev:     track_change(_current_track, false); break;
+    case commands::options: launch_audio_setup(); break;
+    case commands::stop: {
         if (_state == state_t::paused)
             change_state(state_t::stopped);
         else {
@@ -34,22 +34,22 @@ bool comp_main::perform(const InvocationInfo& info) {
         }
     }
     break;
-    case command_ids::a: {
+    case commands::a: {
         on_button_press(_A);
         on_button_press(0); // wtf?
     }
     break;
-    case command_ids::b: {
+    case commands::b: {
         on_button_press(_B);
         on_button_press(0);
     }
     break;
-    case command_ids::hz: {
+    case commands::hz: {
         on_button_press(_HZ);
         on_button_press(0);
     }
     break;
-    case command_ids::rewind:
+    case commands::rewind:
     {
         _current_track->rewind();
         if (_state == state_t::paused) {
@@ -59,6 +59,17 @@ bool comp_main::perform(const InvocationInfo& info) {
         if (_state == state_t::playing) {
             //change_state(state_t::stopping);
         }
+    }
+    break;
+    case commands::blind: {
+        auto state = _toolbar.get_state(button_t::blind);
+        if (state) {
+            relay_change_callback(0);
+        } else {
+            relay_change_callback(_ftdi.get_relay());
+        }
+        _toolbar.set_state(button_t::blind, !state);
+        _toolbar.repaint();
     }
     break;
     default:
@@ -82,15 +93,18 @@ comp_main::comp_main() :
     setAudioChannels(0, 2);
 
     setSize(margins::_width, 650);
+
     _transport_source.addChangeListener(this);
+    _commands.registerAllCommandsForTarget(this);
 
     _viewport_tracks.setScrollBarThickness(11);
     _viewport_tracks_inside = std::make_unique<comp_tracks_viewport>(_tracks);
     _viewport_tracks.setViewedComponent(_viewport_tracks_inside.get(), false);
     addAndMakeVisible(_viewport_tracks);
 
-    _toolbar.set_on_play_clicked([&]() { // todo: applicationCommandListChanged
-        invokeDirectly(command_ids::play, false);
+    // toolbar
+    _toolbar.set_on_play_clicked([&]() {
+        invokeDirectly(commands::play, false);
     });
     _toolbar.set_on_pause_clicked([&]() {
         if (_state == state_t::playing)
@@ -98,6 +112,26 @@ comp_main::comp_main() :
         else
             change_state(state_t::starting);
     });
+
+    _toolbar.get_button(button_t::restart)->setTooltip(create_tooltip(commands::restart));
+    _toolbar.get_button(button_t::blind)  ->setTooltip(create_tooltip(commands::blind));
+    _toolbar.get_button(button_t::blind)->onClick = [&] { invokeDirectly(commands::blind, false); };
+
+    _toolbar.set_on_name_changed([&]() {
+        auto names = _toolbar.names_get();
+        _settings.save(settings_ids::name, { names.first, names.second });
+        });
+
+    auto names = _settings.read(settings_ids::name);
+    if (names.size() == 2) {
+        _toolbar.names_set({ names[0], names[1] });
+    }
+
+    _toolbar.set_on_gain_changed(gain_changed_callback);
+    auto gain = _settings.read(settings_ids::gain);
+    if (gain.size() == 2) {
+        _toolbar.gain_set({ gain[0].getDoubleValue(), gain[1].getDoubleValue() });
+    }
 
     addAndMakeVisible(_toolbar);
     addAndMakeVisible(_toolbar_bottom);
@@ -109,33 +143,6 @@ comp_main::comp_main() :
     _ftdi.set_on_button_press_callback(on_button_press);
     _ftdi.set_on_relay_change_callback(relay_change_callback);
     _ftdi.set_on_status_change_callback(ftdi_status_change_callback);
-
-    _toolbar.set_on_blind_clicked([=]()
-    {
-        if (_toolbar.get_state(button_t::blind)) {
-            relay_change_callback(0);
-        }
-        else {
-            relay_change_callback(_ftdi.get_relay());
-        }
-        _toolbar.repaint();
-    });
-
-    _toolbar.set_on_name_changed([&]() {
-        auto names = _toolbar.names_get();
-        _settings.save(settings_ids::name, { names.first, names.second });
-    });
-
-    auto names = _settings.read(settings_ids::name);
-    if (names.size() == 2) {
-        _toolbar.names_set(std::make_pair(names[0], names[1]));
-    }
-
-    _toolbar.set_on_gain_changed(gain_changed_callback);
-    auto gain = _settings.read(settings_ids::gain);
-    if (gain.size() == 2) {
-        _toolbar.gain_set(std::make_pair(gain[0].getDoubleValue(), gain[1].getDoubleValue()));
-    }
 
     _button_results_header.setClickingTogglesState(true);
     _button_results_header.setConnectedEdges(TextButton::ConnectedOnBottom);
@@ -174,8 +181,6 @@ comp_main::comp_main() :
         track_activate(last_one, true);
     }
     _settings.set_autosave(true);
-
-    _commands.registerAllCommandsForTarget(this);
 }
 
 comp_main::~comp_main() {
@@ -510,8 +515,8 @@ void comp_main::changeListenerCallback(ChangeBroadcaster* source)
     }
     if (source == &deviceManager) {
         if (auto device = deviceManager.getCurrentAudioDevice()) {
-            auto str = deviceManager.getCurrentAudioDeviceType() + ": " +
-                device->getName() + " (" + String(device->getCurrentSampleRate() / 1000) + " kHz)";
+            auto str = deviceManager.getCurrentAudioDeviceType();
+            str << ": " << device->getName() << " (" << device->getCurrentSampleRate() / 1000 << " kHz)";
             _toolbar_bottom.set_device_audio(str);
         }
         if (auto state = deviceManager.createStateXml())

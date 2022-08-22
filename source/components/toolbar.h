@@ -28,8 +28,8 @@ private:
     using p_edit = std::unique_ptr<editor>;
 
 public:
-    comp_toolbar(ApplicationCommandManager& commands) :
-        _commands(commands)
+    comp_toolbar(ApplicationCommandManager& commands_) :
+        _commands(commands_)
     { // todo: [9]
         setOpaque(true);
 
@@ -37,16 +37,16 @@ public:
         _button_rev.set_border_radius_side(button_toolbar::border_radius_side_t::left);
         _button_rev.set_icon(icon_id::backward);
         _button_rev.set_type(button_toolbar::button_type_t::ftdi);
-        _button_rev.setCommandToTrigger(&_commands, command_ids::rev, true);
+        _button_rev.setCommandToTrigger(&_commands, commands::rev, true);
         addAndMakeVisible(_button_rev);
 
         _button_a .set_type(button_toolbar::button_type_t::ftdi);
         _button_b .set_type(button_toolbar::button_type_t::ftdi);
         _button_hz.set_type(button_toolbar::button_type_t::ftdi);
 
-        _button_a .setCommandToTrigger(&_commands, command_ids::a,  true);
-        _button_b .setCommandToTrigger(&_commands, command_ids::b,  true);
-        _button_hz.setCommandToTrigger(&_commands, command_ids::hz, true);
+        _button_a .setCommandToTrigger(&_commands, commands::a,  true);
+        _button_b .setCommandToTrigger(&_commands, commands::b,  true);
+        _button_hz.setCommandToTrigger(&_commands, commands::hz, true);
 
         addAndMakeVisible(_button_a);
         addAndMakeVisible(_button_b);
@@ -55,20 +55,18 @@ public:
         _button_fwd.set_border_radius_side(button_toolbar::border_radius_side_t::right);
         _button_fwd.set_icon(icon_id::forward);
         _button_fwd.set_type(button_toolbar::button_type_t::ftdi);
-        _button_fwd.setCommandToTrigger(&_commands, command_ids::fwd, true);
+        _button_fwd.setCommandToTrigger(&_commands, commands::fwd, true);
         addAndMakeVisible(_button_fwd);
 
         // settings
         _button_restart.set_border_radius_side(button_toolbar::border_radius_side_t::left);
         _button_restart.set_icon(icon_id::restart, 16.f);
-        _button_restart.setTooltip("Restart Audio");
         _button_restart.setClickingTogglesState(true);
         _button_restart.setToggleState(true, dontSendNotification);
         addAndMakeVisible(_button_restart);
 
         _button_blind.set_border_radius_side(button_toolbar::border_radius_side_t::right);
         _button_blind.set_icon(icon_id::blind, 18.f);
-        _button_blind.setTooltip("Blind Mode");
         _button_blind.setClickingTogglesState(true);
         _button_blind.setToggleState(true, dontSendNotification);
         addAndMakeVisible(_button_blind);
@@ -86,25 +84,25 @@ public:
         addAndMakeVisible(_button_play);
 
         _button_stop.set_icon(icon_id::stop, 12.f);
-        _button_stop.setCommandToTrigger(&_commands, command_ids::stop, true);
+        _button_stop.setCommandToTrigger(&_commands, commands::stop, true);
         _button_stop.setEnabled(false);
         addAndMakeVisible(_button_stop);
 
         _button_rewind.set_border_radius_side(button_toolbar::border_radius_side_t::right);
         _button_rewind.set_icon(icon_id::rewind);
-        _button_rewind.setCommandToTrigger(&_commands, command_ids::rewind, true);
+        _button_rewind.setCommandToTrigger(&_commands, commands::rewind, true);
         _button_rewind.setEnabled(false);
         addAndMakeVisible(_button_rewind);
 
         // right
         _button_open.set_border_radius_side(button_toolbar::border_radius_side_t::left);
         _button_open.set_icon(icon_id::open, 16.f);
-        _button_open.setCommandToTrigger(&_commands, command_ids::add_files, true);
+        _button_open.setCommandToTrigger(&_commands, commands::add_files, true);
         addAndMakeVisible(_button_open);
 
         _button_settings.set_border_radius_side(button_toolbar::border_radius_side_t::right);
         _button_settings.set_icon(icon_id::settings);
-        _button_settings.setCommandToTrigger(&_commands, command_ids::options, true);
+        _button_settings.setCommandToTrigger(&_commands, commands::options, true);
         addAndMakeVisible(_button_settings);
 
         // names
@@ -260,9 +258,6 @@ public:
     }
     void set_on_pause_clicked(const std::function<void()>& callback) {
         _button_pause.onClick = callback;
-    }
-    void set_on_blind_clicked(const std::function<void()>& callback) {
-        _button_blind.onClick = callback;
     }
 
     button_toolbar* get_button(button_t button) {

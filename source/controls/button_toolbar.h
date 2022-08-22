@@ -141,7 +141,7 @@ private:
     String                _text               {};
     border_radius_side_t  _border_radius_side { border_radius_side_t::none   };
     button_type_t         _type               { button_type_t::normal        };
-    std::pair<bool, bool> _hard_pressed       { std::make_pair(false, false) };
+    std::pair<bool, bool> _hard_pressed       {};
     bool                  _stressed           {};
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(button_toolbar)
