@@ -11,13 +11,6 @@
 
 namespace abx {
 
-enum class button_t {
-    rev, a, hz, b, fwd,
-    restart, blind,
-    pause, play, stop, rewind,
-    open
-};
-
 /*
 //////////////////////////////////////////////////////////////////////////////////////////
 */
@@ -61,14 +54,14 @@ public:
         // settings
         _button_restart.set_border_radius_side(button_toolbar::border_radius_side_t::left);
         _button_restart.set_icon(icon_id::restart, 16.f);
-        _button_restart.setClickingTogglesState(true);
-        _button_restart.setToggleState(true, dontSendNotification);
+        _button_restart.setCommandToTrigger(&_commands, commands::restart, true);
+        _button_restart.on(true);
         addAndMakeVisible(_button_restart);
 
         _button_blind.set_border_radius_side(button_toolbar::border_radius_side_t::right);
         _button_blind.set_icon(icon_id::blind, 18.f);
-        _button_blind.setClickingTogglesState(true);
-        _button_blind.setToggleState(true, dontSendNotification);
+        _button_blind.setCommandToTrigger(&_commands, commands::blind, true);
+        _button_blind.on(true);
         addAndMakeVisible(_button_blind);
 
         // player
@@ -260,49 +253,57 @@ public:
         _button_pause.onClick = callback;
     }
 
-    button_toolbar* get_button(button_t button) {
+    button_toolbar* get_button(const commands::ids button) {
         switch (button) {
-        case button_t::rev:     return &_button_rev;
-        case button_t::a:       return &_button_a;
-        case button_t::hz:      return &_button_hz;
-        case button_t::b:       return &_button_b;
-        case button_t::fwd:     return &_button_fwd;
-        case button_t::restart: return &_button_restart;
-        case button_t::blind:   return &_button_blind;
-        case button_t::pause:   return &_button_pause;
-        case button_t::play:    return &_button_play;
-        case button_t::stop:    return &_button_stop;
-        case button_t::rewind:  return &_button_rewind;
-        case button_t::open:    return &_button_open;
+        case commands::rev:       return &_button_rev;
+        case commands::a:         return &_button_a;
+        case commands::hz:        return &_button_hz;
+        case commands::b:         return &_button_b;
+        case commands::fwd:       return &_button_fwd;
+        case commands::restart:   return &_button_restart;
+        case commands::blind:     return &_button_blind;
+        case commands::pause:     return &_button_pause;
+        case commands::play:      return &_button_play;
+        case commands::stop:      return &_button_stop;
+        case commands::rewind:    return &_button_rewind;
+        case commands::add_files: return &_button_open;
         }
         return nullptr;
     }
 
-    void hard_press(button_t button, bool should_be_pressed, bool wrong = false) {
-        if (auto p_button = get_button(button)) {
-            p_button->hard_press(should_be_pressed, wrong);
-        }
+    void hard_press(const commands::ids id, bool should_be_pressed, bool wrong = false) {
+        if (auto button = get_button(id))
+            button->hard_press(should_be_pressed, wrong);
     }
-    bool get_state(button_t button) {
-        if (auto p_button = get_button(button)) {
-            return p_button->getToggleState();
-        }
+
+    auto is_on(const commands::ids id) {
+        if (auto button = get_button(id)) return button->is_on();
         return false;
     }
-    void set_state(button_t button, bool shoud_be_on) {
-        if (auto p_button = get_button(button)) {
-            p_button->setToggleState(shoud_be_on, dontSendNotification);
-        }
+
+    void on(const commands::ids id, bool shoud_be_on) {
+        if (auto button = get_button(id))
+            button->on(shoud_be_on);
     }
-    void set_enabled(button_t button, bool should_be_enabled) {
-        if (auto p_button = get_button(button)) {
-            p_button->setEnabled(should_be_enabled);
-        }
+
+    void toggle(const commands::ids id) {
+        if (auto button = get_button(id))
+            button->on(!button->is_on());
     }
-    void click(button_t button) {
-        if (auto p_button = get_button(button)) {
-            p_button->triggerClick();
-        }
+
+    auto get_value(const commands::ids id) {
+        if (auto button = get_button(id)) return button->get_value();
+        return Value();
+    }
+
+    void enable(const commands::ids id, bool should_be_enabled) {
+        if (auto button = get_button(id))
+            button->setEnabled(should_be_enabled);
+    }
+
+    void click(const commands::ids id) {
+        if (auto button = get_button(id))
+            button->triggerClick();
     }
 
     void set_on_gain_changed(const std::function<void()>& callback) {

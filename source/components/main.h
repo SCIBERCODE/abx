@@ -9,7 +9,7 @@
 
 namespace commands
 {
-    enum ids : int {
+    enum ids : CommandID {
     /* abx          */ rev = 1, a, hz, b, fwd,
     /* abx settings */ restart, blind,
     /* player       */ pause, play, stop, rewind,
@@ -24,7 +24,7 @@ namespace commands
         Array<KeyPress> keys;
     };
 
-    const std::map<ids, command_t> info {
+    const std::map<std::underlying_type<ids>::type, command_t> info {
         // abx
         { rev,       { false, "Skip to the previous track", { KeyPress(',', ModifierKeys::shiftModifier, 0), KeyPress(KeyPress::upKey), KeyPress(KeyPress::leftKey) }}},
         { a,         { false, " ",                          { KeyPress('a') }}},
@@ -90,7 +90,8 @@ class comp_main : public AudioAppComponent,
                   public FileDragAndDropTarget,
                   public DragAndDropContainer,
                   public ChangeListener,
-                  public ApplicationCommandTarget//,                  public ApplicationCommandManagerListener
+                  public ApplicationCommandTarget,
+                  public Value::Listener
 {
 public:
      comp_main();
@@ -119,23 +120,6 @@ private:
     void        trial_cycle(size_t button_bt);
     void        launch_audio_setup();
 
-    const String create_tooltip(commands::ids id) {
-        if (commands::info.count(id)) {
-            auto tt = commands::info.at(id).description;
-            for (auto& kp : _commands.getKeyMappings()->getKeyPressesAssignedToCommand(id))
-            {
-                auto key = kp.getTextDescription();
-                tt << " [";
-                if (key.length() == 1)
-                    tt << TRANS("shortcut") << ": '" << key << "']";
-                else
-                    tt << key << ']';
-            }
-            return tt;
-        }
-        return {};
-    }
-
     ApplicationCommandTarget* getNextCommandTarget() override { return nullptr; }
 
     void getAllCommands(Array<CommandID>& commands) override
@@ -147,11 +131,10 @@ private:
 
     void getCommandInfo(CommandID cmd_id, ApplicationCommandInfo& result) override
     {
-        auto id = commands::ids(cmd_id);
-        if (commands::info.count(id))
+        if (commands::info.count(cmd_id))
         {
-            auto cmd = commands::info.at(id);
-            switch (id) {
+            auto cmd = commands::info.at(cmd_id);
+            switch (cmd_id) {
             case commands::add_files:
                 if (_filter)
                     cmd.description << "\r\n[" << _filter->getDescription().removeCharacters(" * .") << "]";
@@ -166,6 +149,9 @@ private:
     }
 
     bool perform(const InvocationInfo& info) override;
+
+    void valueChanged(Value& value) override {
+    }
 
     /*
     //////////////////////////////////////////////////////////////////////////////////////////
@@ -219,14 +205,14 @@ private:
         DBG("relay_change_callback");
 
         _relay = relay;
-        auto blind = _toolbar.get_state(button_t::blind);
+        auto blind = _toolbar.is_on(commands::blind);
         if (relay) {
             gain_changed_callback();
         }
         if (!blind)
         {
-            _toolbar.hard_press(button_t::a, relay == _A);
-            _toolbar.hard_press(button_t::b, relay == _B);
+            _toolbar.hard_press(commands::a, relay == _A);
+            _toolbar.hard_press(commands::b, relay == _B);
             _toolbar.repaint();
         }
     };
@@ -246,13 +232,13 @@ private:
     {
         DBG(std::format("on_button_press: button = {}", button));
 
-        _toolbar.hard_press(button_t::rev, button == _REV);
-        _toolbar.hard_press(button_t::fwd, button == _FWD);
-        _toolbar.hard_press(button_t::hz,  button == _HZ);
+        _toolbar.hard_press(commands::rev, button == _REV);
+        _toolbar.hard_press(commands::fwd, button == _FWD);
+        _toolbar.hard_press(commands::hz,  button == _HZ);
 
         auto correct = button == _ftdi.get_relay();
-        _toolbar.hard_press(button_t::a, button == _A, !correct);
-        _toolbar.hard_press(button_t::b, button == _B, !correct);
+        _toolbar.hard_press(commands::a, button == _A, !correct);
+        _toolbar.hard_press(commands::b, button == _B, !correct);
         _toolbar.repaint();
 
         if (!_ready) return;

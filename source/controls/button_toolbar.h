@@ -98,7 +98,7 @@ public:
 
         g.strokePath(path, PathStrokeType(_stressed ? 1.5f : 1.f));
 
-        if (getToggleState()) {
+        if (_on.getValue()) {
             g.setColour(_colours.get(colour_id::button_pressed));
             g.fillPath(path);
             g.setColour(_colours.get(colour_id::button_green));
@@ -131,18 +131,20 @@ public:
         resized();
     }
 
-    void set_type(const button_type_t type) {
-        _type = type;
-    }
+    void       set_type(const button_type_t type) { _type = type; }
+    void       on(bool should_be_on)              { _on = should_be_on; }
+    const bool is_on()                            { return _on.getValue(); }
+    auto&      get_value()                        { return _on; }
 
 private:
     colours               _colours;
     DrawableComposite     _icon;
     String                _text               {};
-    border_radius_side_t  _border_radius_side { border_radius_side_t::none   };
-    button_type_t         _type               { button_type_t::normal        };
+    border_radius_side_t  _border_radius_side { border_radius_side_t::none };
+    button_type_t         _type               { button_type_t::normal };
     std::pair<bool, bool> _hard_pressed       {};
     bool                  _stressed           {};
+    Value                 _on                 {};
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(button_toolbar)
 };

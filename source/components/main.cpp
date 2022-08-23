@@ -62,19 +62,22 @@ bool comp_main::perform(const InvocationInfo& info) {
     }
     break;
     case commands::blind: {
-        auto state = _toolbar.get_state(button_t::blind);
-        if (state) {
+        if (_toolbar.is_on(commands::blind)) {
             relay_change_callback(0);
         } else {
             relay_change_callback(_ftdi.get_relay());
         }
-        _toolbar.set_state(button_t::blind, !state);
-        _toolbar.repaint();
     }
     break;
     default:
         return false;
     }
+
+    if (commands::info.at(info.commandID).toggle) {
+        _toolbar.toggle(static_cast<commands::ids>(info.commandID));
+        _toolbar.repaint();
+    }
+
     return true;
 }
 
@@ -113,9 +116,8 @@ comp_main::comp_main() :
             change_state(state_t::starting);
     });
 
-    _toolbar.get_button(button_t::restart)->setTooltip(create_tooltip(commands::restart));
-    _toolbar.get_button(button_t::blind)  ->setTooltip(create_tooltip(commands::blind));
-    _toolbar.get_button(button_t::blind)->onClick = [&] { invokeDirectly(commands::blind, false); };
+    _toolbar.get_value(commands::restart).addListener(this);
+    _toolbar.get_value(commands::blind)  .addListener(this);
 
     _toolbar.set_on_name_changed([&]() {
         auto names = _toolbar.names_get();
@@ -219,7 +221,7 @@ void comp_main::track_activate(comp_track* selected_track_new, bool double_click
                 }
             }
         }
-        _toolbar.set_enabled(button_t::play, _tracks.size() > 0 && _current_track);
+        _toolbar.enable(commands::play, _tracks.size() > 0 && _current_track);
     }
 }
 
@@ -305,7 +307,7 @@ void comp_main::resized() {
     _viewport_tracks.setBounds(area);
 
     _toolbar.toFront(false);
-    _toolbar.set_enabled(button_t::rewind, _current_track && _current_track->marker_get() > 0);
+    _toolbar.enable(commands::rewind, _current_track && _current_track->marker_get() > 0);
 }
 
 bool comp_main::isInterestedInFileDrag(const StringArray &files) {
@@ -355,7 +357,7 @@ comp_track *comp_main::track_add(const String& file_path, double marker, bool sa
         tracks_state_save();
 
         if (_current_track) {
-            _toolbar.set_enabled(button_t::rewind, _current_track->marker_get() > 0);
+            _toolbar.enable(commands::rewind, _current_track->marker_get() > 0);
         }
 
     });
@@ -414,23 +416,23 @@ void comp_main::change_state(state_t new_state)
             if (_user_stopped) {
                 _ftdi.turn_off_relay();
             }
-            _toolbar.set_state  (button_t::pause, false);
-            _toolbar.set_state  (button_t::play,  false);
-            _toolbar.set_enabled(button_t::stop,  false);
-            _toolbar.set_enabled(button_t::pause, false);
-            _current_track->stop(_toolbar.get_state(button_t::restart));
+            _toolbar.on    (commands::pause, false);
+            _toolbar.on    (commands::play,  false);
+            _toolbar.enable(commands::stop,  false);
+            _toolbar.enable(commands::pause, false);
+            _current_track->stop(_toolbar.is_on(commands::restart));
             break;
 
         case state_t::starting:
             _transport_source.start();
-            _current_track->play(_toolbar.get_state(button_t::restart));
+            _current_track->play(_toolbar.is_on(commands::restart));
             break;
 
         case state_t::playing:
-            _toolbar.set_state  (button_t::pause, false);
-            _toolbar.set_state  (button_t::play,  true);
-            _toolbar.set_enabled(button_t::stop,  true);
-            _toolbar.set_enabled(button_t::pause, true);
+            _toolbar.on    (commands::pause, false);
+            _toolbar.on    (commands::play,  true);
+            _toolbar.enable(commands::stop,  true);
+            _toolbar.enable(commands::pause, true);
             _ready = true;
             break;
 
@@ -440,7 +442,7 @@ void comp_main::change_state(state_t new_state)
             break;
 
         case state_t::paused:
-            _toolbar.set_state(button_t::pause, true);
+            _toolbar.on(commands::pause, true);
             break;
 
         case state_t::stopping:
@@ -510,7 +512,7 @@ void comp_main::changeListenerCallback(ChangeBroadcaster* source)
             change_state(state_t::paused);
         }
         if (_current_track) {
-            _toolbar.set_enabled(button_t::rewind, _current_track->marker_get() > 0);
+            _toolbar.on(commands::rewind, _current_track->marker_get() > 0);
         }
     }
     if (source == &deviceManager) {
@@ -558,7 +560,7 @@ void comp_main::trial_display() {
 
 void comp_main::trial_cycle(size_t button) {
     _ready = false;
-    auto blind = _toolbar.get_state(button_t::blind);
+    auto blind = _toolbar.is_on(commands::blind);
     if (_state != state_t::playing && _state != state_t::starting)
     {
         DBG(std::format("trial_cycle: {} != playing", state_names.at(_state)));
@@ -571,7 +573,7 @@ void comp_main::trial_cycle(size_t button) {
     _trials.push_back({ button, relay, blind });
     trial_display();
 
-    if (_toolbar.get_state(button_t::restart))
+    if (_toolbar.is_on(commands::restart))
     {
         if (_state == state_t::paused)
             change_state(state_t::stopped);
