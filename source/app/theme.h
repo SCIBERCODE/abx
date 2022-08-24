@@ -229,6 +229,61 @@ public:
         g.setColour(window.findColour(DocumentWindow::textColourId));
         g.drawText(window.getName(), title_x, 0, text_width, height, Justification::centredLeft, true);
     }
+
+    auto layout_tooltip(const String& text) noexcept
+    {
+        const auto split = "[";
+
+        String info, keys;
+        if (text.indexOf(0, split) == -1)
+            info = text;
+        else {
+            info = text.upToFirstOccurrenceOf(split, false, false).trim();
+            keys = text.fromFirstOccurrenceOf(split, true, false);
+        }
+
+        AttributedString as;
+        as.setJustification(Justification::centredLeft);
+
+        if (info.length()) {
+            info << "\r\n";
+            as.append(info, Font(13.f, Font::bold), Colours::black);
+        }
+        as.append(keys, Font(13.f), Colours::darkgrey);
+
+        TextLayout tl;
+        tl.createLayout(as, 400.f);
+        return tl;
+    }
+
+    juce::Rectangle<int> getTooltipBounds(const String& text, Point<int> pos, juce::Rectangle<int> parent) override
+    {
+        const TextLayout tl(layout_tooltip(text));
+
+        auto w = static_cast<int>(tl.getWidth ()) + 14;
+        auto h = static_cast<int>(tl.getHeight()) + 8;
+
+        return juce::Rectangle<int>(
+            pos.x > parent.getCentreX() ? pos.x - (w + 12) : pos.x + 24,
+            pos.y > parent.getCentreY() ? pos.y - (h + 6) : pos.y + 6,
+            w, h)
+            .constrainedWithin(parent);
+    }
+
+    void drawTooltip(Graphics& g, const String& text, int w, int h) override
+    {
+        juce::Rectangle<int> bounds(w, h);
+
+        g.setColour(findColour(TooltipWindow::backgroundColourId));
+        g.fillRoundedRectangle(bounds.toFloat(), 0.f);
+
+        g.setColour(findColour(TooltipWindow::outlineColourId));
+        g.drawRoundedRectangle(bounds.toFloat().reduced(.5f, .5f), 0.f, 1.f);
+
+        g.setOrigin(7, 0);
+        layout_tooltip(text)
+            .draw(g, { static_cast<float>(w), static_cast<float>(h) });
+    }
 };
 
 /*

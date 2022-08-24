@@ -137,7 +137,7 @@ private:
             switch (cmd_id) {
             case commands::add_files:
                 if (_filter)
-                    cmd.description << "\r\n[" << _filter->getDescription().removeCharacters(" * .") << "]";
+                    cmd.description << "\r\n" << _filter->getDescription().removeCharacters(" *.");
                 break;
             }
             result.setInfo(cmd.description, cmd.description, {}, 0);
