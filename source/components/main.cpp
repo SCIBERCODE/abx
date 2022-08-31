@@ -5,6 +5,73 @@ namespace abx {
 bool comp_main::perform(const InvocationInfo& info) {
     switch (info.commandID)
     {
+    // abx
+    case commands::a: {
+        on_button_press(_A);
+        on_button_press(0); // wtf?
+    }
+    break;
+    case commands::b: {
+        on_button_press(_B);
+        on_button_press(0);
+    }
+    break;
+    case commands::hz: {
+        on_button_press(_HZ);
+        on_button_press(0);
+    }
+    break;
+    case commands::rev: track_change(_current_track, false); break;
+    case commands::fwd: track_change(_current_track, true); break;
+
+    // abx settings
+    case commands::restart: break;
+    case commands::blind: {
+        if (_toolbar.is_on(commands::blind)) {
+            relay_change_callback(0);
+        }
+        else {
+            relay_change_callback(_ftdi.get_relay());
+        }
+    }
+    break;
+
+    // player
+    case commands::pause: {
+        if (_state == state_t::playing)
+            change_state(state_t::pausing);
+        else
+            change_state(state_t::starting);
+
+    }
+    break;
+    case commands::play: {
+        trial_cycle(_HZ);
+    }
+    break;
+    case commands::stop: {
+        if (_state == state_t::paused)
+            change_state(state_t::stopped);
+        else {
+            _user_stopped = true;
+            change_state(state_t::stopping);
+        }
+    }
+    break;
+    case commands::rewind:
+    {
+        _current_track->rewind();
+        if (_state == state_t::paused) {
+            _user_stopped = true;
+            change_state(state_t::stopped);
+        }
+        if (_state == state_t::playing) {
+            //change_state(state_t::stopping);
+        }
+    }
+    break;
+
+    // toolbar right sided
     case commands::add_files:
     {
         static bool already_opened = false;
@@ -21,55 +88,11 @@ bool comp_main::perform(const InvocationInfo& info) {
         }
     }
     break;
-    case commands::play:    trial_cycle(_HZ); break;
-    case commands::fwd:     track_change(_current_track, true ); break;
-    case commands::rev:     track_change(_current_track, false); break;
-    case commands::options: launch_audio_setup(); break;
-    case commands::stop: {
-        if (_state == state_t::paused)
-            change_state(state_t::stopped);
-        else {
-            _user_stopped = true;
-            change_state(state_t::stopping);
-        }
+    case commands::options: {
+        launch_audio_setup();
     }
     break;
-    case commands::a: {
-        on_button_press(_A);
-        on_button_press(0); // wtf?
-    }
-    break;
-    case commands::b: {
-        on_button_press(_B);
-        on_button_press(0);
-    }
-    break;
-    case commands::hz: {
-        on_button_press(_HZ);
-        on_button_press(0);
-    }
-    break;
-    case commands::rewind:
-    {
-        _current_track->rewind();
-        if (_state == state_t::paused) {
-            _user_stopped = true;
-            change_state(state_t::stopped);
-        }
-        if (_state == state_t::playing) {
-            //change_state(state_t::stopping);
-        }
-    }
-    break;
-    case commands::blind: {
-        if (_toolbar.is_on(commands::blind)) {
-            relay_change_callback(0);
-        } else {
-            relay_change_callback(_ftdi.get_relay());
-        }
-    }
-    break;
-    case commands::restart: break;
+
     default:
         return false;
     }
@@ -107,16 +130,6 @@ comp_main::comp_main() :
     addAndMakeVisible(_viewport_tracks);
 
     // toolbar
-    _toolbar.set_on_play_clicked([&]() {
-        invokeDirectly(commands::play, false);
-    });
-    _toolbar.set_on_pause_clicked([&]() {
-        if (_state == state_t::playing)
-            change_state(state_t::pausing);
-        else
-            change_state(state_t::starting);
-    });
-
     _toolbar.get_value(commands::restart) = _settings.get_value(settings_ids::restart);
     _toolbar.get_value(commands::blind)   = _settings.get_value(settings_ids::blind);
 

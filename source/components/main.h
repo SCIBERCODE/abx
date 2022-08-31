@@ -32,10 +32,11 @@ namespace commands
         { b,         { false, " ",                          { KeyPress('b') }}},
         { fwd,       { false, "Skip to the next track",     { KeyPress('.', ModifierKeys::shiftModifier, 0), KeyPress(KeyPress::downKey), KeyPress(KeyPress::rightKey) }}},
         // abx settings
-        { blind,     { true,  "Blind mode",                 { KeyPress('b', ModifierKeys::ctrlModifier, 0) }}},
         { restart,   { true,  "Restart audio",              { KeyPress('r', ModifierKeys::ctrlModifier, 0) }}},
+        { blind,     { true,  "Blind mode",                 { KeyPress('b', ModifierKeys::ctrlModifier, 0) }}},
         // player
-        { play,      { false, "Play current track",         { KeyPress('p') }}},
+        { pause,     { true,  "Pause",                      { KeyPress(KeyPress::spaceKey) }}},
+        { play,      { true,  "Play current track",         { KeyPress('p') }}},
         { stop,      { false, "Stop playing current track", { KeyPress('s') }}},
         { rewind,    { false, "Go to start & clear marker", { KeyPress('r') }}},
         // toolbar right sided

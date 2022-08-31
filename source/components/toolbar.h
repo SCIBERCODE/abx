@@ -67,12 +67,12 @@ public:
         // player
         _button_pause.set_border_radius_side(button_toolbar::border_radius_side_t::left);
         _button_pause.set_icon(icon_id::pause);
-        _button_pause.setClickingTogglesState(true);
+        _button_pause.setCommandToTrigger(&_commands, commands::pause, true);
         _button_pause.setEnabled(false);
         addAndMakeVisible(_button_pause);
 
         _button_play.set_icon(icon_id::play);
-        _button_play.setClickingTogglesState(true);
+        _button_play.setCommandToTrigger(&_commands, commands::play, true);
         _button_play.setEnabled(false);
         addAndMakeVisible(_button_play);
 
@@ -246,12 +246,6 @@ public:
             _edit_areas.first.getX(),
             _edit_areas.first.getBottom() + margins::_medium
         ));
-    }
-    void set_on_play_clicked(const std::function<void()>& callback) {
-        _button_play.onClick = callback;
-    }
-    void set_on_pause_clicked(const std::function<void()>& callback) {
-        _button_pause.onClick = callback;
     }
 
     button_toolbar* get_button(const commands::ids button) {
