@@ -17,7 +17,7 @@ class comp_track : public Component,
                    public Timer
 {
 public:
-    comp_track(const String& file_path, AudioTransportSource& transport_source) :
+    comp_track(const String& file_path, AudioTransportSource& transport_source, double gain) :
         _thumbnail(512, _processor.getFormatManager(), _thumbnail_cache),
         _font(resources::get_font(font_id::file_info)),
         _transport_source(transport_source),
@@ -54,8 +54,10 @@ public:
         _slider_volume.set_label("Vol.");
         _slider_volume.set_on_slider_value_changed([this](double value)
         {
-            _processor.set_gain(static_cast<float>(value));
+            _processor.gain_set(static_cast<float>(value));
+            _callback_gain_change();
         });
+        _slider_volume.set_value(gain);
         addAndMakeVisible(_slider_volume);
 
         _marker_user.setFill(Colours::darkgrey);
@@ -131,6 +133,10 @@ public:
 
     void set_on_close(const std::function<void(comp_track*)>& callback) {
         _callback_close = callback;
+    }
+
+    void set_on_gain_change(const std::function<void()>& callback) {
+        _callback_gain_change = callback;
     }
 
     void paint(Graphics& g) override
@@ -302,12 +308,16 @@ public:
         return _active;
     }
 
-    double marker_get() {
+    auto marker_get() {
         return _marker;
     }
 
     void marker_set(double new_marker) {
         update_user_marker(new_marker);
+    }
+
+    auto gain_get() {
+        return _slider_volume.get_value();
     }
 
     void repaint_header() { }
@@ -438,6 +448,7 @@ private:
 
     std::function<void(comp_track*, bool)> _callback_mouse_event;
     std::function<void(comp_track*)>       _callback_close;
+    std::function<void()>                  _callback_gain_change;
 
     DrawableRectangle      _marker_playing,
                            _marker_user,

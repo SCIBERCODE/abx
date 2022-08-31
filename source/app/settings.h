@@ -5,12 +5,14 @@
 namespace abx {
 
 namespace settings_ids {
-    static Identifier tracks { "tracks" };
-    static Identifier track  { "track"  };
-    static Identifier audio  { "audio"  };
-    static Identifier gain   { "gain"   };
-    static Identifier path   { "path"   };
-    static Identifier name   { "name"   };
+    static Identifier tracks  { "tracks"  };
+    static Identifier track   { "track"   };
+    static Identifier audio   { "audio"   };
+    static Identifier gain    { "gain"    };
+    static Identifier path    { "path"    };
+    static Identifier name    { "name"    };
+    static Identifier blind   { "blind"   };
+    static Identifier restart { "restart" };
 }
 
 struct track_options {
@@ -18,10 +20,11 @@ struct track_options {
     track_options(const String& sparams)
     {
         auto params = StringArray::fromTokens(sparams, "|", "");
-        if (params.size() == 3) {
+        if (params.size() == 4) {
             active = params[0].getIntValue() != 0;
             marker = params[1].getDoubleValue();
-            path   = params[2];
+            gain   = params[2].getDoubleValue();
+            path   = params[3];
         }
     }
 
@@ -29,17 +32,22 @@ struct track_options {
         StringArray params;
         params.add(active ? "1" : "0");
         params.add(String(marker));
+        params.add(String(gain));
         params.add(path);
         return params.joinIntoString("|");
     }
 
-    String path   = "";
-    double marker = 0.;
     bool   active = false;
+    double marker = 0.;
+    double gain   = 0.;
+    String path   = "";
 };
 
-class settings :
-    public ValueTree::Listener {
+class settings : public ValueTree::Listener,
+                 public Value::Listener
+{
+private:
+    const Identifier _value { "value" };
 public:
 
     settings() {
@@ -65,7 +73,7 @@ public:
         }
         _settings
             .getOrCreateChildWithName(id, nullptr)
-            .setProperty("value", strings.joinIntoString("|"), nullptr);
+            .setProperty(_value, strings.joinIntoString("|"), nullptr);
     }
 
     void save_tracks(Array<track_options> tracks) {
@@ -74,7 +82,7 @@ public:
         for (auto const& track : tracks)
         {
             ValueTree new_node(settings_ids::track);
-            new_node.setProperty("value", track.to_string(), nullptr);
+            new_node.setProperty(_value, track.to_string(), nullptr);
             node.appendChild(new_node, nullptr);
         }
     }
@@ -86,7 +94,7 @@ public:
         Array<track_options> tracks;
         for (int k = 0; k < tracks_node.getNumChildren(); k++)
         {
-            track_options options(tracks_node.getChild(k).getProperty("value"));
+            track_options options(tracks_node.getChild(k).getProperty(_value));
             tracks.add(options);
         }
         return tracks;
@@ -95,7 +103,7 @@ public:
     StringArray read(const Identifier id) {
         auto child = _settings.getChildWithName(id);
         if (child.isValid()) {
-            return StringArray::fromTokens(child["value"].toString(), "|", "");
+            return StringArray::fromTokens(child[_value].toString(), "|", "");
         }
         return {};
     }
@@ -104,6 +112,16 @@ public:
         auto values = read(id);
         if (values.isEmpty()) return {};
         return values[0];
+    }
+
+    auto get_value(const Identifier id) {
+        return _settings
+            .getOrCreateChildWithName(id, nullptr)
+            .getPropertyAsValue(_value, nullptr);
+    }
+
+    void valueChanged(Value& value) override {
+        ignoreUnused(value);
     }
 
 private:

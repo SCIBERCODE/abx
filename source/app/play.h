@@ -27,11 +27,15 @@ public:
         }
     };
 
-    void set_gain(double db, bool reset = false) {
+    void gain_set(double db, bool reset = false) {
         _gain = std::pow(10., db / 20.);
         if (reset) {
             _gain_previous = 0.;
         }
+    }
+
+    auto gain_get() {
+        return _gain.get();
     }
 
     void load_file_to_transport(File file, AudioTransportSource& transport_source)

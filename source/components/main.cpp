@@ -69,6 +69,7 @@ bool comp_main::perform(const InvocationInfo& info) {
         }
     }
     break;
+    case commands::restart: break;
     default:
         return false;
     }
@@ -116,13 +117,13 @@ comp_main::comp_main() :
             change_state(state_t::starting);
     });
 
-    _toolbar.get_value(commands::restart).addListener(this);
-    _toolbar.get_value(commands::blind)  .addListener(this);
+    _toolbar.get_value(commands::restart) = _settings.get_value(settings_ids::restart);
+    _toolbar.get_value(commands::blind)   = _settings.get_value(settings_ids::blind);
 
     _toolbar.set_on_name_changed([&]() {
         auto names = _toolbar.names_get();
         _settings.save(settings_ids::name, { names.first, names.second });
-        });
+    });
 
     auto names = _settings.read(settings_ids::name);
     if (names.size() == 2) {
@@ -172,7 +173,7 @@ comp_main::comp_main() :
     comp_track *active = nullptr, *last_one = nullptr;
     for (auto const& track : tracks)
     {
-        last_one = track_add(track.path, track.marker, false);
+        last_one = track_add(track.path, track.marker, track.gain, false);
         if (track.active) active = last_one;
     }
     if (active) {
@@ -335,21 +336,23 @@ void comp_main::tracks_state_save() {
     track_options options;
     for (auto track : _tracks)
     {
-        options.path   = track->get_file_path();
         options.active = track->is_active();
         options.marker = track->marker_get();
+        options.gain   = track->gain_get();
+        options.path   = track->get_file_path();
+
         tracks.add(options);
     }
     _settings.save_tracks(tracks);
 };
 
-comp_track *comp_main::track_add(const String& file_path, double marker, bool save_settings) {
+comp_track *comp_main::track_add(const String& file_path, double marker, double gain, bool save_settings) {
     for (auto track : _tracks) {
         if (track->get_file_path() == file_path)
             return nullptr;
     }
 
-    auto _track = new comp_track(file_path, _transport_source);
+    auto _track = new comp_track(file_path, _transport_source, gain);
     _track->update_info(_current_sample_rate);
     _track->set_on_mouse_event([this](comp_track* selected_track, bool double_click)
     {
@@ -360,6 +363,10 @@ comp_track *comp_main::track_add(const String& file_path, double marker, bool sa
             _toolbar.enable(commands::rewind, _current_track->marker_get() > 0);
         }
 
+    });
+    _track->set_on_gain_change([this]()
+    {
+        tracks_state_save();
     });
     _track->set_on_close([this](comp_track* selected_track)
     {

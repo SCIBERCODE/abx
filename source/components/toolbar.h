@@ -142,6 +142,7 @@ public:
     ~comp_toolbar() {
         _edits.first ->removeChangeListener(this);
         _edits.second->removeChangeListener(this);
+
     }
 
     void changeListenerCallback(ChangeBroadcaster* source) override {
@@ -291,9 +292,8 @@ public:
             button->on(!button->is_on());
     }
 
-    auto get_value(const commands::ids id) {
-        if (auto button = get_button(id)) return button->get_value();
-        return Value();
+    Value& get_value(const commands::ids id) {
+        return get_button(id)->get_value();
     }
 
     void enable(const commands::ids id, bool should_be_enabled) {

@@ -111,7 +111,7 @@ public:
     }
 
 private:
-    comp_track *track_add(const String &file_path, double marker = 0., bool save_settings = true);
+    comp_track *track_add(const String &file_path, double marker = 0., double gain = 1., bool save_settings = true);
     void        track_activate(comp_track*, bool double_click);
     void        track_change(comp_track* _track, bool is_next);
     void        tracks_state_save();
@@ -151,6 +151,7 @@ private:
     bool perform(const InvocationInfo& info) override;
 
     void valueChanged(Value& value) override {
+        ignoreUnused(value);
     }
 
     /*
@@ -190,7 +191,7 @@ private:
         static size_t last_relay {};
 
         auto gain = _toolbar.gain_get();
-        _toolbar.get_processor().set_gain(
+        _toolbar.get_processor().gain_set(
             _relay == _A ? gain.first : gain.second, last_relay != _relay
         );
         last_relay = _relay;
