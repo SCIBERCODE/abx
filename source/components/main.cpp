@@ -8,7 +8,7 @@ bool comp_main::perform(const InvocationInfo& info) {
     // abx
     case commands::a: {
         on_button_press(_A);
-        on_button_press(0); // wtf?
+        on_button_press(0);
     }
     break;
     case commands::b: {
@@ -426,7 +426,6 @@ comp_track *comp_main::track_add(const String& file_path, double marker, double 
 
 void comp_main::change_state(state_t new_state)
 {
-    DBG(std::format("change_state: old = {}; new = {}", state_names.at(_state), state_names.at(new_state)));
     if (_state != new_state && _current_track)
     {
         _state = new_state;
@@ -472,6 +471,7 @@ void comp_main::change_state(state_t new_state)
             _transport_source.stop();
             break;
         }
+        _toolbar.repaint();
     }
 }
 
@@ -506,7 +506,6 @@ void comp_main::track_change(comp_track* _track, bool is_next) {
 
 void comp_main::changeListenerCallback(ChangeBroadcaster* source)
 {
-    DBG("changeListenerCallback");
     if (source == &_transport_source)
     {
         if (_transport_source.isPlaying()) {
@@ -532,7 +531,7 @@ void comp_main::changeListenerCallback(ChangeBroadcaster* source)
             change_state(state_t::paused);
         }
         if (_current_track) {
-            _toolbar.on(commands::rewind, _current_track->marker_get() > 0);
+            _toolbar.enable(commands::rewind, _current_track->marker_get() > 0);
         }
     }
     if (source == &deviceManager) {
@@ -583,7 +582,6 @@ void comp_main::trial_cycle(size_t button) {
     auto blind = _toolbar.is_on(commands::blind);
     if (_state != state_t::playing && _state != state_t::starting)
     {
-        DBG(std::format("trial_cycle: {} != playing", state_names.at(_state)));
         _ftdi.toggle_relay(blind, button);
         Sleep(300);
         change_state(state_t::starting);

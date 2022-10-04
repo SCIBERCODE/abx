@@ -204,8 +204,6 @@ private:
     */
     std::function<void(size_t)> relay_change_callback = [this](size_t relay)
     {
-        DBG("relay_change_callback");
-
         _relay = relay;
         auto blind = _toolbar.is_on(commands::blind);
         if (relay) {
@@ -232,8 +230,6 @@ private:
     */
     std::function<void(size_t)> on_button_press = [this](size_t button)
     {
-        DBG(std::format("on_button_press: button = {}", button));
-
         _toolbar.hard_press(commands::rev, button == _REV);
         _toolbar.hard_press(commands::fwd, button == _FWD);
         _toolbar.hard_press(commands::hz,  button == _HZ);

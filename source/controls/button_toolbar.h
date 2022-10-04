@@ -67,7 +67,7 @@ public:
 
         if (down)
             g.setColour(_colours.get(colour_id::button_pressed));
-        else if (highlighted)
+        else if (highlighted && _enabled)
             g.setColour(_colours.get(colour_id::button_hover));
         else
             g.setColour(_colours.get(
@@ -91,7 +91,7 @@ public:
             g.setColour(_colours.get(colour_id::outline_dark).brighter(.2f));
         else {
             auto outline = _colours.get(colour_id::outline);
-            g.setColour(isEnabled() ? outline : outline.brighter());
+            g.setColour(_enabled ? outline : outline.brighter());
         }
         if (_stressed)
             g.setColour(Colours::black);
@@ -107,7 +107,7 @@ public:
         }
 
         if (_text.length()) {
-            g.setColour(isEnabled() ? Colours::black : _colours.get(colour_id::text_disabled));
+            g.setColour(_enabled ? Colours::black : _colours.get(colour_id::text_disabled));
             g.setFont(Font(20, Font::FontStyleFlags::plain));
             g.drawText(_text, bounds, Justification::centred);
         }
@@ -121,9 +121,10 @@ public:
             _icon.getWidth(), _icon.getHeight());
     }
 
-    void enablementChanged() override {
+    void enable(bool should_be_enabled) {
         Button::enablementChanged();
-        _icon.setAlpha(isEnabled() ? 1.f : .2f);
+        _enabled = should_be_enabled;
+        _icon.setAlpha(_enabled ? 1.f : .2f);
     }
 
     void clicked() override {
@@ -143,8 +144,9 @@ private:
     border_radius_side_t  _border_radius_side { border_radius_side_t::none };
     button_type_t         _type               { button_type_t::normal };
     std::pair<bool, bool> _hard_pressed       {};
-    bool                  _stressed           {};
     Value                 _on                 {};
+    bool                  _stressed           {},
+                          _enabled            { true };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(button_toolbar)
 };

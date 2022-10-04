@@ -68,23 +68,23 @@ public:
         _button_pause.set_border_radius_side(button_toolbar::border_radius_side_t::left);
         _button_pause.set_icon(icon_id::pause);
         _button_pause.setCommandToTrigger(&_commands, commands::pause, true);
-        _button_pause.setEnabled(false);
+        _button_pause.enable(false);
         addAndMakeVisible(_button_pause);
 
         _button_play.set_icon(icon_id::play);
         _button_play.setCommandToTrigger(&_commands, commands::play, true);
-        _button_play.setEnabled(false);
+        _button_play.enable(false);
         addAndMakeVisible(_button_play);
 
         _button_stop.set_icon(icon_id::stop, 12.f);
         _button_stop.setCommandToTrigger(&_commands, commands::stop, true);
-        _button_stop.setEnabled(false);
+        _button_stop.enable(false);
         addAndMakeVisible(_button_stop);
 
         _button_rewind.set_border_radius_side(button_toolbar::border_radius_side_t::right);
         _button_rewind.set_icon(icon_id::rewind);
         _button_rewind.setCommandToTrigger(&_commands, commands::rewind, true);
-        _button_rewind.setEnabled(false);
+        _button_rewind.enable(false);
         addAndMakeVisible(_button_rewind);
 
         // right
@@ -292,7 +292,7 @@ public:
 
     void enable(const commands::ids id, bool should_be_enabled) {
         if (auto button = get_button(id))
-            button->setEnabled(should_be_enabled);
+            button->enable(should_be_enabled);
     }
 
     void click(const commands::ids id) {
