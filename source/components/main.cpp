@@ -93,6 +93,28 @@ bool comp_main::perform(const InvocationInfo& info) {
     }
     break;
 
+    //trial
+    case commands::undo:
+    {
+        if (_trials.size()) _trials.pop_back();
+        trial_display();
+    }
+    break;
+    case commands::share_clipboard: {
+        SystemClipboard::copyTextToClipboard(_toolbar_results->result_get());
+    }
+    break;
+    case commands::share_html: {
+        trial_save();
+    }
+    break;
+    case commands::clear:
+    {
+        _trials.clear();
+        _toolbar_results->result_set();
+    }
+    break;
+
     default:
         return false;
     }
@@ -107,7 +129,6 @@ bool comp_main::perform(const InvocationInfo& info) {
 
 comp_main::comp_main() :
     _window_audio_setup(deviceManager),
-    _toolbar_results(trial_save),
     _timer_long_pressed_button(_fast_reverse, _fast_forward),
     _toolbar(_commands)
 {
@@ -118,8 +139,6 @@ comp_main::comp_main() :
         deviceManager.initialise(0, 2, state.get(), true);
     }
     setAudioChannels(0, 2);
-
-    setSize(margins::_width, 650);
 
     _transport_source.addChangeListener(this);
     _commands.registerAllCommandsForTarget(this);
@@ -170,17 +189,8 @@ comp_main::comp_main() :
     _button_results_header.setToggleState(!_results_expanded, dontSendNotification);
     addAndMakeVisible(_button_results_header);
 
-    _toolbar_results.set_on_clear([&]() {
-        _trials.clear();
-        _toolbar_results.set_result();
-    });
-
-    _toolbar_results.set_on_cancel([&]() {
-        if (_trials.size()) _trials.pop_back();
-        trial_display();
-    });
-
-    addAndMakeVisible(_toolbar_results);
+    _toolbar_results = std::make_unique<comp_toolbar_results>(_commands);
+    addAndMakeVisible(_toolbar_results.get());
 
     auto tracks = _settings.load_tracks();
     comp_track *active = nullptr, *last_one = nullptr;
@@ -197,6 +207,8 @@ comp_main::comp_main() :
         track_activate(last_one, true);
     }
     _settings.set_autosave(true);
+    setSize(margins::_width, 650);
+
 }
 
 comp_main::~comp_main() {
@@ -297,9 +309,9 @@ void comp_main::resized() {
 
     // results header button
     _button_results_header.setBounds(area.removeFromTop(margins::_line));
-    _toolbar_results.setVisible(_results_expanded);
+    _toolbar_results->setVisible(_results_expanded);
     if (_results_expanded)
-        _toolbar_results.setBounds(area.removeFromTop(50));
+        _toolbar_results->setBounds(area.removeFromTop(50));
 
     _toolbar_bottom.setBounds(0, getHeight() - margins::_line, getWidth(), margins::_line);
 
@@ -547,7 +559,7 @@ void comp_main::changeListenerCallback(ChangeBroadcaster* source)
 
 void comp_main::trial_display() {
     if (_trials.size() == 0) {
-        _toolbar_results.set_result();
+        _toolbar_results->result_set();
         return;
     }
     size_t count_all = 0, count_correct = 0;
@@ -574,7 +586,7 @@ void comp_main::trial_display() {
     if (std::isfinite(pval)) {
         display += std::format(", {:.2f}", pval);
     }
-    _toolbar_results.set_result(display);
+    _toolbar_results->result_set(display);
 }
 
 void comp_main::trial_cycle(size_t button) {

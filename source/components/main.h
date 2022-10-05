@@ -14,7 +14,7 @@ namespace commands
     /* abx settings */ restart, blind,
     /* player       */ pause, play, stop, rewind,
     /* right sided  */ add_files, options,
-    /* trial        */ undo, share, clear,
+    /* trial        */ undo, share_clipboard, share_html, clear,
     /* tracks       */ close
     };
 
@@ -26,24 +26,28 @@ namespace commands
 
     const std::map<std::underlying_type<ids>::type, command_t> info {
         // abx
-        { rev,       { false, "Skip to the previous track", { KeyPress(',', ModifierKeys::shiftModifier, 0), KeyPress(KeyPress::upKey), KeyPress(KeyPress::leftKey) }}},
-        { a,         { false, " ",                          { KeyPress('a') }}},
-        { hz,        { false, "I dont know..",              { KeyPress('/', ModifierKeys::shiftModifier, 0) }}},
-        { b,         { false, " ",                          { KeyPress('b') }}},
-        { fwd,       { false, "Skip to the next track",     { KeyPress('.', ModifierKeys::shiftModifier, 0), KeyPress(KeyPress::downKey), KeyPress(KeyPress::rightKey) }}},
+        { rev,             { false, "Skip to the previous track", { KeyPress(',', ModifierKeys::shiftModifier, 0), KeyPress(KeyPress::upKey), KeyPress(KeyPress::leftKey) }}},
+        { a,               { false, " ",                          { KeyPress('a') }}},
+        { hz,              { false, "I dont know..",              { KeyPress('/', ModifierKeys::shiftModifier, 0) }}},
+        { b,               { false, " ",                          { KeyPress('b') }}},
+        { fwd,             { false, "Skip to the next track",     { KeyPress('.', ModifierKeys::shiftModifier, 0), KeyPress(KeyPress::downKey), KeyPress(KeyPress::rightKey) }}},
         // abx settings
-        { restart,   { true,  "Restart audio",              { KeyPress('r', ModifierKeys::ctrlModifier, 0) }}},
-        { blind,     { true,  "Blind mode",                 { KeyPress('b', ModifierKeys::ctrlModifier, 0) }}},
+        { restart,         { true,  "Restart audio",              { KeyPress('r', ModifierKeys::ctrlModifier, 0) }}},
+        { blind,           { true,  "Blind mode",                 { KeyPress('b', ModifierKeys::ctrlModifier, 0) }}},
         // player
-        { pause,     { true,  "Pause",                      { KeyPress(KeyPress::spaceKey) }}},
-        { play,      { true,  "Play current track",         { KeyPress('p') }}},
-        { stop,      { false, "Stop playing current track", { KeyPress('s') }}},
-        { rewind,    { false, "Go to start & clear marker", { KeyPress('r') }}},
+        { pause,           { true,  "Pause",                      { KeyPress(KeyPress::spaceKey) }}},
+        { play,            { true,  "Play current track",         { KeyPress('p') }}},
+        { stop,            { false, "Stop playing current track", { KeyPress('s') }}},
+        { rewind,          { false, "Go to start & clear marker", { KeyPress('r') }}},
         // toolbar right sided
-        { add_files, { false, "Add file(s)",                { KeyPress('o'), KeyPress('o', ModifierKeys::ctrlModifier, 0) }}},
-        { options,   { false, "Audio device preferences",   { KeyPress('p', ModifierKeys::ctrlModifier, 0) }}}
+        { add_files,       { false, "Add file(s)",                { KeyPress('o'), KeyPress('o', ModifierKeys::ctrlModifier, 0) }}},
+        { options,         { false, "Audio device preferences",   { KeyPress('p', ModifierKeys::ctrlModifier, 0) }}},
+        // trial
+        { undo,            { false, "Erase last one",             { KeyPress('z', ModifierKeys::ctrlModifier, 0) }}},
+        { share_clipboard, { false, "Copy to Clipboard",          { KeyPress('c', ModifierKeys::ctrlModifier, 0) }}},
+        { share_html,      { false, "Save as HTML",               { KeyPress('s', ModifierKeys::ctrlModifier, 0) }}},
+        { clear,           { false, "Clear results",              { KeyPress('d', ModifierKeys::ctrlModifier, 0) }}}
     };
-
 };
 
 #include "track.h"
@@ -344,7 +348,7 @@ private:
     settings                              _settings;
     ApplicationCommandManager             _commands;
     comp_toolbar                          _toolbar;
-    comp_toolbar_results                  _toolbar_results;
+    std::unique_ptr<comp_toolbar_results> _toolbar_results;
     comp_toolbar_bottom                   _toolbar_bottom;
     Viewport                              _viewport_tracks;
     std::unique_ptr<comp_tracks_viewport> _viewport_tracks_inside;
