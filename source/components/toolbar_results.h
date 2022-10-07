@@ -32,6 +32,7 @@ public:
 
         _button_undo .setCommandToTrigger(&_commands, commands::undo,  true);
         _button_clear.setCommandToTrigger(&_commands, commands::clear, true);
+        _button_share.setTooltip("Save results");
 
         addAndMakeVisible(_button_undo);
         addAndMakeVisible(_button_share);
@@ -43,6 +44,11 @@ public:
         _button_share.onClick = [&] {
             _share_menu.showAt(&_button_share);
         };
+
+        PopupMenu::MenuItemIterator it(_share_menu);
+        while (it.next()) {
+            it.getItem().setEnabled(true);
+        }
 
         result_set();
     }

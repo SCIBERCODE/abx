@@ -239,7 +239,7 @@ public:
             info = text;
         else {
             info = text.upToFirstOccurrenceOf(split, false, false).trim();
-            keys = text.fromFirstOccurrenceOf(split, true, false);
+            keys = text.fromFirstOccurrenceOf(split, true, false).toLowerCase();
         }
 
         AttributedString as;
@@ -283,6 +283,77 @@ public:
         g.setOrigin(7, 0);
         layout_tooltip(text)
             .draw(g, { static_cast<float>(w), static_cast<float>(h) });
+    }
+
+    void drawPopupMenuItem(Graphics& g, const juce::Rectangle<int>& area,
+        const bool separator, const bool active,
+        const bool highlighted, const bool ticked,
+        const bool has_submenu, const String& text,
+        const String& text_key,
+        const Drawable* icon, const Colour* const text_colour_to_use) override
+    {
+        ignoreUnused(ticked);
+        if (separator)
+        {
+            auto r = area.reduced(5, 0);
+            r.removeFromTop(roundToInt((static_cast<float>(r.getHeight()) * .5f) - .5f));
+            g.setColour(findColour(PopupMenu::textColourId).withAlpha(.3f));
+            g.fillRect(r.removeFromTop(1));
+        }
+        else
+        {
+            auto text_colour = (text_colour_to_use == nullptr ? findColour(PopupMenu::textColourId) : *text_colour_to_use);
+
+            auto r = area.reduced(1);
+
+            if (highlighted && active)
+            {
+                g.setColour(findColour(PopupMenu::highlightedBackgroundColourId));
+                g.fillRect(r);
+                g.setColour(findColour(PopupMenu::highlightedTextColourId));
+            }
+            else
+            {
+                g.setColour(text_colour.withMultipliedAlpha(active ? 1.f : .5f));
+            }
+
+            r.reduce(jmin(5, area.getWidth() / 20), 0);
+
+            auto font = getPopupMenuFont();
+
+            auto max_font_height = static_cast<float>(r.getHeight()) / 1.3f;
+
+            if (font.getHeight() > max_font_height)
+                font.setHeight(max_font_height);
+
+            g.setFont(font);
+
+            r.removeFromLeft(roundToInt(max_font_height)).toFloat();
+
+            if (has_submenu)
+            {
+                auto arrowH = .6f * getPopupMenuFont().getAscent();
+
+                auto x = static_cast<float>(r.removeFromRight(static_cast<int>(arrowH)).getX());
+                auto halfH = static_cast<float>(r.getCentreY());
+
+                Path path;
+                path.startNewSubPath(x, halfH - arrowH * .5f);
+                path.lineTo(x + arrowH * .6f, halfH);
+                path.lineTo(x, halfH + arrowH * .5f);
+
+                g.strokePath(path, PathStrokeType(2.f));
+            }
+
+            r.removeFromRight(3);
+            g.drawFittedText(text, r, Justification::centredLeft, 1);
+
+            if (text_key.isNotEmpty())
+            {
+                g.setColour(Colours::darkgrey);
+                g.drawText(text_key.toLowerCase(), r, Justification::centredRight, true);
+            }
+        }
     }
 };
 
