@@ -43,7 +43,7 @@ public:
         _icon.setVisible(false);
 
         _button_close.set_icon(icon_id::close);
-        _button_close.setTooltip("Close Track");
+        _button_close.setTooltip(TRANS("Close track"));
         _button_close.onClick = [&]()
         {
             _callback_close(this);
@@ -51,7 +51,7 @@ public:
         addAndMakeVisible(_button_close);
 
         // sliders
-        _slider_volume.set_label("Vol.");
+        _slider_volume.set_label(TRANS("Vol."));
         _slider_volume.set_on_slider_value_changed([this](double value)
         {
             _processor.gain_set(static_cast<float>(value));
@@ -113,8 +113,8 @@ public:
         }
 
         auto ext = File(_file_path).getFileExtension().substring(1).toUpperCase().toStdString();
-        _label_format.setText(std::format("{}{} File",
-            _bps ? (std::format("{}-bit ", _bps)) : "", ext), sendNotificationAsync);
+        _label_format.setText(String(std::format("{}{} ",
+            _bps ? (std::format("{}-bit ", _bps)) : "", ext)) + TRANS("File"), sendNotificationAsync);
 
         resized();
     }

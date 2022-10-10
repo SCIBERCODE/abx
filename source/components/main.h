@@ -28,7 +28,7 @@ namespace commands
         // abx
         { rev,             { false, "Skip to the previous track", { KeyPress(',', ModifierKeys::shiftModifier, 0), KeyPress(KeyPress::upKey), KeyPress(KeyPress::leftKey) }}},
         { a,               { false, " ",                          { KeyPress('a') }}},
-        { hz,              { false, "I dont know..",              { KeyPress('/', ModifierKeys::shiftModifier, 0) }}},
+        { hz,              { false, " ",                          { KeyPress('/', ModifierKeys::shiftModifier, 0) }}},
         { b,               { false, " ",                          { KeyPress('b') }}},
         { fwd,             { false, "Skip to the next track",     { KeyPress('.', ModifierKeys::shiftModifier, 0), KeyPress(KeyPress::downKey), KeyPress(KeyPress::rightKey) }}},
         // abx settings
@@ -139,13 +139,15 @@ private:
         if (commands::info.count(cmd_id))
         {
             auto cmd = commands::info.at(cmd_id);
+            auto ion = TRANS(cmd.description);
+
             switch (cmd_id) {
             case commands::add_files:
                 if (_filter)
-                    cmd.description << "\r\n" << _filter->getDescription().removeCharacters(" *.");
+                    ion << "\r\n" << _filter->getDescription().removeCharacters(" *.");
                 break;
             }
-            result.setInfo(cmd.description, cmd.description, {}, 0);
+            result.setInfo(ion, ion, {}, 0);
 
             for (auto const& key : cmd.keys) {
                 result.defaultKeypresses.add(key);
@@ -323,7 +325,7 @@ private:
         html += "</pre>\r\n</body>\r\n</html>";
 
         auto last_path = _settings.read_single(settings_ids::path);
-        FileChooser chooser("Save Trial Log to...", last_path, "*.html", true, false, this);
+        FileChooser chooser(TRANS("Save trial log to..."), last_path, "*.html", true, false, this);
         if (chooser.browseForFileToSave(true))
         {
             File html_file(chooser.getResult());
@@ -352,7 +354,7 @@ private:
     comp_toolbar_bottom                   _toolbar_bottom;
     Viewport                              _viewport_tracks;
     std::unique_ptr<comp_tracks_viewport> _viewport_tracks_inside;
-    TextButton                            _button_results_header { "trial score" };
+    TextButton                            _button_results_header { TRANS("trial score") };
 
     window_audio_setup                    _window_audio_setup;
     header_button_lf                      _theme_header;

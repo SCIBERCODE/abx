@@ -245,7 +245,7 @@ public:
 
             MessageManager::callAsync(
                 [=]() {
-                    _callback_on_status_change("Remote: " + (strlen(name) ? String(name) : "FTDI device"));
+                    _callback_on_status_change(TRANS("Remote") + ": " + (strlen(name) ? String(name) : "FTDI"));
                 });
             startThread();
         }

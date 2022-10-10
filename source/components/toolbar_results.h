@@ -32,7 +32,7 @@ public:
 
         _button_undo .setCommandToTrigger(&_commands, commands::undo,  true);
         _button_clear.setCommandToTrigger(&_commands, commands::clear, true);
-        _button_share.setTooltip("Save results");
+        _button_share.setTooltip(TRANS("Save results"));
 
         addAndMakeVisible(_button_undo);
         addAndMakeVisible(_button_share);

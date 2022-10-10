@@ -101,7 +101,7 @@ public:
         // names
         auto init_edit = [&](p_edit& edit)
         {
-            edit = std::make_unique<editor>("click to enter device name");
+            edit = std::make_unique<editor>(TRANS("click to enter device name"));
             edit->addChangeListener(this);
             edit->onTextChange = [this]()
             {
@@ -324,7 +324,7 @@ private:
     // todo: [8]
     button_toolbar  _button_rev,
                     _button_a  { "A" },
-                    _button_hz { "?" },
+                    _button_hz { "X" },
                     _button_b  { "B" },
                     _button_fwd,
                     _button_restart,

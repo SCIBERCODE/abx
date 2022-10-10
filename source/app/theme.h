@@ -293,6 +293,7 @@ public:
         const Drawable* icon, const Colour* const text_colour_to_use) override
     {
         ignoreUnused(ticked);
+        ignoreUnused(icon);
         if (separator)
         {
             auto r = area.reduced(5, 0);

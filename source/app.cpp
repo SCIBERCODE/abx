@@ -8,7 +8,14 @@ public:
     void initialise(const String& command_line) override
     {
         ignoreUnused(command_line);
-        //_window_tooltip->setMillisecondsBeforeTipAppears(1500);
+
+        int lang_size;
+        auto lang = BinaryData::getNamedResource("russian_lng", lang_size);
+
+        _lang = std::make_unique<LocalisedStrings>(CharPointer_UTF8(lang), false);
+        juce::LocalisedStrings::setCurrentMappings(_lang.release());
+
+        _window_main = std::make_unique<abx::window_main>();
         _window_tooltip->setLookAndFeel(&_theme);
     }
 
@@ -25,9 +32,10 @@ public:
     void anotherInstanceStarted(const String& cmd) override { ignoreUnused(cmd); }
 
 private:
-    abx::window_main                     _window_main;
+    std::unique_ptr<abx::window_main>    _window_main;
+    std::unique_ptr <LocalisedStrings>   _lang;
+    abx::theme                           _theme;
     SharedResourcePointer<TooltipWindow> _window_tooltip;
-    abx::theme _theme;
 };
 
 START_JUCE_APPLICATION(abx_application)

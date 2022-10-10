@@ -128,8 +128,8 @@ bool comp_main::perform(const InvocationInfo& info) {
 }
 
 comp_main::comp_main() :
-    _window_audio_setup(deviceManager),
     _timer_long_pressed_button(_fast_reverse, _fast_forward),
+    _window_audio_setup(deviceManager),
     _toolbar(_commands)
 {
     setOpaque(true);

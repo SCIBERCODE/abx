@@ -46,13 +46,13 @@ public:
     };
 
     void set_device_audio(const String& audio) {
-        _labels[1].setText(audio.length() ? audio : "No audio device", sendNotificationAsync);
+        _labels[1].setText(audio.length() ? audio : TRANS("No audio device"), sendNotificationAsync);
         _devices[1] = audio;
         repaint();
     }
 
     void set_device_ftdi(const String& ftdi) {
-        _labels[0].setText(ftdi.length() ? ftdi : "No remote control", sendNotificationAsync);
+        _labels[0].setText(ftdi.length() ? ftdi : TRANS("No remote control"), sendNotificationAsync);
         _devices[0] = ftdi;
         repaint();
     }
