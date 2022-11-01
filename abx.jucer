@@ -6,34 +6,30 @@
               cppLanguageStandard="latest" headerPath="..\..\libs\asio_sdk\&#10;..\..\libs\">
   <MAINGROUP id="epcY7v" name="abx">
     <GROUP id="{B34DD846-38D3-1166-6F8A-678F671C33DA}" name="langs">
-      <FILE id="gbzWZv" name="russian.lng" compile="0" resource="1" file="bin/langs/russian.lng"/>
-    </GROUP>
-    <GROUP id="{DF4217CD-B4FB-4DAF-D760-C9B9E9E3A304}" name="html">
-      <FILE id="FsTnO8" name="trial_log_header.html" compile="0" resource="1"
-            file="bin/trial_log_header.html"/>
+      <FILE id="tgEBhD" name="russian.lng" compile="0" resource="1" file="resources/langs/russian.lng"/>
     </GROUP>
     <GROUP id="{8E65D7C6-0B1E-57D9-0F75-886B80B22765}" name="fonts">
-      <FILE id="yzS8if" name="sfpro.ttf" compile="0" resource="1" file="bin/fonts/sfpro.ttf"/>
-      <FILE id="BQqrNp" name="upcdl.ttf" compile="0" resource="1" file="bin/fonts/upcdl.ttf"/>
+      <FILE id="vsb0jz" name="sfpro.ttf" compile="0" resource="1" file="resources/fonts/sfpro.ttf"/>
+      <FILE id="YwXsJr" name="upcdl.ttf" compile="0" resource="1" file="resources/fonts/upcdl.ttf"/>
     </GROUP>
     <GROUP id="{EEDCE2CB-8C43-0F09-8D44-446276BC058F}" name="icons">
-      <FILE id="Q6mTNH" name="backward.svg" compile="0" resource="1" file="bin/icons/backward.svg"/>
-      <FILE id="iTiYgO" name="blind.svg" compile="0" resource="1" file="bin/icons/blind.svg"/>
-      <FILE id="JFmtP2" name="clear.svg" compile="0" resource="1" file="bin/icons/clear.svg"/>
-      <FILE id="c8wgab" name="close.svg" compile="0" resource="1" file="bin/icons/close.svg"/>
-      <FILE id="qDTruv" name="edit.svg" compile="0" resource="1" file="bin/icons/edit.svg"/>
-      <FILE id="zHhDrB" name="forward.svg" compile="0" resource="1" file="bin/icons/forward.svg"/>
-      <FILE id="x8ScAy" name="ok.svg" compile="0" resource="1" file="bin/icons/ok.svg"/>
-      <FILE id="r0s0Fk" name="open.svg" compile="0" resource="1" file="bin/icons/open.svg"/>
-      <FILE id="FzTlde" name="pause.svg" compile="0" resource="1" file="bin/icons/pause.svg"/>
-      <FILE id="WLZ65N" name="play.svg" compile="0" resource="1" file="bin/icons/play.svg"/>
-      <FILE id="X5bG3e" name="restart.svg" compile="0" resource="1" file="bin/icons/restart.svg"/>
-      <FILE id="YIhc7r" name="rewind.svg" compile="0" resource="1" file="bin/icons/rewind.svg"/>
-      <FILE id="FzfMsz" name="settings.svg" compile="0" resource="1" file="bin/icons/settings.svg"/>
-      <FILE id="kWynRu" name="share.svg" compile="0" resource="1" file="bin/icons/share.svg"/>
-      <FILE id="yfnmUr" name="stop.svg" compile="0" resource="1" file="bin/icons/stop.svg"/>
-      <FILE id="I5e19z" name="undo.svg" compile="0" resource="1" file="bin/icons/undo.svg"/>
-      <FILE id="wfY3sj" name="warning.svg" compile="0" resource="1" file="bin/icons/warning.svg"/>
+      <FILE id="mhbx8x" name="backward.svg" compile="0" resource="1" file="resources/icons/backward.svg"/>
+      <FILE id="KI2qcI" name="blind.svg" compile="0" resource="1" file="resources/icons/blind.svg"/>
+      <FILE id="Q4otex" name="clear.svg" compile="0" resource="1" file="resources/icons/clear.svg"/>
+      <FILE id="i28xFa" name="close.svg" compile="0" resource="1" file="resources/icons/close.svg"/>
+      <FILE id="NxmIG6" name="edit.svg" compile="0" resource="1" file="resources/icons/edit.svg"/>
+      <FILE id="Vt0WwF" name="forward.svg" compile="0" resource="1" file="resources/icons/forward.svg"/>
+      <FILE id="Lo4EtU" name="ok.svg" compile="0" resource="1" file="resources/icons/ok.svg"/>
+      <FILE id="ajyN5G" name="open.svg" compile="0" resource="1" file="resources/icons/open.svg"/>
+      <FILE id="tflMW4" name="pause.svg" compile="0" resource="1" file="resources/icons/pause.svg"/>
+      <FILE id="YjrcHe" name="play.svg" compile="0" resource="1" file="resources/icons/play.svg"/>
+      <FILE id="vFZ459" name="restart.svg" compile="0" resource="1" file="resources/icons/restart.svg"/>
+      <FILE id="MlARvV" name="rewind.svg" compile="0" resource="1" file="resources/icons/rewind.svg"/>
+      <FILE id="cz7Ntf" name="settings.svg" compile="0" resource="1" file="resources/icons/settings.svg"/>
+      <FILE id="wksC8P" name="share.svg" compile="0" resource="1" file="resources/icons/share.svg"/>
+      <FILE id="NkSC1e" name="stop.svg" compile="0" resource="1" file="resources/icons/stop.svg"/>
+      <FILE id="qOexoe" name="undo.svg" compile="0" resource="1" file="resources/icons/undo.svg"/>
+      <FILE id="NnrvWf" name="warning.svg" compile="0" resource="1" file="resources/icons/warning.svg"/>
     </GROUP>
     <GROUP id="{D42A9B75-343E-4E65-F5D9-94440239B709}" name="source">
       <GROUP id="{7A2CCA80-B916-F0FB-D0A0-056684C01FC0}" name="app">
@@ -72,7 +68,7 @@
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1"/>
   <EXPORTFORMATS>
     <VS2019 targetFolder="builds/vs2019" extraLinkerFlags="/ignore:4099"
-            extraDefs="JUCE_MODAL_LOOPS_PERMITTED">
+            extraDefs="JUCE_MODAL_LOOPS_PERMITTED JUCE_ASIO">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" targetName="abx"/>
         <CONFIGURATION isDebug="0" name="Release" targetName="abx"/>

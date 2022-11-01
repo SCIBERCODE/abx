@@ -207,7 +207,8 @@ comp_main::comp_main() :
         track_activate(last_one, true);
     }
     _settings.set_autosave(true);
-    setSize(margins::_width, 650);
+    //setSize(margins::_width, 650);
+    setSize(745, 573);
 
 }
 
