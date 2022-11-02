@@ -27,9 +27,6 @@ class window_main :
 public:
     window_main();
     void closeButtonPressed() override;
-
-private:
-
 };
 
 /*

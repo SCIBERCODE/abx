@@ -138,7 +138,9 @@ comp_main::comp_main() :
     if (auto state = parseXML(_settings.read_single(settings_ids::audio))) {
         deviceManager.initialise(0, 2, state.get(), true);
     }
-    setAudioChannels(0, 2);
+    else {
+        setAudioChannels(0, 2);
+    }
 
     _transport_source.addChangeListener(this);
     _commands.registerAllCommandsForTarget(this);

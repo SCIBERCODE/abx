@@ -16,7 +16,9 @@ public:
         //juce::LocalisedStrings::setCurrentMappings(_lang.release());
 
         _window_main = std::make_unique<abx::window_main>();
+
         _window_tooltip->setLookAndFeel(&_theme);
+        LookAndFeel::setDefaultLookAndFeel(&_theme);
     }
 
     void systemRequestedQuit() override

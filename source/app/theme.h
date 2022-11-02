@@ -219,6 +219,9 @@ private:
         { PopupMenu    ::highlightedTextColourId,        Colours::black                   },
         { PopupMenu    ::backgroundColourId,            _colours.get(colour_id::bg_light) },
         { PopupMenu    ::highlightedBackgroundColourId, _colours.get(colour_id::header)   },
+
+        { AlertWindow  ::backgroundColourId,            _colours.get(colour_id::bg_light) },
+        { AlertWindow  ::outlineColourId,               Colours::black                    }
     };
 
 public:
