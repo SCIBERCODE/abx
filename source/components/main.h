@@ -338,11 +338,11 @@ private:
 */
 private:
     AudioTransportSource                  _transport_source;
-    state_t                               _state         { state_t::stopped };
-    comp_track*                           _current_track {};
-    std::vector<trial_t>                  _trials        {};
-    size_t                                _relay         {};
-    double                                _current_sample_rate,
+    state_t                               _state               { state_t::stopped };
+    comp_track*                           _current_track       {};
+    std::vector<trial_t>                  _trials              {};
+    size_t                                _relay               {};
+    double                                _current_sample_rate {},
                                           _current_skip_interval;
     std::unique_ptr<WildcardFileFilter>   _filter;
     OwnedArray<comp_track>                _tracks;

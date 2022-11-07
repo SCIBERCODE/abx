@@ -104,7 +104,7 @@ public:
         {
             auto rate = std::format("{:.0f} Hz", _sample_rate);
             _icon.setVisible(false);
-            if (device_sample_rate != _sample_rate)
+            if (device_sample_rate && (device_sample_rate != _sample_rate))
             {
                 rate += std::format("  >>  {:.0f} Hz", device_sample_rate);
                 _icon.setVisible(true);
