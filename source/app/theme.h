@@ -66,6 +66,7 @@ enum class icon_id {
     edit,
     // toolbar right sided
     open,
+    language,
     settings,
     // result
     undo,
@@ -95,6 +96,7 @@ private:
         { icon_id::rewind,   BinaryData::rewind_svg   },
         { icon_id::edit,     BinaryData::edit_svg     },
         { icon_id::open,     BinaryData::open_svg     },
+        { icon_id::language, BinaryData::language_svg },
         { icon_id::settings, BinaryData::settings_svg },
         { icon_id::undo,     BinaryData::undo_svg     },
         { icon_id::clear,    BinaryData::clear_svg    },

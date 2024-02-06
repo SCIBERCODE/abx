@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../JuceLibraryCode/JuceHeader.h"
+#include <format>
 
 #include "../app/ftdi.h"
 #include "../app/theme.h"
@@ -13,7 +14,7 @@ namespace commands
     /* abx          */ rev = 1, a, hz, b, fwd,
     /* abx settings */ restart, blind,
     /* player       */ pause, play, stop, rewind,
-    /* right sided  */ add_files, options,
+    /* right sided  */ add_files, language, options,
     /* trial        */ undo, share_clipboard, share_html, clear,
     /* tracks       */ close
     };
@@ -41,6 +42,7 @@ namespace commands
         { rewind,          { false, "Go to start & clear marker", { KeyPress('r') }}},
         // toolbar right sided
         { add_files,       { false, "Add file(s)",                { KeyPress('o'), KeyPress('o', ModifierKeys::ctrlModifier, 0) }}},
+        { language,        { false, "Select language",            { KeyPress('l'), KeyPress('l', ModifierKeys::ctrlModifier, 0) }}},
         { options,         { false, "Audio device preferences",   { KeyPress('p', ModifierKeys::ctrlModifier, 0) }}},
         // trial
         { undo,            { false, "Erase last one",             { KeyPress('z', ModifierKeys::ctrlModifier, 0) }}},

@@ -13,6 +13,7 @@ namespace settings_ids {
     static Identifier name    { "name"    };
     static Identifier blind   { "blind"   };
     static Identifier restart { "restart" };
+    static Identifier lang    { "lang"    };
 }
 
 struct track_options {

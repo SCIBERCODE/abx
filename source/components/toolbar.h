@@ -93,6 +93,10 @@ public:
         _button_open.setCommandToTrigger(&_commands, commands::add_files, true);
         addAndMakeVisible(_button_open);
 
+        _button_language.set_icon(icon_id::language, 16.f);
+        _button_language.setCommandToTrigger(&_commands, commands::language, true);
+        addAndMakeVisible(_button_language);
+
         _button_settings.set_border_radius_side(button_toolbar::border_radius_side_t::right);
         _button_settings.set_icon(icon_id::settings);
         _button_settings.setCommandToTrigger(&_commands, commands::options, true);
@@ -220,6 +224,8 @@ public:
         bounds.setHeight(button_size);
         _button_settings.setBounds(bounds.removeFromRight(button_size));
         bounds.removeFromRight(margins::_small);
+        _button_language.setBounds(bounds.removeFromRight(button_size));
+        bounds.removeFromRight(margins::_small);
         _button_open.setBounds(bounds.removeFromRight(button_size));
 
         _edits.first->setBounds(_edit_areas.first);
@@ -334,6 +340,7 @@ private:
                     _button_stop,
                     _button_rewind,
                     _button_open,
+                    _button_language,
                     _button_settings;
     std::pair<juce::Rectangle<int>,
               juce::Rectangle<int>>

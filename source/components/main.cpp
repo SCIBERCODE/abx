@@ -88,6 +88,36 @@ bool comp_main::perform(const InvocationInfo& info) {
         }
     }
     break;
+    case commands::language: {
+
+        auto user_lang = _settings.read_single(settings_ids::lang).getIntValue();
+
+        PopupMenu menu;
+        menu.addItem(1,  "English", true, !user_lang || (user_lang == 1)); // todo #2
+        menu.addItem(2, L"Русский", true, user_lang == 2);
+        //menu.showMenuAsync(PopupMenu::Options{}.withTargetComponent(info.originatingComponent));
+
+        auto selected = menu.showAt(info.originatingComponent);
+        switch (selected) {
+            case 1: {
+                juce::LocalisedStrings::setCurrentMappings(nullptr);
+            }
+            break;
+            case 2: {
+                int lang_size;
+                auto lang = BinaryData::getNamedResource("russian_lng", lang_size);
+                std::unique_ptr <LocalisedStrings> lang_;
+                lang_ = std::make_unique<LocalisedStrings>(CharPointer_UTF8(lang), false);
+                juce::LocalisedStrings::setCurrentMappings(lang_.release());
+            }
+            break;
+            default: break;
+        }
+        if (selected) {
+            _settings.save(settings_ids::lang, { selected });
+        }
+    }
+    break;
     case commands::options: {
         launch_audio_setup();
     }

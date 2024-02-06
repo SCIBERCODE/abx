@@ -42,7 +42,7 @@ window_main::window_main() :
 */
 
 window_audio_setup::window_audio_setup(AudioDeviceManager& device_manager) :
-    window(std::make_unique<comp_audio_settings>(device_manager).release(), "audio settings")
+    window(std::make_unique<comp_audio_settings>(device_manager).release(), TRANS("audio settings"))
 {
     addToDesktop();
 }
