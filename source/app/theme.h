@@ -311,7 +311,7 @@ public:
         layout_tooltip(text)
             .draw(g, { static_cast<float>(w), static_cast<float>(h) });
     }
-
+   
     void drawPopupMenuItem(Graphics& g, const juce::Rectangle<int>& area,
         const bool separator, const bool active,
         const bool highlighted, const bool ticked,
@@ -354,7 +354,7 @@ public:
             if (font.getHeight() > max_font_height)
                 font.setHeight(max_font_height);
 
-            g.setFont(font);
+            g.setFont(Font("Meiryo UI", 14.f, 0));
 
             r.removeFromLeft(roundToInt(max_font_height)).toFloat();
 
@@ -376,6 +376,13 @@ public:
             r.removeFromRight(3);
             g.drawFittedText(text, r, Justification::centredLeft, 1);
 
+            /*AttributedString as;
+            as.setJustification(Justification::centredLeft);
+            as.append(text, Font(13.f));
+            TextLayout tl;
+            tl.createLayout(as, 400.f);
+            tl.draw(g, area.toFloat());*/
+
             if (text_key.isNotEmpty())
             {
                 g.setColour(Colours::darkgrey);
@@ -383,6 +390,7 @@ public:
             }
         }
     }
+
 };
 
 /*

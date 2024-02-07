@@ -6,7 +6,8 @@
               cppLanguageStandard="latest" headerPath="..\..\libs\asio_sdk\&#10;..\..\libs\">
   <MAINGROUP id="epcY7v" name="abx">
     <GROUP id="{B34DD846-38D3-1166-6F8A-678F671C33DA}" name="langs">
-      <FILE id="tgEBhD" name="russian.lng" compile="0" resource="1" file="resources/langs/russian.lng"/>
+      <FILE id="KPSliQ" name="ja.lng" compile="0" resource="1" file="resources/langs/ja.lng"/>
+      <FILE id="bCJ8LE" name="ru.lng" compile="0" resource="1" file="resources/langs/ru.lng"/>
     </GROUP>
     <GROUP id="{8E65D7C6-0B1E-57D9-0F75-886B80B22765}" name="fonts">
       <FILE id="vsb0jz" name="sfpro.ttf" compile="0" resource="1" file="resources/fonts/sfpro.ttf"/>
@@ -72,7 +73,7 @@
                JUCE_USE_WINDOWS_MEDIA_FORMAT="1" JUCE_ASIO="1" JUCE_WASAPI="1"
                JUCE_DIRECTSOUND="0" JUCE_ALSA="0" JUCE_JACK="0" JUCE_BELA="1"/>
   <EXPORTFORMATS>
-    <VS2022 targetFolder="builds/vs2022" extraDefs="JUCE_MODAL_LOOPS_PERMITTED&#10;JUCE_ASIO&#10;_SILENCE_CXX23_ALIGNED_STORAGE_DEPRECATION_WARNING"
+    <VS2022 targetFolder="builds/vs2022" extraDefs="JUCE_MODAL_LOOPS_PERMITTED&#10;JUCE_ASIO&#10;_SILENCE_CXX23_ALIGNED_STORAGE_DEPRECATION_WARNING&#10;JUCE_USE_DIRECTWRITE"
             extraLinkerFlags="/ignore:4099">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug"/>

@@ -90,27 +90,22 @@ bool comp_main::perform(const InvocationInfo& info) {
     break;
     case commands::language: {
 
-        auto user_lang = _settings.read_single(settings_ids::lang).getIntValue();
+        auto lang = _settings.read_single(settings_ids::lang).getIntValue();
+        int lang_size;
 
-        PopupMenu menu;
-        menu.addItem(1,  "English", true, !user_lang || (user_lang == 1)); // todo #2
-        menu.addItem(2, L"Русский", true, user_lang == 2);
-        //menu.showMenuAsync(PopupMenu::Options{}.withTargetComponent(info.originatingComponent));
+        auto ja = std::make_unique<LocalisedStrings>(CharPointer_UTF8(BinaryData::getNamedResource("ja_lng", lang_size)), false);
+        auto ru = std::make_unique<LocalisedStrings>(CharPointer_UTF8(BinaryData::getNamedResource("ru_lng", lang_size)), false);
+
+        PopupMenu menu; // todo #2
+        menu.addItem(1, "English", true, lang <= 1);
+        menu.addItem(2, ja->getLanguageName(), true, lang == 2);
+        menu.addItem(3, ru->getLanguageName(), true, lang == 3);
 
         auto selected = menu.showAt(info.originatingComponent);
         switch (selected) {
-            case 1: {
-                juce::LocalisedStrings::setCurrentMappings(nullptr);
-            }
-            break;
-            case 2: {
-                int lang_size;
-                auto lang = BinaryData::getNamedResource("russian_lng", lang_size);
-                std::unique_ptr <LocalisedStrings> lang_;
-                lang_ = std::make_unique<LocalisedStrings>(CharPointer_UTF8(lang), false);
-                juce::LocalisedStrings::setCurrentMappings(lang_.release());
-            }
-            break;
+            case 1: LocalisedStrings::setCurrentMappings(nullptr);      break;
+            case 2: LocalisedStrings::setCurrentMappings(ja.release()); break;
+            case 3: LocalisedStrings::setCurrentMappings(ru.release()); break;
             default: break;
         }
         if (selected) {
